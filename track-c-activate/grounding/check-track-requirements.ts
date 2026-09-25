@@ -161,11 +161,17 @@ const agentURI = "https://example.invalid/maroo-integration-lab/agent.json";
 const registerSim = await pub.simulateContract({ address: IDENTITY_REGISTRY, abi: identityAbi, functionName: "register", args: [agentURI], account: buyer })
   .then((r) => `통과, 다음 agentId ${r.result}`)
   .catch((err: Error) => `거부: ${err.message.split("\n")[0]}`);
+// 레지스트리로 간 최근 tx 첫 페이지. 함수 이름별 개수와 가장 최근 시각만 남긴다.
+const registryUrl = `${EXPLORER}/blockscout/api/v2/addresses/${IDENTITY_REGISTRY}/transactions?filter=to`;
+const registryPage = await (await fetch(registryUrl)).json() as { items?: { status: string; method: string | null; timestamp: string }[] };
+const registryMethods: Record<string, number> = {};
+for (const it of registryPage.items ?? []) registryMethods[`${it.status}/${it.method ?? "?"}`] = (registryMethods[`${it.status}/${it.method ?? "?"}`] ?? 0) + 1;
 const codeSize = async (address: Address) => { const c = await pub.getCode({ address }); return c ? (c.length - 2) / 2 : 0; };
 const track2: Record<string, unknown> = {
   agentParams, reputationRegistryCodeBytes: await codeSize(agentParams.reputationRegistry),
   identityRegistry: { address: IDENTITY_REGISTRY, name: regName, symbol: regSymbol, version: regVersion },
   buyerAgentIds: buyerAgents, registerSimulation: registerSim,
+  explorer: { url: registryUrl, firstPageCount: registryPage.items?.length ?? 0, methods: registryMethods, latest: registryPage.items?.[0]?.timestamp ?? null },
   agentLimitTemplate: templates.AGENT_OKRW_TRANSFER_LIMIT_POLICY,
   globalPolicyUsesAgentOwners: globalPolicy.includes("AgentOwners"),
 };
@@ -174,6 +180,7 @@ show("  ReputationRegistry 코드 크기(바이트)", String(track2.reputationRe
 show("  IdentityRegistry", `${regName} (${regSymbol}), 버전 ${regVersion}`);
 show("  구매 기업의 에이전트", buyerAgents);
 show("  register(agentURI) 시뮬레이션", registerSim);
+show("  탐색기 API", track2.explorer);
 
 if (WRITE) {
   const balance = await pub.getBalance({ address: buyer });

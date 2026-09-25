@@ -1,8 +1,8 @@
 {
   "label": "조회와 시뮬레이션. tx 없음",
   "rpc": "https://rpc-testnet.maroo.io",
-  "checkedAt": "2026-09-25T19:40:28.775Z",
-  "block": "19096133",
+  "checkedAt": "2026-09-25T19:42:09.086Z",
+  "block": "19096231",
   "caller": "0x720989a26EfC40b007d778e54382879cdaf389e8",
   "common": {
     "templates": {
@@ -74,6 +74,17 @@
       }
     ],
     "registerSimulation": "통과, 다음 agentId 79",
+    "explorer": {
+      "url": "https://explorer-testnet.maroo.io/blockscout/api/v2/addresses/0x8004000000000000000000000000000000000001/transactions?filter=to",
+      "firstPageCount": 50,
+      "methods": {
+        "ok/setMetadata": 15,
+        "ok/register": 22,
+        "ok/setAgentURI": 11,
+        "error/0xf6bbccce": 2
+      },
+      "latest": "2026-09-06T18:15:35.000000Z"
+    },
     "agentLimitTemplate": "등록됨 (Agent OKRW transfer limit policy)",
     "globalPolicyUsesAgentOwners": true
   },
