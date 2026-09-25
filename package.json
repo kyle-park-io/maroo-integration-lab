@@ -26,7 +26,8 @@
     "b:reset": "node track-b-enable/demo/reset.ts",
     "b:smoke": "node track-b-enable/demo/smoke.ts",
     "c:judge": "node track-c-activate/judge/check-evidence.ts",
-    "a:probe-kyc": "node track-a-explain/recipe/probe-kyc-holder.ts"
+    "a:probe-kyc": "node track-a-explain/recipe/probe-kyc-holder.ts",
+    "c:judge-example": "node track-c-activate/judge/example-from-track-a.ts"
   },
   "dependencies": {
     "@maroo-chain/contracts": "0.0.9",
