@@ -1,0 +1,79 @@
+{
+  "rpc": "https://rpc-testnet.maroo.io",
+  "buyer": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+  "checkedAt": "2026-09-25T18:30:12.517Z",
+  "chain": {
+    "chainId": 450815,
+    "block": "19091989"
+  },
+  "policy": {
+    "admin": "0x58eC1E718ff15e5f34591747D47ADf5BccDA804F",
+    "templates": [
+      "LOGICAL_POLICY",
+      "EAS_POLICY",
+      "DENYLIST_POLICY"
+    ],
+    "eas": {
+      "easContract": "0x1000000000000000000000000000000000000007",
+      "indexContract": "0x1000000000000000000000000000000000000008",
+      "schemaUid": "0x3e448d939524a8f3e6a403502e57ce60ee10146292114a58f4bfd1b1d35f527d"
+    }
+  },
+  "schema": {
+    "uid": "0x3e448d939524a8f3e6a403502e57ce60ee10146292114a58f4bfd1b1d35f527d",
+    "schema": "bytes32 kakaoIdHash, uint8 version",
+    "resolver": "0x6D2cBcFEeB6B6752C76D7eeB1cb4aD69aae58D6f",
+    "revocable": true
+  },
+  "buyerAttestations": "0",
+  "depositEthCall": {
+    "rpcMessage": "execution reverted",
+    "revertData": "0xadb34e5c",
+    "outcome": "SDKInvalidRequest()"
+  },
+  "transferFields": {
+    "maroo": [
+      "proof",
+      "root",
+      "nullifiers",
+      "newCommitments",
+      "cipherTexts",
+      "viewTags",
+      "userPrivacyPolicy",
+      "userDisclosureDigest",
+      "userDisclosureMode",
+      "userDisclosureTargetPubkey",
+      "userDisclosurePayload",
+      "auditDisclosureDigest",
+      "auditDisclosureTargetPubkey",
+      "auditDisclosurePayload",
+      "selfViewDisclosureDigest",
+      "selfViewDisclosurePayload",
+      "expiresAtUnix"
+    ],
+    "clairveilV040": [
+      "creator",
+      "proof",
+      "root",
+      "nullifiers",
+      "newCommitments",
+      "cipherTexts",
+      "userPrivacyPolicy",
+      "userDisclosureDigest",
+      "userDisclosureMode",
+      "userDisclosureTargetPubkey",
+      "userDisclosurePayload",
+      "auditDisclosureDigest",
+      "auditDisclosureTargetPubkey",
+      "auditDisclosurePayload",
+      "selfViewDisclosureDigest",
+      "selfViewDisclosurePayload",
+      "viewTags",
+      "expiresAtUnix"
+    ],
+    "onlyInMaroo": [],
+    "onlyInClairveil": [
+      "creator"
+    ]
+  }
+}
