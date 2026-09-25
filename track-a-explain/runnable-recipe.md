@@ -53,14 +53,14 @@ pnpm a:inspect
 예상 결과(2026-09-26):
 
 ```text
-2) Privacy 정책: LOGICAL_POLICY > EAS_POLICY > DENYLIST_POLICY, admin 0x58eC1E718ff15e5f34591747D47ADf5BccDA804F
+2) Privacy 정책: And(EAS_POLICY, DENYLIST_POLICY), admin 0x58eC1E718ff15e5f34591747D47ADf5BccDA804F
    요구 스키마 0x3e448d93…f527d: "bytes32 kakaoIdHash, uint8 version", resolver 0x6D2cBcFEeB6B6752C76D7eeB1cb4aD69aae58D6f
 3) 0x7209…89e8 가 받은 증명 수: 0
 4) deposit eth_call (from 0x7209…89e8): SDKInvalidRequest()
 5) 전송 요청 필드: 마루 17개, Clairveil v0.4.0 18개, 마루에만 [], Clairveil 에만 [creator]
 ```
 
-- 확인 방법: `track-a-explain/evidence/live/inspect-privacy-boundary-<시각>.json`의 `policy`, `schema`, `depositEthCall`, `transferFields`를 봅니다. 5번은 Maroo `IPrivacy` 전송 요청이 Clairveil v1 `MsgTransfer`와 같은 모양(`creator` 제외)이라는 뜻입니다. 모양이 같다는 것이고, 회로나 검증 키가 같다는 증거는 아닙니다.
+- 확인 방법: `track-a-explain/evidence/live/inspect-privacy-boundary-<시각>.json`의 `policy`(`logical`에 결합 방식), `schema`, `depositEthCall`, `transferFields`를 봅니다. 5번은 Maroo `IPrivacy` 전송 요청이 Clairveil v1 `MsgTransfer`와 같은 모양(`creator` 제외)이라는 뜻입니다. 모양이 같다는 것이고, 회로나 검증 키가 같다는 증거는 아닙니다.
 
 ```bash
 pnpm a:probe

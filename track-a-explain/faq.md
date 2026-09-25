@@ -60,7 +60,7 @@ PCL은 호출하는 쪽을 평가합니다. 차폐 지급에서 받는 쪽은 �
 1. 협력사가 직접 부르는 호출(인출, 금고 청구)에 PCL 정책을 겁니다. 이 레포의 정산 금고는 `claim()`에만 KYB 증명 정책(`EAS_POLICY`)을 걸고, 다른 함수는 정책 대상에서 뺍니다.
 2. 구매 기업이 지급 목록을 만들 때 체인 밖에서 협력사의 증명을 확인합니다.
 
-- 테스트넷 Privacy 프리컴파일에는 `LOGICAL_POLICY` 아래 `EAS_POLICY`(스키마 `bytes32 kakaoIdHash, uint8 version`)와 `DENYLIST_POLICY`가 걸려 있습니다. 개인 본인 인증 스키마이고, 기관용 KYB 스키마와 발급자는 테스트넷에 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T183013Z.json)
+- 테스트넷 Privacy 프리컴파일에는 `And(EAS_POLICY, DENYLIST_POLICY)`가 걸려 있습니다. 호출자는 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있고 차단 목록에 없어야 합니다. 개인 본인 인증 스키마이고, 기관용 KYB 스키마와 발급자는 테스트넷에 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
 - EAS 증명은 발급한 뒤 Indexer에 색인해야 PCL이 인식합니다. 색인 전에는 증명이 있어도 거부됩니다. 2026-09-23과 09-25에 테스트넷에서 확인했고, 금고 흐름 스크립트의 6b 단계(색인 전 청구)가 같은 순서를 다시 확인합니다.
 - 권고: 기관 KYB로 Privacy 호출을 제한하려면 KYB 스키마와 발급자를 정하고, 체인 정책 관리자와 정책 변경을 협의하는 일을 PoC 범위에 넣습니다.
 

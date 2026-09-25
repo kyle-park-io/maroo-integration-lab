@@ -38,11 +38,15 @@ console.log(`1) chainId ${chainId}, block ${block}`);
 const cfg = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "contractPolicies", args: [PRIVACY] }) as
   { _contract: string; admin: string; policies: readonly { templateId: string; policy: Hex; selector: Hex }[] };
 const flat: { templateId: string; policy: Hex; selector: Hex }[] = [];
+// Maroo Docs 의 enum LogicalQuantifier { Unspecified, And, Or }
+const QUANTIFIER = ["Unspecified", "And", "Or"];
+const logicals: string[] = [];
 const walk = (sets: readonly { templateId: string; policy: Hex; selector: Hex }[]) => {
   for (const s of sets) {
     flat.push(s);
     if (s.templateId === "LOGICAL_POLICY") {
       const [logical] = decodeAbiParameters([{ type: "tuple", components: [{ name: "quantifier", type: "uint8" }, { name: "children", ...policySetType }] }], s.policy);
+      logicals.push(`${QUANTIFIER[logical.quantifier] ?? logical.quantifier}(${logical.children.map((c) => c.templateId).join(", ")})`);
       walk(logical.children as never);
     }
   }
@@ -52,8 +56,8 @@ const easPolicy = flat.find((p) => p.templateId === "EAS_POLICY");
 const eas = easPolicy
   ? decodeAbiParameters([{ type: "address", name: "easContract" }, { type: "address", name: "indexContract" }, { type: "bytes32", name: "schemaUid" }], easPolicy.policy)
   : undefined;
-report.policy = { admin: cfg.admin, templates: flat.map((p) => p.templateId), eas: eas && { easContract: eas[0], indexContract: eas[1], schemaUid: eas[2] } };
-console.log(`2) Privacy 정책: ${flat.map((p) => p.templateId).join(" > ")}, admin ${cfg.admin}`);
+report.policy = { admin: cfg.admin, templates: flat.map((p) => p.templateId), logical: logicals, eas: eas && { easContract: eas[0], indexContract: eas[1], schemaUid: eas[2] } };
+console.log(`2) Privacy 정책: ${logicals.join(" > ") || flat.map((p) => p.templateId).join(" > ")}, admin ${cfg.admin}`);
 
 // 스키마 문자열
 if (eas) {
