@@ -20,7 +20,7 @@
 //   5. 증명이 없는 협력사 B 의 claim: 거부
 //   6. 협력사 A 에 증명 발급 뒤 색인 전 claim: 거부. 색인 뒤 claim: 통과
 //   7. A 몫을 다시 넣고 증명을 폐기한 뒤 claim: 거부
-//   8. 구매 기업이 폐기된 A 몫을 회수(recall)
+//   8. 구매 기업이 폐기된 A 몫과 청구되지 않은 B 몫을 회수(recall)
 // 거부 단계는 simulateContract 로 사유를 읽은 뒤, 같은 호출을 가스를 고정해 실제로 보내 실패한 tx 도 남긴다.
 // 결과는 track-a-explain/evidence/live/pcl-kyb-gate-<시각>.json 에 남긴다. 개인키는 출력하지 않는다.
 
@@ -84,7 +84,7 @@ async function expectReject(label: string, role: Role, to: Address, functionName
 const balance = async (a: Address) => formatEther(await pub.getBalance({ address: a }));
 
 // 0. 잔액 확인
-if ((await pub.getBalance({ address: buyer })) < parseEther("400")) {
+if ((await pub.getBalance({ address: buyer })) < parseEther("1000")) {
   console.error(`구매 기업 잔액이 부족합니다(${await balance(buyer)} OKRW). faucet 으로 받은 뒤 다시 실행하십시오.`);
   process.exit(1);
 }
@@ -168,10 +168,15 @@ await send("7a) 협력사 A 몫 100 OKRW 다시 넣기", "BUYER", { to: vault, d
 await send("7b) 협력사 A 증명 폐기", "ISSUER", { to: eas, data: encodeFunctionData({ abi: easAbi, functionName: "revoke", args: [{ schema: schemaUid, data: { uid: attUid, value: 0n } }] }) });
 await expectReject("7c) 협력사 A claim, 증명 폐기 뒤", "SUPPLIER_A", vault, "claim");
 
-// 8. 폐기된 몫 회수
+// 8. 청구할 수 없게 된 몫과 청구되지 않은 몫 회수
 const beforeBuyer = await balance(buyer);
-await send("8) 구매 기업이 협력사 A 몫 회수(recall)", "BUYER", { to: vault, data: encodeFunctionData({ abi: vaultAbi, functionName: "recall", args: [supplierA] }) });
-log("8) 구매 기업 잔액", { before: beforeBuyer, after: await balance(buyer), owedA: (await pub.readContract({ address: vault, abi: vaultAbi, functionName: "owed", args: [supplierA] })) as bigint });
+const recall = (s: Address) => encodeFunctionData({ abi: vaultAbi, functionName: "recall", args: [s] });
+await send("8) 구매 기업이 협력사 A 몫 회수(증명 폐기)", "BUYER", { to: vault, data: recall(supplierA) });
+await send("8) 구매 기업이 협력사 B 몫 회수(청구되지 않음)", "BUYER", { to: vault, data: recall(supplierB) });
+const owed = async (s: Address) => (await pub.readContract({ address: vault, abi: vaultAbi, functionName: "owed", args: [s] })) as bigint;
+log("8) 회수 뒤", { buyerBefore: beforeBuyer, buyerAfter: await balance(buyer), owedA: await owed(supplierA), owedB: await owed(supplierB) });
+const startBalance = steps.find((x) => x.step === "시작 잔액") as { buyer: string; issuer: string };
+log("사용한 OKRW", { buyer: `${startBalance.buyer} → ${await balance(buyer)}`, issuer: `${startBalance.issuer} → ${await balance(issuer)}` });
 
 const file = writeEvidence(path.join(ROOT, "track-a-explain/evidence/live"), "pcl-kyb-gate", {
   chainId: await pub.getChainId(), ranAt: new Date().toISOString(),
