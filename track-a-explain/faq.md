@@ -75,7 +75,8 @@ eth_estimateGas  거부: AnyOfRejected(...)
                    EasNoAttestationReceived(0x5336F019Bd8E9E0064be7330833dc883a8a6c94d)
 ```
 
-- 전역 정책은 "24시간 누적 한도(1,000만 OKRW) 안" 또는 "KYC 증명 보유" 가운데 하나를 요구합니다(`AnyOf`). 위 계정은 한도를 다 썼고 증명이 없어 거부됐고, 한도 창은 `resetAt`(2026-09-26 00:00 UTC)에 풀립니다. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json), 재현: `pnpm a:probe-global`
+- 테스트넷 전역 정책은 KYC 증명이 없는 계정에 두 한도를 둡니다. 24시간 누적 1,000만 OKRW와 건당 200만 OKRW이고, KYC 증명이 있으면 둘 다 면제됩니다. 에이전트 지갑이 보내면 24시간 한도는 소유자 모두를 기준으로 봅니다. `[Live Testnet]` [전역 정책 조회 기록](../track-c-activate/evidence/live/grounding-20260925T194211Z.json), 재현: `pnpm c:grounding`
+- 위 계정(faucet)은 24시간 한도를 다 썼고 증명이 없어 거부됐고, 한도 창은 `resetAt`(2026-09-26 00:00 UTC)에 풀립니다. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json), 재현: `pnpm a:probe-global`
 - 사유 코드와 인자는 [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)에 정의돼 있습니다. `[Docs Only]`
 - 권고: 사전 검사는 `eth_estimateGas`로 하고, `AnyOfRejected` 안의 자식 사유까지 풀어 사용자에게 보여 줍니다.
 
