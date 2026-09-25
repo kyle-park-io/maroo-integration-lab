@@ -1,0 +1,25 @@
+{
+  "rpc": "https://rpc-testnet.maroo.io",
+  "from": "0x5336F019Bd8E9E0064be7330833dc883a8a6c94d",
+  "to": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+  "amountOkrw": "1",
+  "checkedAt": "2026-09-25T19:08:43.503Z",
+  "label": "조회만 함(eth_call, eth_estimateGas). tx 없음",
+  "results": [
+    {
+      "method": "eth_call",
+      "rejected": false,
+      "result": "0x"
+    },
+    {
+      "method": "eth_estimateGas",
+      "rejected": true,
+      "rpcMessage": "execution reverted",
+      "outcome": "AnyOfRejected(0x37ff087b000000000000000000000000000000000000000000084595161401484a00000000000000000000000000000000000000000000000008459523f4b7fbf1640000000000000000000000000000000000000000000000000000000000006ab70b00,0xbca5593e0000000000000000000000005336f019bd8e9e0064be7330833dc883a8a6c94d)",
+      "children": [
+        "ExceededPeriodicVolume(10000000000000000000000000, 10000001000000000000000000, 1790380800)",
+        "EasNoAttestationReceived(0x5336F019Bd8E9E0064be7330833dc883a8a6c94d)"
+      ]
+    }
+  ]
+}

@@ -13,6 +13,7 @@
     "a:local": "node track-a-explain/recipe/local-vendor-settlement.ts",
     "a:inspect": "node track-a-explain/recipe/inspect-privacy-boundary.ts",
     "a:probe": "node track-a-explain/recipe/probe-first-failure.ts",
+    "a:probe-global": "node track-a-explain/recipe/probe-global-policy.ts",
     "a:kyb-gate": "node track-a-explain/recipe/pcl-kyb-gate.ts"
   },
   "dependencies": {
