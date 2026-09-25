@@ -1,0 +1,51 @@
+# Track A 증거 목록
+
+Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 명령을 다시 실행하면 새 시각으로 하나 더 생기고, 문서는 아래 파일을 가리킵니다.
+
+- 라벨: `[Live Testnet]` Maroo 테스트넷(chain ID 450815, RPC `https://rpc-testnet.maroo.io`)에서 실행하거나 조회한 결과, `[Local]` Clairveil v0.4.0 로컬 체인에서 실행한 결과
+- 시각은 UTC입니다. 한국 시각은 9시간을 더합니다.
+
+## 1. Maroo 테스트넷 `[Live Testnet]`
+
+| 기록 | 명령 | 호출 대상과 입력 | 실행 시각 | 예상 결과 | 실제 결과 |
+| --- | --- | --- | --- | --- | --- |
+| [inspect-privacy-boundary-20260925T192735Z.json](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) | `pnpm a:inspect` | `PCL.contractPolicies(Privacy)`, `SchemaRegistry.getSchema`, `Indexer.getReceivedAttestationUIDCount(구매 기업, 스키마)`, 빈 요청의 `Privacy.deposit` eth_call, `IPrivacy`와 Clairveil v0.4.0 전송 필드 대조 | 2026-09-25 19:27:34, 블록 19095372 | Privacy에 비어 있지 않은 정책이 묶여 있고, 증명 없이 부른 예치는 거부됨 | 정책 `And(EAS_POLICY, DENYLIST_POLICY)`, 관리자 `0x58eC…804F`, 스키마 `bytes32 kakaoIdHash, uint8 version`, 구매 기업의 증명 0개, 예치 `SDKInvalidRequest()`, 필드 차이는 Clairveil 쪽 `creator` 하나 |
+| [probe-first-failure-20260925T193314Z.json](evidence/live/probe-first-failure-20260925T193314Z.json) | `pnpm a:probe` | 구매 기업 주소에서 `Privacy.deposit`을 빈 요청, 무작위 값으로 모양만 갖춘 요청, 1 wei를 실은 요청으로 각각 `eth_call`과 `eth_estimateGas` | 2026-09-25 19:33:14 | 증명 재료가 없으므로 어느 층에서든 거부됨 | 빈 요청과 모양을 갖춘 요청은 두 방법 모두 `SDKInvalidRequest()`. 1 wei 요청은 잔액 부족 |
+| [probe-global-policy-20260925T190841Z.json](evidence/live/probe-global-policy-20260925T190841Z.json) | `pnpm a:probe-global` | faucet 계정 `0x5336…c94d`에서 구매 기업으로 5,000 OKRW 네이티브 전송을 `eth_call`과 `eth_estimateGas` | 2026-09-25 19:08:41 | faucet이 실패하던 원인이 전역 정책이면 `eth_estimateGas`에서 사유가 나옴 | `eth_call` 통과, `eth_estimateGas`는 `AnyOfRejected(ExceededPeriodicVolume(1e25, 1.0005e25, 1790380800), EasNoAttestationReceived(0x5336…c94d))` |
+| [probe-global-policy-20260925T190843Z.json](evidence/live/probe-global-policy-20260925T190843Z.json) | `pnpm a:probe-global 0x5336F019Bd8E9E0064be7330833dc883a8a6c94d 0x720989a26EfC40b007d778e54382879cdaf389e8 1` | 같은 경로로 1 OKRW | 2026-09-25 19:08:43 | 금액과 관계없이 한도 초과면 거부됨 | 1 OKRW도 같은 사유로 거부 |
+| [doc-claims-20260925T191304Z.json](evidence/live/doc-claims-20260925T191304Z.json) | `pnpm a:doc-claims` | Maroo Docs 페이지 다섯 곳의 문장, `OKRW.getParams()`, `PCL.contractPolicies(Privacy)`, 알려진 금고 구현으로 `deployPclProxy`를 빈 초기화와 `initialize()`로 eth_call(Transparent, UUPS) | 2026-09-25 19:13:04 | 문서 개선 노트 1~5번의 주장이 문서와 체인에서 다시 확인됨 | 테스트넷 denom `atokrw`와 문서 예시 `aokrw`, 배포 주소 표에 Privacy 없음, 빈 초기화는 두 종류 모두 `execution reverted`이고 `initialize()`는 통과, 사유 코드 문서에 `eth_estimateGas` 언급 없음 |
+| `pcl-kyb-gate-<시각>.json` | `pnpm a:kyb-gate` | OKRW 이체, KYB 스키마 등록, 금고 배포와 정책 바인딩, 입금, 청구 거부와 통과, 증명 폐기, 회수 | 실행 대기 | [레시피 4절](runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet)의 단계별 예상 결과 | 테스트넷 faucet이 전역 한도에 걸려 구매 기업 잔액이 0. 한도 창은 2026-09-26 00:00 UTC에 풀림 |
+
+이전 실행 기록(`inspect-privacy-boundary-20260925T183013Z.json`, `probe-first-failure-20260925T183014Z.json`)도 같은 폴더에 남아 있습니다. 새 기록은 정책 결합 방식과 `eth_estimateGas` 결과를 더 담았습니다.
+
+### 검증한 것
+
+- Maroo 테스트넷 Privacy 프리컴파일에 걸린 정책의 구조, 요구하는 증명 스키마, 정책 관리자
+- 구매 기업 주소가 전역 정책을 통과하고 Privacy 예치의 요청 검증에서 처음 막힌다는 것
+- `eth_call`이 전역 정책을 평가하지 않는다는 것과, 테스트넷 faucet 실패의 원인
+- Maroo `IPrivacy` 전송 요청과 Clairveil v0.4.0 `MsgTransfer`의 필드 대응
+- 문서 개선 노트 1~5번의 근거
+
+### 검증하지 못한 것
+
+- 테스트넷에서 유효한 Privacy 상태 변경. 현재 verifier와 맞는 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았습니다.
+- Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지. 요청 검증에서 먼저 막혀 정책 층에 닿지 못했습니다.
+- 금고 흐름의 상태 변경 tx. faucet 복구 뒤 실행합니다.
+
+## 2. Clairveil 로컬 `[Local]`
+
+| 기록 | 명령 | 환경 | 실행 시각 | 결과 |
+| --- | --- | --- | --- | --- |
+| [vendor-settlement-20260925T181924Z.md](evidence/local/vendor-settlement-20260925T181924Z.md) | `pnpm setup:clairveil`, `pnpm a:local` | Clairveil `ca85b027`(v0.4.0), chain-id `vendor-settlement-local-1`, Go 1.27.1 linux/amd64 | 2026-09-25 18:19:24 | 예치 여섯 건, 협력사 A 일괄 지급(12, 8), 협력사 B 수신자 암호화 지급(15), 스캔과 해독(협력사, self-view, 감사인), 인출 단독 실패와 같은 블록 우회 성공, 준비금 불변식 `invariant_holds=true` |
+
+### 검증한 것
+
+- 차폐 정산 전체 순서가 참조 구현에서 끝까지 실행됨
+- 역할마다 자기 키로 볼 수 있는 것과, 제3자가 공개 체인에서 읽을 수 있는 필드
+- 감사인이 일괄 지급의 모든 메시지를 풀 수 있음(메시지마다 감사 암호문을 따로 해독)
+- Clairveil v0.4.0 인출의 Merkle 루트 스냅샷 재등록 실패와 같은 블록 우회
+
+### 검증하지 못한 것
+
+- 이 결과가 Maroo 테스트넷에서도 같은지. 로컬에서 만든 증명과 tx는 Maroo 테스트넷 호환성의 증거가 되지 못합니다.
+- 원격 prover를 쓸 때의 노출 범위. 로컬 실행은 CLI 안에서 증명을 만듭니다.
