@@ -11,6 +11,7 @@
     "build:contracts": "forge build",
     "test:contracts": "forge test",
     "typecheck": "tsc --noEmit",
+    "diagrams:check": "node shared/check-diagrams.ts",
     "a:local": "node track-a-explain/recipe/local-vendor-settlement.ts",
     "a:inspect": "node track-a-explain/recipe/inspect-privacy-boundary.ts",
     "a:probe": "node track-a-explain/recipe/probe-first-failure.ts",
@@ -24,6 +25,7 @@
   },
   "packageManager": "pnpm@11.25.0",
   "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.17.0",
     "@openzeppelin/contracts": "^5",
     "@types/node": "^24",
     "forge-std": "github:foundry-rs/forge-std#v1.11.0",
