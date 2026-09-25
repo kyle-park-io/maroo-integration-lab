@@ -1,0 +1,14 @@
+# Keys and local settings (testnet keys live outside the repo, see shared/lib/maroo.ts)
+.env
+*.env
+
+# External code fetched at pinned commits by shared/setup-clairveil.ts
+vendor/
+
+# Dependencies and build output
+node_modules/
+out/
+cache/
+
+# Local chain runs (chain home, circuit artifacts, raw CLI output)
+.work/

@@ -1,0 +1,29 @@
+{
+  "name": "maroo-integration-lab",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "setup:clairveil": "node shared/setup-clairveil.ts",
+    "build:contracts": "forge build",
+    "test:contracts": "forge test",
+    "typecheck": "tsc --noEmit",
+    "a:local": "node track-a-explain/recipe/local-vendor-settlement.ts",
+    "a:inspect": "node track-a-explain/recipe/inspect-privacy-boundary.ts",
+    "a:probe": "node track-a-explain/recipe/probe-first-failure.ts",
+    "a:kyb-gate": "node track-a-explain/recipe/pcl-kyb-gate.ts"
+  },
+  "dependencies": {
+    "@maroo-chain/contracts": "0.0.9",
+    "viem": "2.56.8"
+  },
+  "packageManager": "pnpm@11.25.0",
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5",
+    "@types/node": "^24",
+    "forge-std": "github:foundry-rs/forge-std#v1.11.0",
+    "typescript": "^5.9"
+  }
+}

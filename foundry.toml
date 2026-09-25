@@ -1,0 +1,24 @@
+[profile.default]
+src = "shared/contracts"
+test = "shared/test"
+out = "out"
+libs = ["node_modules", "lib"]
+ignored_warnings_from = ["node_modules/forge-std"]
+# 4591: solc notice that forge-std produced more than 256 warnings. Those warnings are filtered above.
+ignored_error_codes = ["license", "code-size", "init-code-size", "transient-storage", 4591]
+solc_version = "0.8.37"
+optimizer = true
+optimizer_runs = 200
+# Maroo testnet deployment is verified with cancun bytecode (pnpm a:kyb-gate).
+evm_version = "cancun"
+remappings = [
+  "@openzeppelin/=node_modules/@openzeppelin/",
+  "forge-std/=node_modules/forge-std/src/",
+]
+
+[lint]
+# Skip idiomatic test patterns (makeAddr initializers, test transfers).
+ignore = ["shared/test/*.sol"]
+
+[fmt]
+line_length = 120
