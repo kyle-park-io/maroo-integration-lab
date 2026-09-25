@@ -24,11 +24,31 @@ import { ROOT } from "./paths.ts";
 type Json = Record<string, any>;
 const execFileP = promisify(execFile);
 
-export async function runLocalVendorSettlement(opts: { evidenceDir: string; command: string }): Promise<string> {
-  const CORE = path.join(ROOT, "vendor/clairveil");
+const CORE = path.join(ROOT, "vendor/clairveil");
+
+// 바이너리 두 개를 빌드하고 회로 산출물을 만든다. 워크숍 사전 준비(pnpm b:prepare)는 한 번 만들어 두고 재사용한다.
+export function buildClairveil(dir: string, log: string) {
   if (!fs.existsSync(path.join(CORE, ".git"))) {
     throw new Error("vendor/clairveil 이 없습니다. 먼저 pnpm setup:clairveil 을 실행하십시오.");
   }
+  fs.mkdirSync(log, { recursive: true });
+  execFileSync("go", ["build", "-o", path.join(dir, "clairveild"), "./cmd/clairveild"], { cwd: CORE, stdio: "inherit" });
+  execFileSync("go", ["build", "-o", path.join(dir, "clairveil-setup"), "./cmd/clairveil-setup"], { cwd: CORE, stdio: "inherit" });
+  execFileSync(path.join(dir, "clairveil-setup"), ["--out", path.join(dir, "artifacts")], {
+    stdio: ["ignore", fs.openSync(path.join(log, "setup.stdout"), "w"), fs.openSync(path.join(log, "setup.stderr"), "w")],
+  });
+  fs.writeFileSync(path.join(dir, "clairveil-commit.txt"), execFileSync("git", ["-C", CORE, "rev-parse", "HEAD"]).toString());
+}
+
+// prebuiltDir 에 buildClairveil 결과가 있고 vendor/clairveil 과 같은 커밋이면 빌드를 건너뛴다.
+// beforeStage 는 1~10 단계 번호를 받는다. 워크숍 실행기는 여기서 예상 결과를 먼저 보여 주고 진행을 멈춘다.
+export async function runLocalVendorSettlement(opts: {
+  evidenceDir: string; command: string; prebuiltDir?: string; beforeStage?: (stage: number) => Promise<void>;
+}): Promise<string> {
+  if (!fs.existsSync(path.join(CORE, ".git"))) {
+    throw new Error("vendor/clairveil 이 없습니다. 먼저 pnpm setup:clairveil 을 실행하십시오.");
+  }
+  const stage = async (n: number) => { await opts.beforeStage?.(n); };
 
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
   const workDir = process.env.VENDOR_SETTLEMENT_WORK_DIR ?? path.join(ROOT, ".work", `vendor-${stamp}`);
@@ -37,9 +57,13 @@ export async function runLocalVendorSettlement(opts: { evidenceDir: string; comm
   const node = `tcp://127.0.0.1:${rpcPort}`;
   const home = path.join(workDir, "home");
   const out = path.join(workDir, "out");
-  const artifacts = path.join(workDir, "artifacts");
-  const clairveild = path.join(workDir, "clairveild");
-  const clairveilSetup = path.join(workDir, "clairveil-setup");
+  const coreSha = execFileSync("git", ["-C", CORE, "rev-parse", "HEAD"]).toString().trim();
+  const prebuilt = opts.prebuiltDir && fs.existsSync(path.join(opts.prebuiltDir, "clairveil-commit.txt"))
+    && fs.readFileSync(path.join(opts.prebuiltDir, "clairveil-commit.txt"), "utf8").trim() === coreSha
+    ? opts.prebuiltDir : undefined;
+  const binDir = prebuilt ?? workDir;
+  const artifacts = path.join(binDir, "artifacts");
+  const clairveild = path.join(binDir, "clairveild");
   const keyring = ["--keyring-backend", "test", "--home", home];
   const txFlags = ["--node", node, "--chain-id", chainId, "--gas-prices", "8500000000uclair", "--yes", "--output", "json"];
   const env: NodeJS.ProcessEnv = { ...process.env };
@@ -84,12 +108,16 @@ export async function runLocalVendorSettlement(opts: { evidenceDir: string; comm
   fs.mkdirSync(out, { recursive: true });
   console.log(`작업 폴더: ${workDir}`);
 
-  console.log("1) 바이너리 빌드와 회로 산출물 생성");
-  execFileSync("go", ["build", "-o", clairveild, "./cmd/clairveild"], { cwd: CORE, stdio: "inherit" });
-  execFileSync("go", ["build", "-o", clairveilSetup, "./cmd/clairveil-setup"], { cwd: CORE, stdio: "inherit" });
-  execFileSync(clairveilSetup, ["--out", artifacts], { stdio: ["ignore", fs.openSync(path.join(out, "setup.stdout"), "w"), fs.openSync(path.join(out, "setup.stderr"), "w")] });
+  await stage(1);
+  if (prebuilt) {
+    console.log(`1) 미리 빌드한 바이너리와 회로 산출물을 씁니다: ${path.relative(ROOT, prebuilt)}`);
+  } else {
+    console.log("1) 바이너리 빌드와 회로 산출물 생성");
+    buildClairveil(workDir, out);
+  }
   env.CLAIRVEIL_PRIVACY_ZK_ARTIFACT_DIR = artifacts;
 
+  await stage(2);
   console.log("2) 역할 키와 체인 초기화 (감사 키는 auditor 의 공개키)");
   const roles = ["buyer", "supplier-a", "supplier-b", "auditor"] as const;
   const address: Record<string, string> = {};
@@ -116,10 +144,19 @@ export async function runLocalVendorSettlement(opts: { evidenceDir: string; comm
   }
   env.CLAIRVEIL_PRIVACY_ZK_PREFLIGHT_MODE = "strict";
 
+  await stage(3);
   console.log("3) 체인 시작");
   // 바이너리를 직접 자식 프로세스로 띄운다. 끝날 때 이 프로세스를 끈다.
   const logFd = fs.openSync(path.join(workDir, "clairveild.log"), "w");
-  const chain = spawn(clairveild, ["start", "--home", home, "--minimum-gas-prices", "0uclair"], { env, stdio: ["ignore", logFd, logFd] });
+  // RPC_PORT 를 바꾸면 P2P, gRPC, API 포트도 같은 차이만큼 옮겨, 다른 로컬 노드와 겹치지 않게 한다.
+  const shift = rpcPort - 26657;
+  const chain = spawn(clairveild, [
+    "start", "--home", home, "--minimum-gas-prices", "0uclair",
+    "--rpc.laddr", `tcp://127.0.0.1:${rpcPort}`, "--p2p.laddr", `tcp://127.0.0.1:${26656 + shift}`,
+    "--grpc.address", `localhost:${9090 + shift}`, "--api.address", `tcp://localhost:${1317 + shift}`,
+  ], { env, stdio: ["ignore", logFd, logFd] });
+  // 실행기가 비정상 종료해 노드가 남으면 pnpm b:reset 이 이 파일로 찾아 끈다.
+  fs.writeFileSync(path.join(workDir, "clairveild.pid"), `${chain.pid}\n`);
   const stopChain = () => { if (chain.exitCode === null) chain.kill(); };
   process.on("exit", stopChain);
   process.on("SIGINT", () => { stopChain(); process.exit(130); });
@@ -141,24 +178,29 @@ export async function runLocalVendorSettlement(opts: { evidenceDir: string; comm
   const privacyTx = (...args: string[]) => ["tx", "privacy", ...args];
   const notes = async (who: string, file: string) => save(file, await cli(privacyTx("list-notes", "--from", who, ...keyring, "--node", node, "--json")));
 
+  await stage(4);
   console.log("4) 구매 기업이 대금 재원을 차폐 풀에 넣는다 (송장 12, 8, 15 와 짝이 될 0 노트 셋)");
   // 전송 하나는 입력 노트 두 개를 쓴다. 노트 하나로 보낼 때는 0 노트를 짝으로 둔다.
   for (const amount of [12, 8, 15]) await submit(`deposit-${amount}`, privacyTx("deposit", `${amount}uclair`, "--from", "buyer", ...keyring, "--gas", "2500000"));
   for (const i of [1, 2, 3]) await submit(`deposit-zero-${i}`, privacyTx("deposit", "0uclair", "--from", "buyer", ...keyring, "--gas", "2500000"));
   await notes("buyer", "buyer-notes-before.json");
 
+  await stage(5);
   console.log("5) 정산일: 협력사 A 에 송장 두 건을 한 tx 로 지급 (금액과 상대 모두 비공개)");
   const payA = await submit("pay-supplier-a", privacyTx("transfer-batch", shielded["supplier-a"], "12uclair", "8uclair", "--from", "buyer", ...keyring, "--gas", "20000000"));
 
+  await stage(6);
   console.log("6) 정산일: 협력사 B 에 송장 한 건 지급. 금액, 보낸 쪽, 받는 쪽을 B 만 풀 수 있게 암호화");
   const payB = await submit("pay-supplier-b", privacyTx("transfer", shielded["supplier-b"], "15uclair",
     "--privacy-policy", "amount-from-to", "--disclosure-mode", "recipient-encrypted", "--disclosure-pubkey", supplierBPub,
     "--from", "buyer", ...keyring, "--gas", "10000000"));
 
+  await stage(7);
   console.log("7) 협력사가 자기 노트를 찾는다");
   await notes("supplier-a", "supplier-a-notes.json");
   await notes("supplier-b", "supplier-b-notes.json");
 
+  await stage(8);
   console.log("8) 각자 볼 수 있는 것을 푼다");
   const decode = (source: string[], plane: string, who: string) =>
     cli(privacyTx("decode-transfer-disclosure", ...source, "--disclosure-plane", plane, "--from", who, ...keyring, "--node", node, "--report"));
@@ -171,6 +213,7 @@ export async function runLocalVendorSettlement(opts: { evidenceDir: string; comm
     save(`pay-supplier-a-audit-view-${i}.json`, await decode([hex], "audit", "auditor"));
   }
 
+  await stage(9);
   console.log("9) 협력사 A 가 받은 12 를 투명 잔액으로 꺼낸다");
   const balances = () => cli(["query", "bank", "balances", address["supplier-a"], "--node", node, "--output", "json"]);
   save("supplier-a-balance-before.json", await balances());
@@ -205,12 +248,13 @@ export async function runLocalVendorSettlement(opts: { evidenceDir: string; comm
   await notes("supplier-a", "supplier-a-notes-after.json");
   save("reserve.json", await cli(["query", "privacy", "reserve", "uclair", "--node", node, "--output", "json"]));
 
+  await stage(10);
   console.log("10) 기록 정리");
   const report = path.join(opts.evidenceDir, `vendor-settlement-${stamp}.md`);
   fs.mkdirSync(path.dirname(report), { recursive: true });
   writeReport({
     out, report, chainId, stamp, command: opts.command,
-    coreSha: execFileSync("git", ["-C", CORE, "rev-parse", "HEAD"]).toString().trim(),
+    coreSha,
     goVersion: execFileSync("go", ["version"]).toString().trim(),
   });
   stopChain();

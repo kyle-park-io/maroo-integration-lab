@@ -13,14 +13,12 @@
 // 결과는 track-c-activate/evidence/live/grounding-<시각>.json 에 남긴다. 개인키는 출력하지 않는다.
 
 import path from "node:path";
-import {
-  decodeAbiParameters, encodeFunctionData, formatEther, getAddress, parseAbi, parseEventLogs,
-  type AbiParameter, type Address, type Hex,
-} from "viem";
+import { encodeFunctionData, getAddress, parseAbi, parseEventLogs, type Address, type Hex } from "viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { iPrivacyAbi } from "@maroo-chain/contracts/abi/precompiles/privacy/IPrivacy";
 import { iAgentAbi } from "@maroo-chain/contracts/abi/precompiles/agent/IAgent";
 import { ROOT } from "../../shared/lib/paths.ts";
+import { TEMPLATES, describePolicy, findEasSchema, type PolicySet } from "../../shared/lib/pcl-policy.ts";
 import {
   EAS_PARAMS, EXPLORER, OKRW, PCL, PRIVACY, RPC, addressOf, decodeRaw, easParamsAbi, publicClient as pub,
   rawEthCall, schemaRegistryAbi, walletFor, writeEvidence,
@@ -46,54 +44,6 @@ const erc20Abi = parseAbi([
   "function decimals() view returns (uint8)",
 ]);
 
-// Maroo Docs(pcl-policy-templates, pcl-composite-policies)의 템플릿 목록. 뒤의 둘은 체인에서 지웠다고 적혀 있다.
-const TEMPLATES = [
-  "DENYLIST_POLICY", "VOLUME_POLICY", "PERIODIC_VOLUME_POLICY", "EAS_POLICY", "AGENT_OKRW_TRANSFER_LIMIT_POLICY",
-  "LOGICAL_POLICY", "FOR_EACH_POLICY", "OKRW_EAS_TRANSFER_LIMIT_POLICY", "OKRW_EAS_PERIODIC_VOLUME_LIMIT_POLICY",
-];
-const LOGICAL = ["Unspecified", "And", "Or"];
-const FOR_EACH = ["Unspecified", "Any", "Every"];
-const SUBJECT = ["Unspecified", "AgentOwners"];
-
-// IPcl 의 _policies 함수 입력이 템플릿별 파라미터 struct 다. 이름으로 찾아 policy bytes 를 푼다.
-const policyStructs = Object.fromEntries(
-  ((iPclAbi.find((x) => x.type === "function" && x.name === "_policies") as { inputs: readonly AbiParameter[] }).inputs)
-    .map((p) => [(p as { internalType?: string }).internalType?.replace("struct ", ""), p]),
-) as Record<string, AbiParameter>;
-const STRUCT_OF: Record<string, string> = {
-  EAS_POLICY: "EasPolicy", DENYLIST_POLICY: "DenylistPolicy", VOLUME_POLICY: "VolumePolicy",
-  PERIODIC_VOLUME_POLICY: "PeriodicVolumePolicy", AGENT_OKRW_TRANSFER_LIMIT_POLICY: "AgentOkrwTransferLimitPolicy",
-  LOGICAL_POLICY: "LogicalPolicy", FOR_EACH_POLICY: "ForEachPolicy",
-};
-type PolicySet = { templateId: string; policy: Hex; selector: Hex };
-const short = (h: string) => (h.length > 14 ? `${h.slice(0, 8)}…${h.slice(-4)}` : h);
-
-function describe(set: PolicySet): string {
-  const struct = policyStructs[STRUCT_OF[set.templateId] ?? ""];
-  if (!struct) return `${set.templateId}(해석 안 됨)`;
-  const [p] = decodeAbiParameters([struct], set.policy) as [Record<string, unknown>];
-  switch (set.templateId) {
-    case "LOGICAL_POLICY":
-      return `${LOGICAL[Number(p.quantifier)]}(${(p.children as PolicySet[]).map(describe).join(", ")})`;
-    case "FOR_EACH_POLICY":
-      return `ForEach(${FOR_EACH[Number(p.quantifier)]}, ${SUBJECT[Number(p.subject)]}, ${describe(p.child as PolicySet)})`;
-    case "EAS_POLICY":
-      return `EAS_POLICY(schema ${short(p.schemaUid as string)})`;
-    case "DENYLIST_POLICY":
-      return `DENYLIST_POLICY(${(p.addresses as string[]).length}개 주소)`;
-    case "PERIODIC_VOLUME_POLICY": {
-      const limits = p.limits as { maxAmount: bigint; resetPeriodSeconds: bigint }[];
-      return `PERIODIC_VOLUME_POLICY(${(p.tokens as string[]).map((t, i) => `${t} ≤ ${formatEther(limits[i].maxAmount)} / ${limits[i].resetPeriodSeconds}s`).join(", ")})`;
-    }
-    case "VOLUME_POLICY": {
-      const limits = p.limits as { minLimit: bigint; maxLimit: bigint }[];
-      return `VOLUME_POLICY(${(p.tokens as string[]).map((t, i) => `${t} ${formatEther(limits[i].minLimit)}~${formatEther(limits[i].maxLimit)}`).join(", ")})`;
-    }
-    default:
-      return set.templateId;
-  }
-}
-
 const buyer = getAddress(addressOf("BUYER"));
 const report: Record<string, unknown> = { rpc: RPC, checkedAt: new Date().toISOString(), block: (await pub.getBlockNumber()).toString(), caller: buyer };
 const bigintSafe = (_: string, v: unknown) => (typeof v === "bigint" ? v.toString() : v);
@@ -114,7 +64,7 @@ const unknownTemplate = await pub.readContract({ address: PCL, abi: iPclAbi, fun
   .then(() => "되돌려지지 않음").catch(() => "되돌려짐");
 const pclParams = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "getParams" });
 const globalCfg = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "globalPolicies" }) as { policies: readonly PolicySet[] };
-const globalPolicy = globalCfg.policies.map(describe).join(", ");
+const globalPolicy = globalCfg.policies.map(describePolicy).join(", ");
 report.common = { templates, unknownTemplate, pclParams, globalPolicy };
 console.log("[공통] PCL");
 for (const [id, s] of Object.entries(templates)) console.log(`  ${id.padEnd(40)} ${s}`);
@@ -125,7 +75,7 @@ show("  전역 정책", globalPolicy);
 // 트랙 1: 비공개 기업 정산
 console.log("\n[트랙 1] 비공개 기업 정산");
 const privacyCfg = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "contractPolicies", args: [PRIVACY] }) as { admin: Address; policies: readonly PolicySet[] };
-const privacyPolicy = privacyCfg.policies.map(describe).join(", ");
+const privacyPolicy = privacyCfg.policies.map(describePolicy).join(", ");
 const privacyFns = iPrivacyAbi.filter((x) => x.type === "function").map((x) => (x as { name: string }).name);
 const depositData = encodeFunctionData({ abi: iPrivacyAbi, functionName: "deposit", args: [{ noteCommitment: "0x", encryptedNote: "0x", proof: "0x" }] });
 const depositProbe: Record<string, string> = {};
@@ -208,20 +158,7 @@ const okrwParams = await pub.readContract({
 const erc20 = await Promise.all((["name", "symbol", "decimals"] as const).map((fn) =>
   pub.readContract({ address: OKRW_ERC20, abi: erc20Abi, functionName: fn }).catch((err: Error) => `조회 실패: ${err.message.split("\n")[0]}`)));
 const easParams = await pub.readContract({ address: EAS_PARAMS, abi: easParamsAbi, functionName: "getParams" });
-// 전역 정책 트리에서 EAS_POLICY 가 요구하는 스키마를 찾는다.
 const kycSchema = globalCfg.policies.map(findEasSchema).find(Boolean);
-function findEasSchema(set: PolicySet): string | undefined {
-  if (set.templateId === "EAS_POLICY") return (decodeAbiParameters([policyStructs.EasPolicy], set.policy)[0] as { schemaUid: string }).schemaUid;
-  if (set.templateId === "LOGICAL_POLICY") {
-    const [p] = decodeAbiParameters([policyStructs.LogicalPolicy], set.policy) as [{ children: PolicySet[] }];
-    for (const c of p.children) { const s = findEasSchema(c); if (s) return s; }
-  }
-  if (set.templateId === "FOR_EACH_POLICY") {
-    const [p] = decodeAbiParameters([policyStructs.ForEachPolicy], set.policy) as [{ child: PolicySet }];
-    return findEasSchema(p.child);
-  }
-  return undefined;
-}
 const schema = kycSchema
   ? await pub.readContract({ address: easParams.schemaRegistry, abi: schemaRegistryAbi, functionName: "getSchema", args: [kycSchema as Hex] })
   : undefined;
