@@ -37,6 +37,11 @@ export function addressOf(role: Role): Address {
   return value as Address;
 }
 
+// 역할 밖의 값(예: 인증 전용 지갑 주소)을 읽는다. 없으면 undefined.
+export function labValue(key: string): string | undefined {
+  return process.env[key] ?? labEnv[key];
+}
+
 export function account(role: Role) {
   const key = process.env[`${role}_PRIVATE_KEY`] ?? labEnv[`${role}_PRIVATE_KEY`];
   if (!key) throw new Error(`${role}_PRIVATE_KEY 가 없습니다. ${envFile} 를 확인하십시오.`);
@@ -98,12 +103,19 @@ export const easAbi = [
   { name: "revoke", type: "function", stateMutability: "payable",
     inputs: [{ type: "tuple", components: [{ name: "schema", type: "bytes32" }, { name: "data", type: "tuple", components: [{ name: "uid", type: "bytes32" }, { name: "value", type: "uint256" }] }] }],
     outputs: [] },
+  { name: "getAttestation", type: "function", stateMutability: "view", inputs: [{ type: "bytes32" }],
+    outputs: [{ type: "tuple", components: [
+      { name: "uid", type: "bytes32" }, { name: "schema", type: "bytes32" }, { name: "time", type: "uint64" }, { name: "expirationTime", type: "uint64" },
+      { name: "revocationTime", type: "uint64" }, { name: "refUID", type: "bytes32" }, { name: "recipient", type: "address" }, { name: "attester", type: "address" },
+      { name: "revocable", type: "bool" }, { name: "data", type: "bytes" }] }] },
   { name: "Attested", type: "event", inputs: [{ name: "recipient", type: "address", indexed: true }, { name: "attester", type: "address", indexed: true },
     { name: "uid", type: "bytes32", indexed: false }, { name: "schemaUID", type: "bytes32", indexed: true }] },
 ] as const;
 
 export const indexerAbi = [
   { name: "indexAttestation", type: "function", stateMutability: "nonpayable", inputs: [{ type: "bytes32" }], outputs: [] },
+  { name: "getReceivedAttestationUIDs", type: "function", stateMutability: "view",
+    inputs: [{ type: "address" }, { type: "bytes32" }, { type: "uint256" }, { type: "uint256" }, { type: "bool" }], outputs: [{ type: "bytes32[]" }] },
   { name: "getReceivedAttestationUIDCount", type: "function", stateMutability: "view", inputs: [{ type: "address" }, { type: "bytes32" }], outputs: [{ type: "uint256" }] },
 ] as const;
 

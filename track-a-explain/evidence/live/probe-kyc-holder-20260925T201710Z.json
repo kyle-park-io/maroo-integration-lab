@@ -1,0 +1,44 @@
+{
+  "rpc": "https://rpc-testnet.maroo.io",
+  "checkedAt": "2026-09-25T20:17:10.153Z",
+  "label": "거부 경로 증거(eth_call, eth_estimateGas. tx 없음). 인증 전용 지갑 주소, 증명 UID, 발급 시각은 기록하지 않음",
+  "privacySchema": "0x3e448d939524a8f3e6a403502e57ce60ee10146292114a58f4bfd1b1d35f527d",
+  "holderAttestationCount": "1",
+  "holderAttestations": [
+    {
+      "schema": "0x3e448d939524a8f3e6a403502e57ce60ee10146292114a58f4bfd1b1d35f527d",
+      "attester": "0xBfa4d8140b4104cA0Dd8c4E4b8cA420D551c0aE3",
+      "issuedOn": "2026-09-25",
+      "expirationTime": "0",
+      "revoked": false,
+      "revocable": true
+    }
+  ],
+  "buyer": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+  "results": [
+    {
+      "wallet": "증명 없는 구매 기업 지갑",
+      "case": "empty",
+      "eth_call": "SDKInvalidRequest()",
+      "eth_estimateGas": "SDKInvalidRequest()"
+    },
+    {
+      "wallet": "증명 없는 구매 기업 지갑",
+      "case": "shaped",
+      "eth_call": "SDKInvalidRequest()",
+      "eth_estimateGas": "SDKInvalidRequest()"
+    },
+    {
+      "wallet": "증명 있는 인증 전용 지갑",
+      "case": "empty",
+      "eth_call": "SDKInvalidRequest()",
+      "eth_estimateGas": "SDKInvalidRequest()"
+    },
+    {
+      "wallet": "증명 있는 인증 전용 지갑",
+      "case": "shaped",
+      "eth_call": "SDKInvalidRequest()",
+      "eth_estimateGas": "SDKInvalidRequest()"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 | [probe-first-failure-20260925T193314Z.json](evidence/live/probe-first-failure-20260925T193314Z.json) | `pnpm a:probe` | 구매 기업 주소에서 `Privacy.deposit`을 빈 요청, 무작위 값으로 모양만 갖춘 요청, 1 wei를 실은 요청으로 각각 `eth_call`과 `eth_estimateGas` | 2026-09-25 19:33:14 | 증명 재료가 없으므로 어느 층에서든 거부됨 | 빈 요청과 모양을 갖춘 요청은 두 방법 모두 `SDKInvalidRequest()`. 1 wei 요청은 잔액 부족 |
 | [probe-global-policy-20260925T190841Z.json](evidence/live/probe-global-policy-20260925T190841Z.json) | `pnpm a:probe-global` | faucet 계정 `0x5336…c94d`에서 구매 기업으로 5,000 OKRW 네이티브 전송을 `eth_call`과 `eth_estimateGas` | 2026-09-25 19:08:41 | faucet이 실패하던 원인이 전역 정책이면 `eth_estimateGas`에서 사유가 나옴 | `eth_call` 통과, `eth_estimateGas`는 `AnyOfRejected(ExceededPeriodicVolume(1e25, 1.0005e25, 1790380800), EasNoAttestationReceived(0x5336…c94d))` |
 | [probe-global-policy-20260925T190843Z.json](evidence/live/probe-global-policy-20260925T190843Z.json) | `pnpm a:probe-global 0x5336F019Bd8E9E0064be7330833dc883a8a6c94d 0x720989a26EfC40b007d778e54382879cdaf389e8 1` | 같은 경로로 1 OKRW | 2026-09-25 19:08:43 | 금액과 관계없이 한도 초과면 거부됨 | 1 OKRW도 같은 사유로 거부 |
+| [probe-kyc-holder-20260925T201710Z.json](evidence/live/probe-kyc-holder-20260925T201710Z.json) | `pnpm a:probe-kyc` | 인증 전용 지갑(주소 비공개)의 Privacy 스키마 증명 조회, 그 지갑과 구매 기업 지갑으로 빈 요청과 모양만 갖춘 요청의 `Privacy.deposit`을 `eth_call`, `eth_estimateGas` | 2026-09-25 20:17 | 본인 인증 증명이 있으면 다른 층에서 막힐 수 있음 | 증명 1개(발급자 `0xBfa4…0aE3`, 2026-09-25, 만료 없음). 두 지갑 모두 네 경우 `SDKInvalidRequest()` |
 | [doc-claims-20260925T191304Z.json](evidence/live/doc-claims-20260925T191304Z.json) | `pnpm a:doc-claims` | Maroo Docs 페이지 다섯 곳의 문장, `OKRW.getParams()`, `PCL.contractPolicies(Privacy)`, 알려진 금고 구현으로 `deployPclProxy`를 빈 초기화와 `initialize()`로 eth_call(Transparent, UUPS) | 2026-09-25 19:13:04 | 문서 개선 노트 1~5번의 주장이 문서와 체인에서 다시 확인됨 | 테스트넷 denom `atokrw`와 문서 예시 `aokrw`, 배포 주소 표에 Privacy 없음, 빈 초기화는 두 종류 모두 `execution reverted`이고 `initialize()`는 통과, 사유 코드 문서에 `eth_estimateGas` 언급 없음 |
 | `pcl-kyb-gate-<시각>.json` | `pnpm a:kyb-gate` | OKRW 이체, KYB 스키마 등록, 금고 배포와 정책 바인딩, 입금, 청구 거부와 통과, 증명 폐기, 회수 | 실행 대기 | [레시피 4절](runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet)의 단계별 예상 결과 | 테스트넷 faucet이 전역 한도에 걸려 구매 기업 잔액이 0. 한도 창은 2026-09-26 00:00 UTC에 풀림 |
 
@@ -29,7 +30,7 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 ### 검증하지 못한 것
 
 - 테스트넷에서 유효한 Privacy 상태 변경. 현재 verifier와 맞는 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았습니다.
-- Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지. 요청 검증에서 먼저 막혀 정책 층에 닿지 못했습니다.
+- Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지. 본인 인증 증명이 있는 지갑과 없는 지갑 모두 요청 검증에서 먼저 막혀 정책 층에 닿지 못했습니다.
 - 금고 흐름의 상태 변경 tx. faucet 복구 뒤 실행합니다.
 
 ## 2. Clairveil 로컬 `[Local]`

@@ -7,6 +7,7 @@
 | Maroo 테스트넷 | `pnpm a:inspect` | Privacy 프리컴파일에 걸린 정책, 요구 스키마, 지갑의 증명 수, deposit이 처음 막히는 층, 인터페이스 대조 | `[Live Testnet]` 조회와 eth_call |
 | Maroo 테스트넷 | `pnpm a:probe` | deposit 요청 모양별로 처음 막히는 층 | `[Live Testnet]` eth_call, 거부 경로 증거 |
 | Maroo 테스트넷 | `pnpm a:probe-global` | 같은 전송을 `eth_call`과 `eth_estimateGas`로 불렀을 때 전역 정책의 평가 차이 | `[Live Testnet]` 조회 |
+| Maroo 테스트넷 | `pnpm a:probe-kyc` | 카카오 본인 인증 증명이 있는 지갑과 없는 지갑에서 deposit이 처음 막히는 층 비교 | `[Live Testnet]` eth_call, 거부 경로 증거 |
 | Maroo 테스트넷 | `pnpm a:kyb-gate` | OKRW 이체, 정산 금고 배포, `claim()`의 KYB 정책 거부와 통과, 증명 폐기 뒤 거부, 회수 | `[Live Testnet]` 상태 변경 tx |
 | Maroo 테스트넷 | `pnpm a:doc-claims` | 문서 개선 노트의 근거가 되는 문서 문장과 체인 동작 | `[Live Testnet]` 조회와 eth_call |
 | Clairveil 로컬 | `pnpm a:local` | 차폐 정산 전체 흐름, 역할마다 볼 수 있는 것, 제3자에게 공개되는 것 | `[Local]` |
@@ -82,6 +83,14 @@ eth_estimateGas  거부: AnyOfRejected(...)
 ```
 
 - 결과는 그 순간의 체인 상태에 따라 달라집니다. 한도가 풀린 뒤에는 두 방법 모두 통과합니다. 전역 정책은 `eth_call`에서 평가되지 않으므로, 보내기 전 검사는 `eth_estimateGas`로 합니다.
+
+```bash
+pnpm a:probe-kyc
+```
+
+- 테스트넷 KYC 서비스에서 카카오 본인 인증을 마친 지갑 주소를 지갑 파일에 `KYC_HOLDER_ADDRESS=0x…`로 넣었을 때 씁니다. 개인키는 필요 없습니다.
+- 예상 결과(2026-09-26): 인증 지갑이 Privacy 정책 스키마의 증명 1개를 가졌고, 인증 지갑과 구매 기업 지갑 모두 네 경우에서 `SDKInvalidRequest()`. 본인 인증이 있어도 증명 재료가 없으면 같은 층에서 막힙니다.
+- 기록에는 인증 지갑의 주소, 증명 UID, 발급 시각을 남기지 않습니다. 셋 가운데 하나만 있어도 탐색기에서 그 지갑을 찾을 수 있어서입니다.
 
 ```bash
 pnpm a:doc-claims

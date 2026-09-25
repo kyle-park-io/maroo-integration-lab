@@ -37,7 +37,7 @@
 
 | # | 자료 | 자료가 말하는 것 | 실행 결과 | 재현 | 반영한 곳 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Maroo Docs 테스트넷 접근 | KYC 서비스를 "KYC (mock)"으로만 적음 | Privacy 프리컴파일 정책이 `And(EAS_POLICY(bytes32 kakaoIdHash, uint8 version), DENYLIST_POLICY)`라 호출자는 개인 본인 인증 증명이 필요 | `pnpm a:inspect` | A 문서 개선 노트 1 |
+| 1 | Maroo Docs 테스트넷 접근 | KYC 서비스를 "KYC (mock)"으로만 적음 | Privacy 프리컴파일 정책이 `And(EAS_POLICY(bytes32 kakaoIdHash, uint8 version), DENYLIST_POLICY)`라 호출자는 개인 본인 인증 증명이 필요. 카카오 인증을 마친 지갑이 실제로 이 스키마의 증명을 받음 | `pnpm a:inspect`, `pnpm a:probe-kyc` | A 문서 개선 노트 1 |
 | 2 | Maroo Docs 사유 코드 | 사전 검사 방법을 적지 않음 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가 | `pnpm a:probe-global` | A 문서 개선 노트 2, FAQ 6 |
 | 3 | Maroo Docs `deployPclProxy` | 초기화가 필요 없으면 `"0x"`를 넘기라고 적음 | 빈 초기화 데이터는 Transparent, UUPS 모두 `execution reverted` | `pnpm a:doc-claims` | A 문서 개선 노트 3 |
 | 4 | Maroo Docs `withdraw` | 금액 예시가 `aokrw` | 테스트넷 `mintDenom`은 `atokrw` | `pnpm a:doc-claims` | A 문서 개선 노트 4 |
@@ -80,6 +80,7 @@
 | `pnpm a:inspect` | 2026-09-25 19:27 | Privacy 정책, 요구 스키마, 구매 기업 증명 0개, 예치 `SDKInvalidRequest()`, 필드 대응 | [JSON](track-a-explain/evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | `pnpm a:probe` | 2026-09-25 19:33 | 빈 요청과 모양을 갖춘 요청이 두 방법 모두 `SDKInvalidRequest()`. 전역 정책은 통과 | [JSON](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json) |
 | `pnpm a:probe-global` | 2026-09-25 19:08 | `eth_call` 통과, `eth_estimateGas` 거부(faucet 계정의 전역 한도) | [JSON](track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json) |
+| `pnpm a:probe-kyc` | 2026-09-25 20:17 | 카카오 본인 인증 증명이 있는 지갑(주소 비공개)도 증명 없는 지갑과 같이 `SDKInvalidRequest()` | [JSON](track-a-explain/evidence/live/probe-kyc-holder-20260925T201710Z.json) |
 | `pnpm a:doc-claims` | 2026-09-25 19:13 | 문서 개선 노트 1~5의 근거 | [JSON](track-a-explain/evidence/live/doc-claims-20260925T191304Z.json) |
 | `pnpm a:local` | 2026-09-25 18:19 | 로컬 tx 11건. 단독 인출 실패(code 1)와 같은 블록 우회 성공, 역할별 해독 `verified=true` | [기록](track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md) |
 | `pnpm a:kyb-gate` | 실행 대기 | faucet 한도 창이 풀린 뒤 실행 | [레시피 4절](track-a-explain/runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet) |
@@ -171,7 +172,6 @@
 - Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았고, 가이드 6절에 최초 실패 계층과 필요한 재료를 적었습니다.
 - KYB 금고 흐름의 테스트넷 tx는 faucet이 전역 한도에 걸려 있던 동안 실행하지 못했습니다. 한도가 풀린 뒤 실행해 증거를 추가합니다.
 - 가이드의 권고(주기 총액 예치, 일괄 지급 크기 고정, 원장 상태)는 검증하지 않은 설계입니다.
-- 카카오 본인 인증 증명이 있는 지갑으로 Privacy 호출을 진단하는 일은 인증을 마친 뒤로 남았습니다.
 
 ### B
 

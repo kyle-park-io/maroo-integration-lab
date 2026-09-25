@@ -108,7 +108,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 | 차폐 금액 상한 | 노트 하나에 약 18.45 OKRW. 1,000만 원을 차폐하려면 노트 542,102개와 일괄 지급 27,106번(20건씩)이 필요합니다 | `[Docs Only]` [IPrivacy.deposit](https://docs.maroo.io/apis/contract/contract-privacy-deposit/), 계산 |
 | 참조 구현의 상태 | Clairveil은 `PUBLICATION_READY_EXPERIMENTAL`이고, 공식 trusted setup, 외부 ZK·보안 감사, 서명된 산출물 배포, 감사 키 보관을 범위 밖으로 둡니다 | `[Docs Only]` [Clairveil CHANGELOG v0.4.0](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/CHANGELOG.md) |
 | 규제기관 열람 | 관찰자 노드 열람 기능이 체인에 아직 없습니다 | `[Docs Only]` 2번 답 |
-| 테스트넷 Privacy 실행 | 외부 개발자가 유효한 증명을 만들 회로 산출물과 상태 조회 경로가 공개되지 않았습니다. deposit 요청은 요청 검증 단계(`SDKInvalidRequest`)에서 처음 막힙니다 | `[Live Testnet]` [최초 실패 계층 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
+| 테스트넷 Privacy 실행 | 외부 개발자가 유효한 증명을 만들 회로 산출물과 상태 조회 경로가 공개되지 않았습니다. deposit 요청은 요청 검증 단계(`SDKInvalidRequest`)에서 처음 막히고, 카카오 본인 인증 증명이 있는 지갑도 같습니다 | `[Live Testnet]` [최초 실패 계층 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
 | 기관 KYB | 테스트넷에 기관용 KYB 스키마와 발급자가 없습니다 | `[Live Testnet]` 5번 답 |
 | 출시 전 관문 | Clairveil 운영 가이드의 최소 메인넷 관문(10개)과 위협 모델의 다운스트림 보안 관문(9개)이 남아 있습니다 | `[Docs Only]` [운영 가이드 11절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-operations-guide.md), [위협 모델 8절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md) |
 

@@ -18,10 +18,10 @@
 ## 1. Privacy 호출에 필요한 증명이 문서에 없다
 
 - 대상: [테스트넷 접근](https://docs.maroo.io/resources/network/testnet-access/), [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/)
-- 멈추는 사람과 단계: 자기 지갑으로 Privacy 프리컴파일을 처음 부르는 개발자. PCL 단계에서 거부되지만, 무엇을 갖춰야 통과하는지 문서에서 찾을 수 없습니다.
-- 잘못 믿게 되는 것: 테스트넷 접근 페이지는 KYC 서비스를 "KYC (mock)"으로만 적습니다. 개발자는 가짜 값으로 통과하는 모의 서비스라고 보거나, Privacy와 관계없는 서비스로 넘기기 쉽습니다. 실제로 테스트넷 Privacy 프리컴파일에는 `And(EAS_POLICY, DENYLIST_POLICY)`가 걸려 있어, 호출자는 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있어야 합니다. KYC 서비스는 카카오톡 본인 인증을 거친 뒤 지갑에 증명을 기록한다고 화면에 안내합니다. 그 증명이 이 스키마인지는 서비스 코드에 스키마 UID가 없어, 인증을 마친 지갑의 증명으로 확인해야 합니다.
+- 멈추는 사람과 단계: 자기 지갑으로 Privacy 프리컴파일을 처음 부르는 개발자. 호출이 거부됐을 때 본인 인증 증명이 필요한지, 무엇을 갖춰야 정책을 통과하는지 문서에서 찾을 수 없습니다.
+- 잘못 믿게 되는 것: 테스트넷 접근 페이지는 KYC 서비스를 "KYC (mock)"으로만 적습니다. 개발자는 가짜 값으로 통과하는 모의 서비스라고 보거나, Privacy와 관계없는 서비스로 넘기기 쉽습니다. 실제로 테스트넷 Privacy 프리컴파일에는 `And(EAS_POLICY, DENYLIST_POLICY)`가 걸려 있어, 호출자는 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있어야 합니다. KYC 서비스는 카카오톡 본인 인증을 거친 뒤 지갑에 증명을 기록한다고 화면에 안내합니다. 서비스 코드에는 스키마 UID가 없어, 인증을 마친 지갑의 증명으로 확인했습니다. 인증 뒤 그 지갑은 이 스키마의 증명 하나를 발급자 `0xBfa4d8140b4104cA0Dd8c4E4b8cA420D551c0aE3`에게서 받았고, 만료는 없습니다. `[Live Testnet]` [인증 지갑 진단 기록](evidence/live/probe-kyc-holder-20260925T201710Z.json)
 - 확인 비용: `IPcl.contractPolicies`를 불러 `LOGICAL_POLICY`를 풀고, SchemaRegistry에서 스키마 문자열을 찾고, KYC 서비스 화면을 따라가 보는 데 처음 보는 개발자라면 한두 시간이 걸립니다.
-- 재현: `pnpm a:inspect`(정책과 스키마), `pnpm a:doc-claims`의 `kyc-labelled-mock`. `[Live Testnet]` [정책 조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
+- 재현: `pnpm a:inspect`(정책과 스키마), `pnpm a:doc-claims`의 `kyc-labelled-mock`, `pnpm a:probe-kyc`(인증을 마친 지갑이 있을 때). `[Live Testnet]` [정책 조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
 - 고친 문구 제안
   - 정책 인식 프리컴파일 페이지에 "테스트넷 현재 바인딩" 표를 둡니다. 정책 템플릿, 스키마 UID(`0x3e448d93…f527d`), 스키마 문자열, resolver, 증명 발급 경로를 적습니다.
   - 테스트넷 접근 페이지의 "KYC (mock)"을 "KYC: 카카오 본인 인증으로 Privacy 호출용 증명 발급(1인 1지갑, 신원 해시가 체인에 기록됨)"으로 바꿉니다.
