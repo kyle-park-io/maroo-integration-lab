@@ -82,19 +82,23 @@ const firstFailure = body.error
 report.depositEthCall = firstFailure;
 console.log(`4) deposit eth_call (from ${buyer}): ${firstFailure.outcome}`);
 
-// 5. 필드 대조: IPrivacy.PrivacyTransferRequest 와 Clairveil v0.4.0 MsgTransfer
+// 5. 필드 대조: IPrivacy.PrivacyTransferRequest 와 Clairveil v0.4.0 MsgTransfer. Clairveil 을 받기 전이면 건너뛴다.
 const transferFn = iPrivacyAbi.find((x) => x.type === "function" && x.name === "transfer") as { readonly inputs: readonly { readonly components: readonly { readonly name: string }[] }[] };
 const maroo = transferFn.inputs[0].components.map((c) => c.name);
-const proto = fs.readFileSync(path.join(ROOT, "vendor/clairveil/proto/clairveil/privacy/v1/tx.proto"), "utf8");
-const msg = proto.slice(proto.indexOf("message MsgTransfer {"), proto.indexOf("}", proto.indexOf("message MsgTransfer {")));
-const camel = (s: string) => s.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
-const clairveil = [...msg.matchAll(/^\s*(?:repeated\s+)?\w+\s+(\w+)\s*=\s*\d+/gm)].map((m) => camel(m[1]));
-report.transferFields = {
-  maroo, clairveilV040: clairveil,
-  onlyInMaroo: maroo.filter((f) => !clairveil.includes(f)),
-  onlyInClairveil: clairveil.filter((f) => !maroo.includes(f)),
-};
-console.log(`5) 전송 요청 필드: 마루 ${maroo.length}개, Clairveil v0.4.0 ${clairveil.length}개, 마루에만 [${(report.transferFields as { onlyInMaroo: string[] }).onlyInMaroo}], Clairveil 에만 [${(report.transferFields as { onlyInClairveil: string[] }).onlyInClairveil}]`);
+const protoPath = path.join(ROOT, "vendor/clairveil/proto/clairveil/privacy/v1/tx.proto");
+if (fs.existsSync(protoPath)) {
+  const proto = fs.readFileSync(protoPath, "utf8");
+  const msg = proto.slice(proto.indexOf("message MsgTransfer {"), proto.indexOf("}", proto.indexOf("message MsgTransfer {")));
+  const camel = (s: string) => s.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
+  const clairveil = [...msg.matchAll(/^\s*(?:repeated\s+)?\w+\s+(\w+)\s*=\s*\d+/gm)].map((m) => camel(m[1]));
+  const onlyInMaroo = maroo.filter((f) => !clairveil.includes(f));
+  const onlyInClairveil = clairveil.filter((f) => !maroo.includes(f));
+  report.transferFields = { maroo, clairveilV040: clairveil, onlyInMaroo, onlyInClairveil };
+  console.log(`5) 전송 요청 필드: 마루 ${maroo.length}개, Clairveil v0.4.0 ${clairveil.length}개, 마루에만 [${onlyInMaroo}], Clairveil 에만 [${onlyInClairveil}]`);
+} else {
+  report.transferFields = { maroo, clairveilV040: "vendor/clairveil 없음" };
+  console.log(`5) 전송 요청 필드: 마루 ${maroo.length}개. Clairveil 과의 대조는 pnpm setup:clairveil 뒤에 다시 실행하면 나옵니다`);
+}
 
 const file = writeEvidence(path.join(ROOT, "track-a-explain/evidence/live"), "inspect-privacy-boundary", report);
 console.log(`기록: ${path.relative(ROOT, file)}`);
