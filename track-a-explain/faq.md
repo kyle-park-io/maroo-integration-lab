@@ -51,7 +51,7 @@ Clairveil에서는 모든 자산 이동에 감사 disclosure가 들어갑니다.
 | 금고의 업그레이드 권한(ProxyAdmin 소유자) | 정책 관리와 다른 주체 | 금고 로직이 바뀌어 협력사 몫이 빠져나갈 수 있습니다 | 8번 답 |
 
 - Maroo Docs는 Privacy에서 지갑이 노트 키와 보기 키를 어떻게 보관하는지 다루지 않습니다. `[Docs Only]`
-- 테스트넷 Privacy 프리컴파일의 정책 관리자는 `0x58eC1E718ff15e5f34591747D47ADf5BccDA804F`입니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T183013Z.json)
+- 테스트넷 Privacy 프리컴파일의 정책 관리자는 `0x58eC1E718ff15e5f34591747D47ADf5BccDA804F`입니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
 
 ## 5. 협력사 자격(KYB)은 어디서 확인되나요?
 
