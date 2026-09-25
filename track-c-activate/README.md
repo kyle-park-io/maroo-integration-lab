@@ -11,6 +11,7 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 | 트랙 2. 규칙 안의 에이전트 결제 | [tracks/2-agent-payments.md](tracks/2-agent-payments.md) | 필수 15항목. 기기가 결제하는 갈래 포함 |
 | 트랙 3. 자격으로 여는 원화 결제 | [tracks/3-credentialed-krw-payments.md](tracks/3-credentialed-krw-payments.md) | 필수 15항목 |
 | 기술 근거 | [grounding/check-track-requirements.ts](grounding/check-track-requirements.ts), [evidence.md](evidence.md) | 세 트랙 요건이 기대는 기능을 테스트넷에서 조회하고 시뮬레이션한 기록 |
+| 심사 자동 판정 | [judge/check-evidence.ts](judge/check-evidence.ts) | 참가자의 `evidence.json`을 테스트넷에서 다시 확인해 요건별로 판정. 적힌 거부 사유가 실제와 다르면 실패로 표시 |
 | 워크스루 영상 | 녹화 대기(2026-09-27) | 트랙을 나눈 이유, Flagship 최소 연동 요건과 심사 기준, 피상적 연동을 거르는 방법, 5~8분 |
 
 ## 필수 항목 대응
@@ -31,6 +32,7 @@ pnpm install
 pnpm setup:wallets          # 조회에 쓸 주소를 만듭니다. 키는 레포 밖 파일에 저장됩니다
 pnpm c:grounding            # [Live Testnet] 조회와 시뮬레이션. tx 없음
 pnpm c:grounding --write    # 구매 기업 지갑으로 에이전트 등록 tx 한 건(테스트넷 OKRW 필요)
+pnpm c:judge evidence.json --track 1   # 제출물 증거 판정. tx 없음
 ```
 
 Flagship의 15분 첫 성공 경로는 [트랙 1의 21절](tracks/1-private-settlement.md#21-15분-첫-성공-경로-local)에 있고, 기준 구현은 Track A의 `pnpm a:local`입니다.

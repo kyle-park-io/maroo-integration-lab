@@ -24,7 +24,8 @@
     "b:fund": "node track-b-enable/demo/fund.ts",
     "b:step": "node track-b-enable/demo/step.ts",
     "b:reset": "node track-b-enable/demo/reset.ts",
-    "b:smoke": "node track-b-enable/demo/smoke.ts"
+    "b:smoke": "node track-b-enable/demo/smoke.ts",
+    "c:judge": "node track-c-activate/judge/check-evidence.ts"
   },
   "dependencies": {
     "@maroo-chain/contracts": "0.0.9",

@@ -251,7 +251,7 @@ pnpm a:local
 ```
 
 - 거부를 tx로 남기지 못하면 `txHash` 대신 `eth_estimateGas` 요청과 응답 원문을 `rpcLog`에 넣습니다.
-- 자동 판정은 tx 해시로 영수증 상태, `to`, value, 로그를 확인하고, `target`에 대해 `IPcl.contractPolicies`를 불러 정책이 묶였는지 봅니다.
+- 자동 판정은 `pnpm c:judge <evidence.json> --track 1`([판정 스크립트](../judge/check-evidence.ts))이 합니다. tx 해시로 영수증 상태, 받는 주소, value를 확인하고, 거부 항목은 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 `actual`의 사유와 맞는지 봅니다. `target`에 대해 `IPcl.contractPolicies`를 불러 정책이 묶였는지, 정책의 선택자가 호출한 함수와 같은지도 봅니다.
 - 로컬 항목은 `txHash` 자리에 로컬 체인 tx 해시를 넣고 라벨을 `[Local]`로 둡니다. 자동 판정은 로컬 항목을 건너뛰고 재현 확인에서 봅니다.
 
 ## 24. 심사 과정 예시
@@ -270,7 +270,7 @@ pnpm a:local
 | 킥오프 | 30분 | 트랙 주제, 최소 연동 요건, 라벨 규칙, 첫 성공 경로 시연 |
 | 오피스아워 1 | 60분 | 로컬 차폐 흐름: 노트, 일괄 지급, 스캔, disclosure 해독, 인출 실패와 우회 |
 | 오피스아워 2 | 60분 | 테스트넷 연결: PCL 프록시 배포, 정책 바인딩, 증명 발급과 색인, 거부 사유 해석, `eth_estimateGas` 사전 검사 |
-| 제출 전 점검 | 30분 | `evidence.json` 자동 판정을 미리 돌려 보고 빠진 요건 확인 |
+| 제출 전 점검 | 30분 | `pnpm c:judge`로 `evidence.json` 자동 판정을 미리 돌려 보고 빠진 요건 확인 |
 
 ## 26. 멘토가 자주 받을 질문과 답변 방향
 
