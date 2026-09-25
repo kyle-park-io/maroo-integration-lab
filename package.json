@@ -6,6 +6,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "setup:wallets": "node shared/setup-wallets.ts",
     "setup:clairveil": "node shared/setup-clairveil.ts",
     "build:contracts": "forge build",
     "test:contracts": "forge test",
