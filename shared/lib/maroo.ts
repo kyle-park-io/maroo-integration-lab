@@ -70,10 +70,12 @@ export function decodeRaw(data: Hex, abi: Abi): string {
 }
 
 // JSON-RPC eth_call 을 직접 불러 revert 데이터를 그대로 받는다. 트랜잭션은 보내지 않는다.
-export async function rawEthCall(req: { from: Address; to: Address; data: Hex; value?: bigint }) {
+// eth_estimateGas 로 부르면 전역 정책(AnteHandler)까지 평가된다. eth_call 은 전역 정책을 건너뛴다.
+export async function rawEthCall(req: { from: Address; to: Address; data: Hex; value?: bigint }, method: "eth_call" | "eth_estimateGas" = "eth_call") {
+  const tx = { ...req, value: `0x${(req.value ?? 0n).toString(16)}` };
   const res = await fetch(RPC, {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ ...req, value: `0x${(req.value ?? 0n).toString(16)}` }, "latest"] }),
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params: method === "eth_call" ? [tx, "latest"] : [tx] }),
   });
   return (await res.json()) as { result?: Hex; error?: { message: string; data?: Hex } };
 }

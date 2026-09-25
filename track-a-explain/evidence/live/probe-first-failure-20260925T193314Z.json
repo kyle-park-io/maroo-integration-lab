@@ -1,0 +1,50 @@
+{
+  "rpc": "https://rpc-testnet.maroo.io",
+  "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+  "checkedAt": "2026-09-25T19:33:14.305Z",
+  "label": "거부 경로 증거(eth_call, eth_estimateGas. tx 없음)",
+  "results": [
+    {
+      "case": "empty",
+      "value": "0",
+      "eth_call": {
+        "outcome": "SDKInvalidRequest()",
+        "rpcMessage": "execution reverted",
+        "revertData": "0xadb34e5c"
+      },
+      "eth_estimateGas": {
+        "outcome": "SDKInvalidRequest()",
+        "rpcMessage": "execution reverted",
+        "revertData": "0xadb34e5c"
+      }
+    },
+    {
+      "case": "shaped",
+      "value": "0",
+      "eth_call": {
+        "outcome": "SDKInvalidRequest()",
+        "rpcMessage": "execution reverted",
+        "revertData": "0xadb34e5c"
+      },
+      "eth_estimateGas": {
+        "outcome": "SDKInvalidRequest()",
+        "rpcMessage": "execution reverted",
+        "revertData": "0xadb34e5c"
+      }
+    },
+    {
+      "case": "shaped+",
+      "value": "1",
+      "eth_call": {
+        "outcome": "rpc error: code = Internal desc = insufficient balance for transfer",
+        "rpcMessage": "rpc error: code = Internal desc = insufficient balance for transfer",
+        "revertData": null
+      },
+      "eth_estimateGas": {
+        "outcome": "rpc error: code = Unknown desc = insufficient balance for transfer",
+        "rpcMessage": "rpc error: code = Unknown desc = insufficient balance for transfer",
+        "revertData": null
+      }
+    }
+  ]
+}

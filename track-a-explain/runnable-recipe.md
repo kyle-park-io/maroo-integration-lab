@@ -66,7 +66,7 @@ pnpm a:inspect
 pnpm a:probe
 ```
 
-- 예상 결과: 빈 요청과 모양을 갖춘 요청 모두 `SDKInvalidRequest()`, 1 wei를 실은 요청은 잔액이 없으면 `insufficient balance for transfer`. 유효한 증명 없이 부르므로 거부 경로 증거로만 씁니다. 외부에서 유효한 증명을 만들 회로 산출물과 상태 조회 경로가 공개되지 않아, 테스트넷 Privacy는 이 층까지 진단합니다.
+- 예상 결과: 빈 요청과 모양을 갖춘 요청 모두 `eth_call`과 `eth_estimateGas`에서 `SDKInvalidRequest()`, 1 wei를 실은 요청은 잔액이 없으면 `insufficient balance for transfer`. `eth_estimateGas`는 전역 정책까지 평가하므로, 같은 오류가 나오면 그 주소는 전역 정책을 통과하고 요청 검증에서 막힌 것입니다. 유효한 증명 없이 부르므로 거부 경로 증거로만 씁니다. 외부에서 유효한 증명을 만들 회로 산출물과 상태 조회 경로가 공개되지 않아, 테스트넷 Privacy는 이 층까지 진단합니다.
 
 ```bash
 pnpm a:probe-global [보내는 주소] [받는 주소] [금액]
