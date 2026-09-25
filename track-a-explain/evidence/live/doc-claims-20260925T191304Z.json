@@ -1,0 +1,49 @@
+{
+  "checkedAt": "2026-09-25T19:13:04.405Z",
+  "label": "문서 원문 대조와 조회, eth_call. tx 없음",
+  "checks": [
+    {
+      "id": "kyc-labelled-mock",
+      "docsPage": "https://docs.maroo.io/resources/network/testnet-access/",
+      "docsSaysKycMock": true,
+      "privacyTopPolicy": [
+        "LOGICAL_POLICY"
+      ],
+      "note": "Privacy 정책의 세부(EAS_POLICY 스키마)는 inspect-privacy-boundary 기록에 있다"
+    },
+    {
+      "id": "withdraw-denom",
+      "docsPage": "https://docs.maroo.io/apis/contract/contract-privacy-withdraw/",
+      "docsAokrwCount": 6,
+      "docsAtokrwCount": 0,
+      "docsMentionsDenomMismatchError": true,
+      "chainMintDenom": "atokrw"
+    },
+    {
+      "id": "privacy-precompile-listed",
+      "deployedContractsPage": "https://docs.maroo.io/resources/network/deployed-contracts/",
+      "listsPrivacyAddress": false,
+      "architecturePage": "https://docs.maroo.io/concepts/core/maroo-architecture/",
+      "saysFourPrecompiles": true,
+      "chainPrivacyPolicyBound": true
+    },
+    {
+      "id": "empty-initializer",
+      "docsPage": "https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/",
+      "docsSaysPass0x": true,
+      "ethCall": {
+        "empty 0x, kind Transparent": "Error(execution reverted)",
+        "empty 0x, kind UUPS": "Error(execution reverted)",
+        "initialize(), kind Transparent": "통과",
+        "initialize(), kind UUPS": "통과"
+      }
+    },
+    {
+      "id": "preflight-method",
+      "docsPage": "https://docs.maroo.io/concepts/compliance/pcl-reason-codes/",
+      "mentionsEstimateGas": false,
+      "mentionsEthCall": false,
+      "chainEvidence": "probe-global-policy 기록: 같은 전송이 eth_call 은 통과, eth_estimateGas 는 전역 정책으로 거부"
+    }
+  ]
+}
