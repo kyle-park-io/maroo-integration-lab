@@ -1,0 +1,130 @@
+{
+  "checkedAt": "2026-09-26T00:03:26.210Z",
+  "track": 1,
+  "chainId": 450815,
+  "summary": [
+    {
+      "id": "R1",
+      "need": "차폐 흐름(예치, 지급, 스캔, 인출)",
+      "ok": true
+    },
+    {
+      "id": "R2",
+      "need": "보낸 쪽이 아닌 쪽의 disclosure 해독",
+      "ok": true
+    },
+    {
+      "id": "R3",
+      "need": "같은 대상에서 PCL 거부 하나와 통과 하나, 정책 바인딩",
+      "ok": true
+    },
+    {
+      "id": "R4",
+      "need": "OKRW 이동",
+      "ok": true
+    },
+    {
+      "id": "R5",
+      "need": "Privacy 최초 실패 계층 기록",
+      "ok": true
+    }
+  ],
+  "items": [
+    {
+      "requirement": "R1",
+      "label": "[Local]",
+      "ok": "재현 확인",
+      "checks": [
+        "로컬 항목. 심사위원이 README 명령으로 재현"
+      ],
+      "value": "0",
+      "policies": "",
+      "txHash": "EE2FFE3F8B64FCB469A43FA3E4321F615FB1C1DC123470E725B86AE80F330778"
+    },
+    {
+      "requirement": "R1",
+      "label": "[Local]",
+      "ok": "재현 확인",
+      "checks": [
+        "로컬 항목. 심사위원이 README 명령으로 재현"
+      ],
+      "value": "0",
+      "policies": "",
+      "txHash": "75B134188108FABFBC19F610788DDECBC2F6AC2FF913D067C243FC226B9C0492"
+    },
+    {
+      "requirement": "R2",
+      "label": "[Local]",
+      "ok": "재현 확인",
+      "checks": [
+        "로컬 항목. 심사위원이 README 명령으로 재현"
+      ],
+      "value": "0",
+      "policies": "",
+      "txHash": "943BCBBC1146F54AEF9C7BD289845CFE9E51DBBE2971C42088C3065C7966DC7C"
+    },
+    {
+      "requirement": "R3",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 reverted, 블록 19111569, value 0",
+        "✓ 거부 사유 EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+        "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
+      ],
+      "value": "0",
+      "reason": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+      "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
+      "txHash": "0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f"
+    },
+    {
+      "requirement": "R3",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 success, 블록 19111577, value 0",
+        "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
+      ],
+      "value": "0",
+      "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
+      "txHash": "0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d"
+    },
+    {
+      "requirement": "R3",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 reverted, 블록 19111583, value 0",
+        "✓ 거부 사유 EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+        "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
+      ],
+      "value": "0",
+      "reason": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
+      "txHash": "0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc"
+    },
+    {
+      "requirement": "R4",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 success, 블록 19111566, value 100000000000000000000",
+        "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
+      ],
+      "value": "100000000000000000000",
+      "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
+      "txHash": "0x8d9b1197ebdc2c799bacdfcb280e5b292d0252d5fcd8038001c5038bb9ea0c0c"
+    },
+    {
+      "requirement": "R5",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ eth_estimateGas 기록의 사유 SDKInvalidRequest()"
+      ],
+      "value": "0",
+      "reason": "SDKInvalidRequest()",
+      "policies": ""
+    }
+  ]
+}

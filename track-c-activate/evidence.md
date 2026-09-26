@@ -6,12 +6,12 @@
 
 | 항목 | 내용 |
 | --- | --- |
-| 명령 | `pnpm c:grounding` |
-| 기록 | [grounding-20260925T194211Z.json](evidence/live/grounding-20260925T194211Z.json) |
+| 명령 | `pnpm c:grounding`, `pnpm c:grounding --write` |
+| 기록 | [grounding-20260925T194211Z.json](evidence/live/grounding-20260925T194211Z.json)(조회), [grounding-20260926T000418Z.json](evidence/live/grounding-20260926T000418Z.json)(조회와 등록 tx) |
 | 네트워크 | Maroo 테스트넷, chain ID 450815, RPC `https://rpc-testnet.maroo.io` |
-| 실행 시각 | 2026-09-25 19:42 |
+| 실행 시각 | 2026-09-25 19:42, 2026-09-26 00:04 |
 | 호출 | `IPcl.policyTemplate`(템플릿 9개와 없는 ID 하나), `IPcl.getParams`, `IPcl.globalPolicies`, `IPcl.contractPolicies(Privacy)`, `IPcl.globalPeriodicVolume(구매 기업, atokrw, 86400)`, 빈 예치 요청의 `eth_call`과 `eth_estimateGas`, `IAgent.getParams`, `IAgent.getAgentIds`, IdentityRegistry `name`·`symbol`·`getVersion`과 `register(string)` 시뮬레이션, `IOkrw.getParams`, `IEas.getParams`, SchemaRegistry `getSchema`, 탐색기 API 두 건 |
-| 트랜잭션 | 없음. `--write`를 주면 에이전트 등록 tx 한 건을 보냅니다(테스트넷 OKRW 필요) |
+| 트랜잭션 | `--write` 실행에서 구매 기업 지갑이 IdentityRegistry `register(string)` 한 건을 보냄. [0x2c5a…bfad](https://explorer-testnet.maroo.io/tx/0x2c5a0170a44f6f09016ac70e584fb1f1998f7b1efd580afea0673a30624cbfad), 블록 19111740, 성공, agentId 79. 등록 직후 `IAgent.getAgentIds(구매 기업)`이 `[79]`를 돌려줌 |
 
 ## 2. 요건별로 확인한 것
 
@@ -20,6 +20,7 @@
 | 1 | R3, R5 | Privacy 프리컴파일 정책 | `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY(0개 주소))`, 관리자 `0x58eC…804F` |
 | 1 | R5 | 빈 예치 요청의 최초 실패 계층 | `eth_call`과 `eth_estimateGas` 모두 `SDKInvalidRequest()` |
 | 1 | 심사 | 탐색기 API로 Privacy tx를 확인하는 경로 | 최근 50건 모두 `ok/success`, 마지막 2026-09-21 04:40 |
+| 2 | R1 | 에이전트 등록 tx | `register(string)` 성공, agentId 79(시뮬레이션이 예측한 번호와 같음), 등록한 지갑의 `getAgentIds`가 바로 `[79]` |
 | 2 | R1 | Agent 프리컴파일과 IdentityRegistry | 레지스트리 `0x8004…0001`(AgentIdentity, preinstall-1.0.0), `register(string)` 시뮬레이션 통과(다음 agentId 79) |
 | 2 | R2, R4 | 에이전트 한도 템플릿 | `AGENT_OKRW_TRANSFER_LIMIT_POLICY` 등록됨 |
 | 2 | 주의 사항 | 전역 정책의 에이전트 소유자 평가 | `ForEach(Every, AgentOwners, Or(24시간 1,000만 OKRW, KYC 증명))`, `ForEach(Any, AgentOwners, KYC 증명)` |
@@ -41,10 +42,19 @@
 
 ## 4. 검증하지 못한 것
 
-- 에이전트 등록, `TransferLimit` 메타데이터, 에이전트 한도 거부의 상태 변경 tx. 테스트넷 faucet이 전역 한도에 걸려 잔액이 없었습니다. `pnpm c:grounding --write`가 등록 tx를 맡고, 한도 거부는 트랙 2 참가자 요건으로 남깁니다.
+- `TransferLimit` 메타데이터와 에이전트 한도 거부(`ExceededAgentTransferLimit`)의 상태 변경 tx. 에이전트 등록 tx까지 보냈고, 한도 설정과 거부는 트랙 2 참가자 요건으로 남깁니다. 에이전트 지갑을 따로 연결(`setAgentWallet`)했을 때 역조회가 그 지갑도 가리키는지도 확인하지 않았습니다.
 - 외부에서 유효한 Privacy 상태 변경. 회로 산출물과 차폐 상태 조회 경로가 공개되지 않았습니다. 트랙 1의 R1은 이 때문에 로컬 경로를 허용합니다.
 
-## 5. 보조 증거
+## 5. 심사 자동 판정 예시 `[Live Testnet]` 조회
+
+| 항목 | 내용 |
+| --- | --- |
+| 명령 | `pnpm c:judge-example`(Track A 기록을 트랙 1 형식으로 옮긴 뒤 `pnpm c:judge --track 1`) |
+| 입력 | [evidence.json](evidence/judge-example/evidence.json): 로컬 항목 셋(R1, R2), 금고 tx 넷(R3 거부 둘과 통과 하나, R4 입금), Privacy 최초 실패 기록 하나(R5) |
+| 결과 | [evidence.judge.json](evidence/judge-example/evidence.judge.json): R1~R5 모두 통과. 거부 tx 둘은 직전 블록 상태로 다시 시뮬레이션해 `EasNoAttestationReceived`, `EasAttestationRevoked`가 적힌 사유와 같았고, 금고의 `claim()` 선택자(`0x4e71d92d`)에 `EAS_POLICY`가 묶여 있음을 확인 |
+| 시험한 실패 경우 | 공개 레지스트리 tx에 부풀린 거부 사유(`ExceededAgentTransferLimit`)를 붙인 항목은 재시뮬레이션 사유와 달라 실패로 판정(2026-09-26 05시, 레포에는 남기지 않음) |
+
+## 6. 보조 증거
 
 | 항목 | 라벨 | 위치 |
 | --- | --- | --- |

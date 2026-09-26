@@ -44,7 +44,7 @@ Agent identity(ERC-8004 IdentityRegistry와 Agent 프리컴파일) 또는 MAWS, 
 
 | 요건 | 내용 | 환경 | 판정 방법 |
 | --- | --- | --- | --- |
-| R1 신원 | IdentityRegistry에 에이전트를 등록하고 에이전트 지갑을 연결(또는 MAWS로 에이전트 생성) | `[Live Testnet]` | `register` tx, `getAgentIds(에이전트 지갑)`가 그 ID를 돌려줌 |
+| R1 신원 | IdentityRegistry에 에이전트를 등록하고 에이전트 지갑을 연결(또는 MAWS로 에이전트 생성) | `[Live Testnet]` | `register` tx, `getAgentIds(등록한 지갑)`이 그 ID를 돌려줌(2026-09-26 등록 tx로 확인). 에이전트 지갑을 따로 연결했다면 그 지갑으로도 조회 |
 | R2 한도 | `getMetadata(agentId, "TransferLimit")`에 한도를 쓰고, 제품 컨트랙트에 `AGENT_OKRW_TRANSFER_LIMIT_POLICY`를 묶음 | `[Live Testnet]` | `setMetadata` tx, `IPcl.contractPolicies(제품 컨트랙트)` |
 | R3 결제 | 에이전트 지갑이 한도 안의 OKRW 결제를 성공 | `[Live Testnet]` | 성공 tx, value나 잔액 변화 |
 | R4 거부 | 한도를 넘는 결제가 거부됨 | `[Live Testnet]` | 되돌려진 tx나 `eth_estimateGas` 기록의 `ExceededAgentTransferLimit(maxLimit, value)` |

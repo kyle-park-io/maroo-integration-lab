@@ -256,7 +256,7 @@ pnpm a:local
 
 ## 24. 심사 과정 예시
 
-가상의 제출 "정산메이트"를 예로 듭니다.
+가상의 제출 "정산메이트"를 예로 듭니다. 1단계의 자동 판정은 이 레포의 Track A 기록으로 실제로 돌려 볼 수 있습니다(`pnpm c:judge-example`, [결과](../evidence.md#5-심사-자동-판정-예시-live-testnet-조회)).
 
 1. 자동 판정: R3 거부 tx의 영수증이 `status=reverted`이고 `contractPolicies(target)`에 `EAS_POLICY`가 `claim()` 선택자로 묶여 있어 통과. R4의 tx는 value 50 OKRW라 통과. R1과 R2는 `[Local]` 라벨이라 재현 확인으로 넘어감.
 2. 재현 확인: 심사위원 노트북에서 `pnpm first-success`가 9분 만에 끝나고, 해독 결과가 제출물의 표와 같음.

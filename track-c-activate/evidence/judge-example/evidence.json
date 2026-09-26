@@ -1,0 +1,120 @@
+{
+  "project": "Track A 기록으로 만든 예시 제출물",
+  "track": 1,
+  "sources": [
+    "track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json",
+    "track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json",
+    "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+  ],
+  "items": [
+    {
+      "requirement": "R1",
+      "label": "[Local]",
+      "network": "clairveil-local",
+      "call": "transfer-batch",
+      "input": "협력사 A 송장 12, 8",
+      "txHash": "EE2FFE3F8B64FCB469A43FA3E4321F615FB1C1DC123470E725B86AE80F330778",
+      "expected": "성공",
+      "actual": "code 0",
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+    },
+    {
+      "requirement": "R1",
+      "label": "[Local]",
+      "network": "clairveil-local",
+      "call": "withdraw",
+      "input": "협력사 A 12, 같은 블록 0 노트 예치",
+      "txHash": "75B134188108FABFBC19F610788DDECBC2F6AC2FF913D067C243FC226B9C0492",
+      "expected": "성공",
+      "actual": "code 0",
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+    },
+    {
+      "requirement": "R2",
+      "label": "[Local]",
+      "network": "clairveil-local",
+      "call": "decode-transfer-disclosure",
+      "input": "협력사 B 수신자 disclosure",
+      "txHash": "943BCBBC1146F54AEF9C7BD289845CFE9E51DBBE2971C42088C3065C7966DC7C",
+      "expected": "verified=true",
+      "actual": "verified=true, amount 15",
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+    },
+    {
+      "requirement": "R3",
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "call": "claim()",
+      "input": "호출자: 증명 없는 협력사 B",
+      "txHash": "0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f",
+      "expected": "PCL 거부",
+      "actual": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+      "executedAt": "2026-09-26T00:01:41.904Z"
+    },
+    {
+      "requirement": "R3",
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "call": "claim()",
+      "input": "호출자: 증명을 색인한 협력사 A",
+      "txHash": "0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d",
+      "expected": "통과",
+      "actual": "성공",
+      "executedAt": "2026-09-26T00:01:41.904Z"
+    },
+    {
+      "requirement": "R3",
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "call": "claim()",
+      "input": "호출자: 증명이 폐기된 협력사 A",
+      "txHash": "0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc",
+      "expected": "PCL 거부",
+      "actual": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "executedAt": "2026-09-26T00:01:41.904Z"
+    },
+    {
+      "requirement": "R4",
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "call": "fund(address)",
+      "input": "협력사 A 몫 100 OKRW",
+      "txHash": "0x8d9b1197ebdc2c799bacdfcb280e5b292d0252d5fcd8038001c5038bb9ea0c0c",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0x8d9b1197ebdc2c799bacdfcb280e5b292d0252d5fcd8038001c5038bb9ea0c0c",
+      "expected": "성공",
+      "actual": "성공",
+      "executedAt": "2026-09-26T00:01:41.904Z"
+    },
+    {
+      "requirement": "R5",
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "target": "0x100000000000000000000000000000000000000b",
+      "call": "deposit",
+      "input": "빈 요청",
+      "expected": "요청 검증 거부",
+      "actual": "SDKInvalidRequest()",
+      "executedAt": "2026-09-25T19:33:14.305Z",
+      "rpcLog": {
+        "method": "eth_estimateGas",
+        "params": [],
+        "error": {
+          "message": "execution reverted",
+          "data": "0xadb34e5c"
+        }
+      }
+    }
+  ]
+}
