@@ -176,7 +176,7 @@ Maroo가 Privacy 재료를 공개한 경우에는 `[Local] Clairveil 체인` 상
 | 항목 | 내용 |
 | --- | --- |
 | 고정 버전 | Node 24, pnpm 11, viem 2.56.8, `@maroo-chain/contracts` 0.0.9, `@maroo-chain/viem` 0.4.0, Clairveil v0.4.0 `ca85b027`, ClairveilJS `faf220d5`, clairveil-samples `8321ded`, Foundry 1.8.1 |
-| 명령 | `pnpm setup:clairveil`(고정 커밋 받기), `pnpm first-success`(로컬 차폐 정산 한 번), `pnpm inspect`(테스트넷 Privacy 정책과 최초 실패 계층), `pnpm deploy:vault`(PCL 프록시 금고), `pnpm evidence`(`evidence.json` 생성) |
+| 명령 | 스타터 키트에 둘 이름입니다. 이 레포에서는 괄호 안의 명령이 같은 일을 합니다. `pnpm setup:clairveil`(같은 이름), `pnpm first-success`(`pnpm a:local`, 로컬 차폐 정산 한 번), `pnpm inspect`(`pnpm a:inspect`, `pnpm a:probe`, 테스트넷 Privacy 정책과 최초 실패 계층), `pnpm deploy:vault`(`pnpm a:kyb-gate`, PCL 프록시 금고), `pnpm evidence`(`evidence.json` 생성. 이 레포에는 트랙 2용 `pnpm c:agent-limit`과 트랙 1 예시용 `pnpm c:judge-example`이 있음) |
 | 코드 | 지급 서비스 뼈대, 로컬 체인 실행기, disclosure 해독 예시, PCL 프록시 금고와 테스트, 사유 코드 해석기(`AnyOfRejected` 안쪽까지) |
 | 문서 | 라벨 규칙, 가시성 표 양식, 자주 막히는 곳 |
 | 기준 구현 | 체인 쪽 흐름은 이 레포의 `shared/`와 `track-a-explain/recipe/`입니다(`pnpm a:local`, `pnpm a:inspect`, `pnpm a:probe`, `pnpm a:kyb-gate`). PCL 정책과 프록시 코드는 Maroo 공식 SDK `@maroo-chain/viem`을 씁니다. 지갑과 dApp 쪽은 ClairveilJS `faf220d5`와 clairveil-samples `8321ded`를 기준으로 삼습니다. ClairveilJS는 Maroo `IPrivacy`와 ABI 해시가 같은 EVM Privacy 계약 v0.3.1을 검증하고 conformance 113개를 통과했습니다 `[코드 대조]`. Maroo 테스트넷에서는 차폐 상태 조회 경로가 없어 예치 준비에서 멈춥니다 `[Live Testnet]`. clairveil-samples는 React dApp, 로컬 스택(체인, prover, 웹앱) 실행 스크립트, EVM 설정 예시를 줍니다 `[Docs Only]`. ClairveilJS의 네이티브 이체 가스 한도 기본값(21,000)은 Maroo에서 바꿔야 합니다(15절) |
