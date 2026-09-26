@@ -34,6 +34,8 @@ pnpm setup:clairveil && pnpm a:local          # [Local] full shielded settlement
 
 State-changing testnet flows (`pnpm a:kyb-gate`, `pnpm b:step 2`, `pnpm c:agent-limit`) need testnet OKRW in the buyer wallet.
 
+Building with an AI agent: opening the repo in Claude Code loads the [`.claude/skills/maroo-integration`](.claude/skills/maroo-integration/SKILL.md) skill. It carries the rules this repo verified on testnet (pre-checks, gas limits, proxy deployment, attestation indexing order, the agent limit format), the places where the docs differ, and the commands to check them, and tells the agent not to guess anything outside that table.
+
 ## Evidence labels
 
 | Label | Meaning |

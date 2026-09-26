@@ -83,6 +83,7 @@
 | 테스트넷 OKRW | 운영진 배분. 신청 채널은 주최 측이 행사 공지에서 정합니다 |
 | 정책 거부 사유 해석 | 오피스아워 2([트랙 1의 25절](tracks/1-private-settlement.md#25-워크샵과-오피스아워)), [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/), `pnpm c:judge`가 직전 블록으로 다시 시뮬레이션한 사유 |
 | 제출 증거 형식 | 제출 전 점검 회차, `pnpm c:judge <evidence.json> --track N` 자동 판정. 트랙 2는 [이 레포가 직접 채운 예시](tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet)가 있습니다 |
+| AI 에이전트로 만들 때 | 레포의 [에이전트 스킬](../.claude/skills/maroo-integration/SKILL.md). 테스트넷에서 확인한 규칙과 문서와 다른 곳, 확인 명령을 담았다 |
 | 그 밖의 질문 | 멘토 채널(주최 측이 정하는 채널), [트랙 1의 26절](tracks/1-private-settlement.md#26-멘토가-자주-받을-질문과-답변-방향) 멘토 답변 방향 |
 
 ### 공통 심사 흐름
