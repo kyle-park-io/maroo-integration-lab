@@ -249,6 +249,7 @@ stateDiagram-v2
 | 한도 | `PrivacyTxLimitExceeded`, `PrivacySenderTxLimitExceeded`, `PrivacyBatchSizeOutOfRange` | 나눠서 | 한 tx의 호출 수와 일괄 지급 크기(최대 20)를 줄임 `[Docs Only]` |
 | 결과 불명 | 응답 시간 초과, receipt 없음 | 기존 tx 해시를 확인한 뒤 | 같은 노트로 새 tx를 만들기 전에 대사 |
 
+- 협력사 자격을 갱신할 때는 새 증명을 발급한 뒤 색인까지 해야 합니다. 폐기한 옛 증명이 색인돼 있으면, 새 증명을 색인하기 전의 청구는 `EasAttestationRevoked`로 거부됩니다. `[Live Testnet]` [두 번째 금고 실행 기록](../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json)
 - 보내기 전 검사는 `eth_estimateGas`로 합니다. 같은 OKRW 전송을 불렀을 때 `eth_call`은 통과했고 `eth_estimateGas`는 `AnyOfRejected(ExceededPeriodicVolume(...), EasNoAttestationReceived(...))`로 거부했습니다. 전역 정책이 `eth_call`에서 평가되지 않기 때문입니다. `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json)
 - Clairveil v0.4.0 로컬 체인에서는 인출을 단독으로 보낸 tx가 `merkle root snapshot re-registration is inconsistent`로 실패했고, 같은 블록에 잎을 더하는 tx(0 노트 예치)를 함께 넣으면 성공했습니다. 다시 보내기만 하면 같은 오류가 납니다. Maroo 테스트넷에서도 같은 조건이 생기는지는 확인하지 못했습니다. `[Local]` [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) 4절
 

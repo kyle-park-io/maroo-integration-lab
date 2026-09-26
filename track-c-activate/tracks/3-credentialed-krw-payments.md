@@ -101,6 +101,6 @@ OKRW, PCL, EAS.
 
 - 증명 데이터는 공개됩니다. 개인정보는 넣지 않고 해시나 등급만 넣습니다. 테스트넷 KYC 스키마도 `kakaoIdHash`처럼 해시만 담습니다 `[Live Testnet]`.
 - 발급 키가 새면 누구에게나 자격을 줄 수 있습니다. 발급 지갑과 운영 지갑을 나누고, 폐기 절차를 함께 설계합니다.
-- 증명은 발급한 뒤 `indexAttestation`까지 해야 PCL이 인식합니다. 이 순서는 문서의 EAS 연동 페이지에서 찾기 어렵고, [KYB 관문 금고 흐름](../../track-a-explain/recipe/pcl-kyb-gate.ts)의 6b 단계(색인 전 청구)가 테스트넷에서 확인합니다.
+- 증명은 발급한 뒤 `indexAttestation`까지 해야 PCL이 인식합니다. 이 순서는 문서의 EAS 연동 페이지에서 찾기 어렵고, [KYB 관문 금고 흐름](../../track-a-explain/recipe/pcl-kyb-gate.ts)의 6b 단계(색인 전 청구)가 테스트넷에서 확인합니다 `[Live Testnet]` [기록](../../track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json). 폐기한 옛 증명이 색인돼 있으면 새 증명을 색인하기 전의 호출은 `EasAttestationRevoked`로 거부됩니다 [기록](../../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json).
 - `eth_call`은 전역 정책을 평가하지 않습니다. 사전 검사는 `eth_estimateGas`로 합니다 `[Live Testnet]`.
 - 테스트넷 OKRW는 시험용입니다. 제출물을 실제 결제 서비스나 법적 요건을 충족한 서비스로 소개하지 않습니다.
