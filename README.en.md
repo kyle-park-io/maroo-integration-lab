@@ -52,7 +52,7 @@ State-changing testnet flows (`pnpm a:kyb-gate`, `pnpm b:step 2`, `pnpm c:agent-
 - `[Live Testnet]` An agent wallet with a 5 OKRW `TransferLimit` pays 3 OKRW successfully and is rejected at 8 OKRW with `ExceededAgentTransferLimit`. Writing the limit as the numeric string that Maroo Docs describes blocks every payment with `AgentTransferLimitMetadataInvalid`; only a 32-byte uint256 works.
 - `[Live Testnet]` A plain OKRW transfer uses about 104,000 gas from a regular account and about 284,000 from an agent wallet, while the docs example says 21,000. A transfer sent with a 21,000 gas limit is included, reverts, and still pays a fee.
 
-All discrepancies (18) and DX feedback items (13) with reproduction commands and owners are in [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md).
+All discrepancies (19) and DX feedback items (14) with reproduction commands and owners are in [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md).
 
 ## Known limitations
 

@@ -83,7 +83,7 @@ export async function runKybGate(opts: { evidenceDir: string; beforeStage?: (sta
     const data = encodeFunctionData({ abi: vaultAbi, functionName });
     const hash = await walletFor(role).sendTransaction({ to, data, gas: 300_000n });
     const r = await pub.waitForTransactionReceipt({ hash });
-    log(label, { tx: hash, block: r.blockNumber.toString(), reason, result: r.status === "reverted" ? "예상대로 거부" : "예상과 달리 성공" });
+    log(label, { tx: hash, block: r.blockNumber.toString(), gasLimit: "300000", gasUsed: r.gasUsed.toString(), reason, result: r.status === "reverted" ? "예상대로 거부" : "예상과 달리 성공" });
   }
 
   const balance = async (a: Address) => formatEther(await pub.getBalance({ address: a }));

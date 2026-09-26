@@ -55,6 +55,7 @@
 | 16 | Maroo Docs `eth_estimateGas` | 단순 전송은 `0x5208`(21,000)을 돌려줌 | 1 OKRW 이체의 추정치가 일반 계정 104,017, 에이전트 지갑 283,560. 21,000으로 보내면 블록에 들어가 되돌려지고 수수료 0.189 OKRW. 가스 21,000 `eth_call`은 통과. ClairveilJS 기본 `evmSendGasLimit`도 21,000 | `pnpm a:probe-send-gas` | A 문서 개선 노트 7, FAQ 6, C 트랙 1 15절 |
 | 17 | Maroo Docs `AGENT_OKRW_TRANSFER_LIMIT_POLICY` | `TransferLimit`은 aokrw 숫자 문자열이고, 메타데이터가 없거나 잘못되면 해석할 수 없는 문자열 사유로 되돌림 | 숫자 문자열은 `AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)`로 한도 안 결제까지 거부. 32바이트 uint256만 동작. 오류는 해석 가능한 `AgentTransferLimitMetadataInvalid(string)` | `pnpm c:agent-limit` | C 트랙 2 R2, 15절, 16절, 판정 스크립트 |
 | 18 | Maroo Docs `IAgent.getAgentIds` | "지갑에 등록된 agent ID" | 연결된 에이전트 지갑 기준. `setAgentWallet` 뒤 소유자 주소로는 빈 목록, 에이전트 지갑으로 `[79]` | `pnpm c:agent-limit` | C 트랙 2 R1 |
+| 19 | Maroo Docs PCL 정책 강제, 아키텍처 | 정책 평가가 거절하면 RPC가 브로드캐스트 전에 막아 가스를 내지 않고 블록에도 들어가지 않음. 비준수 tx는 실행 전에 거절 | PCL 프록시의 컨트랙트 정책(`claim()`의 `EAS_POLICY`, `fund()`의 에이전트 한도) 거부 tx는 블록에 들어가 되돌려지고 가스 한도의 절반을 냄(150,000/300,000, 363,982/727,965) | `pnpm a:kyb-gate` 5·6b·7c, `pnpm c:agent-limit` 4b | A 가이드 1절 층 표, 문서 개선 노트 8 |
 
 ## Validation
 
@@ -178,18 +179,19 @@
 | 11 | A, C | 단순 이체 가스 예시와 ClairveilJS 기본 가스 한도가 21,000인데 테스트넷 단순 이체는 일반 계정 약 104,000, 에이전트 지갑 약 284,000을 씀 | `pnpm a:probe-send-gas` | 네이티브 OKRW를 보내는 지갑 개발자, ClairveilJS 사용자, 해커톤 참가자 | 높음. `eth_call` 사전 검사는 통과하고 tx는 사유 없이 되돌려지며 수수료를 냄 | 문서 예시를 테스트넷 값으로 바꾸고 고정 한도 대신 추정값을 쓰라고 적음. ClairveilJS EVM 프로필은 추정값을 씀 | Maroo Docs, ClairveilJS |
 | 12 | C | 에이전트 한도 문서가 `TransferLimit`을 숫자 문자열로 안내하는데 체인은 32바이트 uint256만 받음 | `pnpm c:agent-limit` | 에이전트 결제를 만드는 개발자, 트랙 2 참가자 | 높음. 문서대로 쓰면 한도 안 결제까지 모든 결제가 막히고, 문서가 해석할 수 없다고 한 오류라 사유를 읽으려 하지 않게 됨 | 형식을 `abi.encode(uint256)`로 고치고 `AgentTransferLimitMetadataInvalid(string)` 예시를 둠. SDK 주석은 이미 맞음 | Maroo Docs |
 | 13 | C | `getAgentIds`의 기준 지갑이 문서에 없음 | `pnpm c:agent-limit` | 지갑에서 에이전트를 찾는 화면, 백엔드 | 중간. 에이전트 지갑을 연결하면 소유자 주소로 찾던 화면이 빈 목록을 보여 줌 | "연결된 에이전트 지갑 기준, 연결 전에는 소유자"를 적고 소유자 기준 조회는 `ownerOf`나 이벤트로 안내 | Maroo Docs |
+| 14 | A, B, C | PCL 프록시의 컨트랙트 정책 거부가 블록에 들어가 수수료를 내는데, 문서는 제출 시점에 걸러져 가스를 내지 않는다고 적음 | `pnpm a:kyb-gate` 5·6b·7c, `pnpm c:agent-limit` 4b | 규제 트랙 컨트랙트를 운영하는 기관, 워크샵·해커톤 참가자 | 중간. 거부 시험마다 한도의 절반을 수수료로 내고, 자격 없는 청구 시도가 주소와 함께 공개 체인에 남음 | 사전 거절이 전역 정책에만 해당한다고 적고, 컨트랙트 정책은 `eth_estimateGas` 사전 검사를 안내 | Maroo Docs, PCL |
 
 ### A
 
-1, 2, 4, 5, 9, 10, 11번. 문서 개선 노트 일곱 항목에 멈추는 사람, 확인 비용, 고친 문구 제안까지 적었습니다.
+1, 2, 4, 5, 9, 10, 11, 14번. 문서 개선 노트 여덟 항목에 멈추는 사람, 확인 비용, 고친 문구 제안까지 적었습니다.
 
 ### B
 
-1, 2, 3, 5번. 워크샵에서는 3번(faucet)이 가장 크게 걸려, 진행자 배분(`pnpm b:fund`)을 기본 경로로 두었습니다.
+1, 2, 3, 5, 14번. 워크샵에서는 3번(faucet)이 가장 크게 걸려, 진행자 배분(`pnpm b:fund`)을 기본 경로로 두었습니다.
 
 ### C
 
-2, 4, 6, 7, 8, 10, 11, 12, 13번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
+2, 4, 6, 7, 8, 10, 11, 12, 13, 14번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
 
 ## Known Limitations
 
@@ -225,5 +227,5 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | Clairveil v0.4.0 인출 스냅샷 조건이 Maroo 테스트넷에도 있는지 | 로컬에서만 재현(단독 인출 실패, 같은 블록 우회) | 테스트넷 Privacy 정상 경로가 열린 뒤 인출 한 번 | Maroo |
 | 에이전트 한도의 전역 범위 귀속(다른 컨트랙트가 에이전트의 호출을 옮길 때) | 컨트랙트 범위, 직접 보낸 경우만 확인 | 전역 정책 설정 권한이 필요해 Maroo 쪽 시험이 필요 | Maroo |
 | 관찰자 노드(규제기관 열람)와 차폐 금액 상한의 일정 | 문서에 미구현, 노트 하나 약 18.45 OKRW | Maroo 로드맵 확인 | Maroo |
-| 문서 차이 18건의 반영 | 2026-09-26 문서 미러 기준 | `pnpm a:doc-claims`(1~5번), `pnpm a:probe-send-gas`, `pnpm c:agent-limit`를 다시 실행해 문서 문장과 체인 동작 대조 | Maroo Docs |
+| 문서 차이 19건의 반영 | 2026-09-26 문서 미러 기준 | `pnpm a:doc-claims`(1~5번), `pnpm a:probe-send-gas`, `pnpm c:agent-limit`를 다시 실행해 문서 문장과 체인 동작 대조 | Maroo Docs |
 | 실제 참가자와의 워크샵, 실제 해커톤 참가자의 트랙 2 제출 | 이 머신의 실행 시간으로만 설계 | 파일럿 워크샵 한 번, `pnpm c:judge`로 참가자 제출물 판정 | 운영진 |
