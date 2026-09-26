@@ -97,6 +97,7 @@
 | `pnpm a:doc-claims` | 2026-09-26 05:13 | 문서 개선 노트 1~5의 근거. 다섯 항목 모두 같은 결론. 문서 페이지가 200이 아니면 판정하지 않고 멈춤 | [JSON](track-a-explain/evidence/live/doc-claims-20260926T051350Z.json) |
 | `pnpm a:local` | 2026-09-25 18:19 | 로컬 tx 11건. 단독 인출 실패(code 1)와 같은 블록 우회 성공, 역할별 해독 `verified=true` | [기록](track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md) |
 | `pnpm a:kyb-gate` | 2026-09-26 00:01 | tx 18건, 37초. 증명 없음·색인 전 청구 `EasNoAttestationReceived`, 폐기 뒤 `EasAttestationRevoked`, 색인 뒤 청구 성공. 구현 슬롯 확인, 정책 관리자와 업그레이드 권한 분리. 구매 기업 250.06 OKRW 사용 | [JSON](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
+| `pnpm a:kyb-gate`(SDK 코드, 새 지갑) | 2026-09-26 05:26 | 프록시 배포와 정책 바인딩을 `@maroo-chain/viem`으로 바꾼 뒤 첫 테스트넷 실행. 5·6b `EasNoAttestationReceived`, 7c `EasAttestationRevoked`, 6d 성공 | [JSON](track-a-explain/evidence/live/pcl-kyb-gate-20260926T052641Z.json) |
 
 ### B
 
@@ -115,6 +116,7 @@
 | `pnpm c:grounding --write` | 2026-09-26 00:04 | 에이전트 등록 tx 성공(agentId 79, 블록 19111740). 등록한 지갑의 `getAgentIds`가 바로 `[79]` | [JSON](track-c-activate/evidence/live/grounding-20260926T000418Z.json) |
 | `pnpm c:judge-example` | 2026-09-26 00:03 | Track A 기록으로 만든 트랙 1 예시 제출물이 R1~R5 모두 통과. 거부 tx 둘의 사유를 직전 블록 재시뮬레이션으로 재현 | [판정 결과](track-c-activate/evidence/judge-example/evidence.judge.json) |
 | `pnpm c:agent-limit` | 2026-09-26 04:40 | 트랙 2 R1~R4 실증. 에이전트 지갑 연결, `TransferLimit` 5 OKRW, 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`. 빈 값과 문서 형식 메타데이터는 `AgentTransferLimitMetadataInvalid`. 약 30 OKRW | [JSON](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json) |
+| `pnpm c:grounding --write`, `pnpm c:agent-limit`(새 지갑) | 2026-09-26 05:30 | 에이전트 80 등록부터 다시 실행. 지갑 연결, 마감 제한(+299초 통과, +301초 `deadline too far`), 세 형식, 3 OKRW 성공, 8 OKRW `ExceededAgentTransferLimit`. 04:40 실행과 같은 결과 | [등록](track-c-activate/evidence/live/grounding-20260926T053055Z.json), [실증](track-c-activate/evidence/live/agent-limit-20260926T053121Z.json) |
 | `pnpm c:judge <트랙 2 예시> --track 2` | 2026-09-26 04:45 | R1~R4 모두 통과. 거부 tx 사유를 직전 블록 재시뮬레이션으로 재현, `TransferLimit` 32바이트 확인 | [판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json) |
 
 ### 직접 검증한 것과 문서로만 확인한 것

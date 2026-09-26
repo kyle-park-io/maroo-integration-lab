@@ -1,0 +1,140 @@
+{
+  "label": "조회, 시뮬레이션, 에이전트 등록 tx",
+  "rpc": "https://rpc-testnet.maroo.io",
+  "checkedAt": "2026-09-26T05:30:50.432Z",
+  "block": "19131054",
+  "caller": "0x61fBB97653C2D4120CF3d1586eB7D1a044859fB1",
+  "common": {
+    "templates": {
+      "DENYLIST_POLICY": "등록됨 (Denylist)",
+      "VOLUME_POLICY": "등록됨 (Volume policy)",
+      "PERIODIC_VOLUME_POLICY": "등록됨 (Periodic volume policy)",
+      "EAS_POLICY": "등록됨 (EAS policy)",
+      "AGENT_OKRW_TRANSFER_LIMIT_POLICY": "등록됨 (Agent OKRW transfer limit policy)",
+      "LOGICAL_POLICY": "등록됨 (Logical policy)",
+      "FOR_EACH_POLICY": "등록됨 (For each policy)",
+      "OKRW_EAS_TRANSFER_LIMIT_POLICY": "등록됨 (OKRW EAS transfer limit policy)",
+      "OKRW_EAS_PERIODIC_VOLUME_LIMIT_POLICY": "등록됨 (OKRW EAS periodic volume limit policy)"
+    },
+    "unknownTemplate": "되돌려짐",
+    "pclParams": {
+      "policyAdmin": "0x58eC1E718ff15e5f34591747D47ADf5BccDA804F",
+      "entrypoints": [
+        "0x5FF137D4b0FDCD49DcA30c7CF57E578a026d2789",
+        "0x4337084D9E255Ff0702461CF8895CE9E3b5Ff108",
+        "0x433709009B8330FDa32311DF1C2AFA402eD8D009"
+      ]
+    },
+    "globalPolicy": "And(ForEach(Every, AgentOwners, Or(PERIODIC_VOLUME_POLICY(atokrw ≤ 10000000 / 86400s), EAS_POLICY(schema 0x3e448d…527d))), Or(VOLUME_POLICY(atokrw 0~2000000), EAS_POLICY(schema 0x3e448d…527d), ForEach(Any, AgentOwners, EAS_POLICY(schema 0x3e448d…527d))))"
+  },
+  "track1": {
+    "privacyPolicy": "And(EAS_POLICY(schema 0x3e448d…527d), DENYLIST_POLICY(0개 주소))",
+    "privacyPolicyAdmin": "0x58eC1E718ff15e5f34591747D47ADf5BccDA804F",
+    "privacyFunctions": [
+      "batchTransfer",
+      "batchTransferWithAuthorization",
+      "deposit",
+      "singleProofBatchTransfer",
+      "singleProofBatchTransferWithAuthorization",
+      "transfer",
+      "transferWithAuthorization",
+      "withdraw",
+      "withdrawWithAuthorization"
+    ],
+    "depositProbe": {
+      "eth_call": "SDKInvalidRequest()",
+      "eth_estimateGas": "SDKInvalidRequest()"
+    },
+    "explorer": {
+      "url": "https://explorer-testnet.maroo.io/blockscout/api/v2/addresses/0x100000000000000000000000000000000000000b/transactions?filter=to",
+      "firstPageCount": 50,
+      "statuses": {
+        "ok/success": 50
+      },
+      "latest": "2026-09-21T04:40:01.000000Z"
+    }
+  },
+  "track2": {
+    "agentParams": {
+      "identityRegistry": "0x8004000000000000000000000000000000000001",
+      "reputationRegistry": "0x8004000000000000000000000000000000000002"
+    },
+    "reputationRegistryCodeBytes": 4974,
+    "identityRegistry": {
+      "address": "0x8004000000000000000000000000000000000001",
+      "name": "AgentIdentity",
+      "symbol": "AGENT",
+      "version": "preinstall-1.0.0"
+    },
+    "buyerAgentIds": [
+      [],
+      {
+        "nextKey": "0x",
+        "total": "0"
+      }
+    ],
+    "registerSimulation": "통과, 다음 agentId 80",
+    "explorer": {
+      "url": "https://explorer-testnet.maroo.io/blockscout/api/v2/addresses/0x8004000000000000000000000000000000000001/transactions?filter=to",
+      "firstPageCount": 50,
+      "methods": {
+        "ok/setMetadata": 16,
+        "ok/setAgentWallet": 1,
+        "ok/register": 20,
+        "ok/setAgentURI": 11,
+        "error/0xf6bbccce": 2
+      },
+      "latest": "2026-09-26T04:40:51.000000Z"
+    },
+    "agentLimitTemplate": "등록됨 (Agent OKRW transfer limit policy)",
+    "globalPolicyUsesAgentOwners": true,
+    "registerTx": {
+      "hash": "0x87cb3edc63156a79ed6877a224d9126eadda4b1df671e22fb9494240b5684a57",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0x87cb3edc63156a79ed6877a224d9126eadda4b1df671e22fb9494240b5684a57",
+      "block": "19131058",
+      "status": "success",
+      "agentId": "80",
+      "agentIdsAfter": [
+        [
+          "80"
+        ],
+        {
+          "nextKey": "0x",
+          "total": "1"
+        }
+      ]
+    }
+  },
+  "track3": {
+    "okrw": {
+      "minter": "0x83cBceF68d5989a30795Ce63C9617Aa93016f63F",
+      "mintDenom": "atokrw"
+    },
+    "okrwErc20": {
+      "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+      "codeBytes": 0,
+      "name": "조회 실패: The contract function \"name\" returned no data (\"0x\").",
+      "symbol": "조회 실패: The contract function \"symbol\" returned no data (\"0x\").",
+      "decimals": "조회 실패: The contract function \"decimals\" returned no data (\"0x\")."
+    },
+    "eas": {
+      "schemaRegistry": "0x1000000000000000000000000000000000000006",
+      "eas": "0x1000000000000000000000000000000000000007",
+      "indexer": "0x1000000000000000000000000000000000000008"
+    },
+    "kycSchema": {
+      "uid": "0x3e448d939524a8f3e6a403502e57ce60ee10146292114a58f4bfd1b1d35f527d",
+      "schema": "bytes32 kakaoIdHash, uint8 version",
+      "resolver": "0x6D2cBcFEeB6B6752C76D7eeB1cb4aD69aae58D6f",
+      "revocable": true
+    },
+    "buyerPeriodicVolume": [
+      {
+        "amount": "0",
+        "maxAmount": "10000000000000000000000000",
+        "resetPeriodSeconds": "86400",
+        "resetAt": "1790467200"
+      }
+    ]
+  }
+}

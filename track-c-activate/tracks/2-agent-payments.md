@@ -106,7 +106,7 @@ Agent identity(ERC-8004 IdentityRegistry와 Agent 프리컴파일) 또는 MAWS, 
 - 에이전트 지갑 키가 새면 한도까지는 결제가 일어납니다. 키는 MAWS나 기기의 보안 저장소에 두고 레포에 올리지 않습니다.
 - 체인 한도는 건당 한도입니다 `[Docs Only]`. 누적 한도가 필요하면 전역 정책의 24시간 한도나 제품 컨트랙트의 기간 한도 정책을 함께 씁니다.
 - `TransferLimit` 값은 aokrw 금액을 32바이트 big-endian uint256으로 씁니다(viem: `numberToHex(한도, { size: 32 })`). Maroo Docs가 적은 숫자 문자열이나 빈 값이면 `AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)` 같은 해석 가능한 오류로 한도 안 결제까지 모두 거부됩니다 `[Live Testnet]` (16절).
-- `setAgentWallet`은 새 에이전트 지갑이 EIP-712(`AgentWalletSet(agentId, newWallet, owner, deadline)`)로 서명하고 소유자가 보냅니다 `[Live Testnet]`. 마감은 체인 블록 시각 기준 5분 안이어야 합니다. 블록 시각 +299초로 서명한 요청은 시뮬레이션을 통과했고 +301초는 `deadline too far`로 되돌려졌습니다 `[Live Testnet]` 시뮬레이션(2026-09-26, `pnpm c:agent-limit` 1단계가 같은 확인을 기록에 남김).
+- `setAgentWallet`은 새 에이전트 지갑이 EIP-712(`AgentWalletSet(agentId, newWallet, owner, deadline)`)로 서명하고 소유자가 보냅니다 `[Live Testnet]`. 마감은 체인 블록 시각 기준 5분 안이어야 합니다. 블록 시각 +299초로 서명한 요청은 시뮬레이션을 통과했고 +301초는 `deadline too far`로 되돌려졌습니다 `[Live Testnet]` 시뮬레이션([기록](../evidence/live/agent-limit-20260926T053121Z.json) 1단계).
 - 전역 정책은 에이전트가 보낼 때 소유자 모두가 24시간 1,000만 OKRW 안이거나 KYC 증명을 갖기를 요구합니다 `[Live Testnet]`. 시연 금액과 소유자 지갑을 이에 맞춰 준비합니다.
 - Maroo Docs의 IdentityRegistry 호출 스케치(`bytes32 agentId`, `attest`, `revoke`)는 테스트넷에 배포된 컨트랙트(`uint256 agentId`, `register`, `setMetadata`, `setAgentWallet`)와 다릅니다 `[Live Testnet]`.
 - 에이전트 메타데이터는 공개됩니다. 소유자의 개인정보를 넣지 않습니다.
@@ -156,5 +156,6 @@ sequenceDiagram
 
 - 세 경우 모두 `eth_call`(SDK `simulatePclProxy`)과 `eth_estimateGas`가 같은 결과를 냈습니다. 컨트랙트 범위의 에이전트 한도는 `eth_call`로도 미리 확인할 수 있습니다.
 - 판정: `pnpm c:judge track-c-activate/evidence/track2-example/evidence.json --track 2`에서 R1~R4 모두 통과했습니다([판정 결과](../evidence/track2-example/evidence.judge.json)). 문서 형식으로 쓴 `setMetadata` tx를 넣으면 R2가 실패로 판정됩니다.
+- 새 지갑 파일로 에이전트 등록(agentId 80)부터 다시 실행해도 같은 결과였습니다([등록 기록](../evidence/live/grounding-20260926T053055Z.json), [실증 기록](../evidence/live/agent-limit-20260926T053121Z.json)).
 - 한 번 실행에 약 30 OKRW가 듭니다. 구매 기업 19.30(금고 배포, 정책, 메타데이터 세 번), 에이전트 지갑 10.80(결제 3과 가스)이었습니다.
 - 확인하지 않은 것: 전역 범위 정책에서 다른 컨트랙트가 에이전트가 시작한 호출을 옮길 때의 귀속, R5와 기기 갈래.

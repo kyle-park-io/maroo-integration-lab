@@ -1,0 +1,258 @@
+{
+  "checkedAt": "2026-09-26T05:31:21.122Z",
+  "label": "[Live Testnet]",
+  "agentId": "80",
+  "owner": "0x61fBB97653C2D4120CF3d1586eB7D1a044859fB1",
+  "agentWallet": "0x4A4f081E93CfA12E917698A7b90fC015056066D3",
+  "registry": "0x8004000000000000000000000000000000000001",
+  "vault": "0xE9c869C2DE37A3f5B57028eE2569f38472A56383",
+  "limit": "5",
+  "payOk": "3",
+  "payOver": "8",
+  "setAgentWalletTx": "0xd3277044a71b9647ad0a35a5ccf222b16196fc9faf5c25e70ddcd8da96170573",
+  "metadataBefore": "0x",
+  "noMetadataCheck": {
+    "value": "3",
+    "ethCall": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+    "violation": null,
+    "estimateGas": "AgentTransferLimitMetadataInvalid(empty metadata value)"
+  },
+  "formatResults": [
+    {
+      "format": "빈 값(메타데이터 없음과 같은 상태)",
+      "bytes": "0x",
+      "setMetadataTx": "0x26228cba5d0003dba413bc71f4a4640047b87cf6ceafade792e14f28e031323f",
+      "within": {
+        "value": "3",
+        "ethCall": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+        "violation": null,
+        "estimateGas": "AgentTransferLimitMetadataInvalid(empty metadata value)"
+      },
+      "over": {
+        "value": "8",
+        "ethCall": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+        "violation": null,
+        "estimateGas": "AgentTransferLimitMetadataInvalid(empty metadata value)"
+      },
+      "works": false
+    },
+    {
+      "format": "Maroo Docs: aokrw 숫자 문자열",
+      "bytes": "0x35303030303030303030303030303030303030",
+      "setMetadataTx": "0xa6ff4f159178728e4de85ab9ac421305cd8807c73982799c7fc097a0f6d0efd2",
+      "within": {
+        "value": "3",
+        "ethCall": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+        "violation": null,
+        "estimateGas": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)"
+      },
+      "over": {
+        "value": "8",
+        "ethCall": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+        "violation": null,
+        "estimateGas": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)"
+      },
+      "works": false
+    },
+    {
+      "format": "SDK 주석: 32바이트 big-endian uint256",
+      "bytes": "0x0000000000000000000000000000000000000000000000004563918244f40000",
+      "setMetadataTx": "0x94213b7c0566cc399e51cb5da308039c2bf2163b56da1139f263ed7bd29ea4fd",
+      "within": {
+        "value": "3",
+        "ethCall": "통과",
+        "violation": null,
+        "estimateGas": "통과(가스 502410)",
+        "gas": "502410"
+      },
+      "over": {
+        "value": "8",
+        "ethCall": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+        "violation": {
+          "kind": "agent-transfer-limit",
+          "maxLimit": "5000000000000000000",
+          "value": "8000000000000000000"
+        },
+        "estimateGas": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)"
+      },
+      "works": true
+    }
+  ],
+  "workingFormat": "SDK 주석: 32바이트 big-endian uint256",
+  "steps": [
+    {
+      "step": "0) 에이전트",
+      "agentId": "80",
+      "owner": "0x61fBB97653C2D4120CF3d1586eB7D1a044859fB1",
+      "registry": "0x8004000000000000000000000000000000000001",
+      "agentWallet": "0x4A4f081E93CfA12E917698A7b90fC015056066D3",
+      "getAgentIdsOfOwner": [
+        "80"
+      ],
+      "getAgentIdsOfAgentWallet": []
+    },
+    {
+      "step": "0) 구매 기업 → 에이전트 지갑 OKRW 30",
+      "tx": "0x002431e19735ca54d651f77c3266eaa667b7f7e7a7020705a953c11606baba13",
+      "block": "19131066",
+      "gasUsed": "283332",
+      "result": "성공"
+    },
+    {
+      "step": "1) setAgentWallet(에이전트 지갑 서명, 소유자 전송)",
+      "tx": "0xd3277044a71b9647ad0a35a5ccf222b16196fc9faf5c25e70ddcd8da96170573",
+      "block": "19131068",
+      "gasUsed": "212111",
+      "result": "성공"
+    },
+    {
+      "step": "1) setAgentWallet 마감 제한(시뮬레이션)",
+      "블록 시각 +299초": "통과",
+      "블록 시각 +301초": "Error(deadline too far)",
+      "reason": "블록 시각 +299초 통과, 블록 시각 +301초 Error(deadline too far)"
+    },
+    {
+      "step": "1) 연결 확인",
+      "getAgentWallet": "0x4A4f081E93CfA12E917698A7b90fC015056066D3",
+      "ownerOf": "0x61fBB97653C2D4120CF3d1586eB7D1a044859fB1",
+      "getAgentIdsOfOwner": [],
+      "getAgentIdsOfAgentWallet": [
+        "80"
+      ]
+    },
+    {
+      "step": "2a) SettlementVault 구현 배포",
+      "tx": "0x0865c1f83ba8c8ec871be6bc41aa5e378764784042521f301492a051fba2fc96",
+      "address": "0x09a7007be89146627a61afc28a6b5a169ceaea8a",
+      "result": "성공"
+    },
+    {
+      "step": "2b) PCL 프록시 배포(구매자 = 에이전트 지갑)",
+      "tx": "0x1aeac10641b1d782c650f187c63825a59433c878c7ec08f60928ba2c901b7e7b",
+      "block": "19131072",
+      "gasUsed": "1317632",
+      "result": "성공"
+    },
+    {
+      "step": "2c) fund() 에 AGENT_OKRW_TRANSFER_LIMIT_POLICY 바인딩",
+      "tx": "0x217dc535661c481ca50bd431d74ec5140c1b3ca6bd506d5e52965cc2510c2420",
+      "block": "19131073",
+      "gasUsed": "98248",
+      "result": "성공"
+    },
+    {
+      "step": "2d) 금고",
+      "vault": "0xE9c869C2DE37A3f5B57028eE2569f38472A56383",
+      "buyerSlot": "0x4A4f081E93CfA12E917698A7b90fC015056066D3"
+    },
+    {
+      "step": "3a) 실행 전 메타데이터 없음, 3 OKRW",
+      "value": "3",
+      "ethCall": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "estimateGas": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "reason": "eth_call AgentTransferLimitMetadataInvalid(empty metadata value) / eth_estimateGas AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "violation": null
+    },
+    {
+      "step": "3b) setMetadata(TransferLimit, 빈 값(메타데이터 없음과 같은 상태))",
+      "tx": "0x26228cba5d0003dba413bc71f4a4640047b87cf6ceafade792e14f28e031323f",
+      "block": "19131075",
+      "gasUsed": "73371",
+      "result": "성공"
+    },
+    {
+      "step": "3c) 빈 값(메타데이터 없음과 같은 상태), 한도 안 3 OKRW",
+      "value": "3",
+      "ethCall": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "estimateGas": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "reason": "eth_call AgentTransferLimitMetadataInvalid(empty metadata value) / eth_estimateGas AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "violation": null
+    },
+    {
+      "step": "3c) 빈 값(메타데이터 없음과 같은 상태), 한도 초과 8 OKRW",
+      "value": "8",
+      "ethCall": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "estimateGas": "AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "reason": "eth_call AgentTransferLimitMetadataInvalid(empty metadata value) / eth_estimateGas AgentTransferLimitMetadataInvalid(empty metadata value)",
+      "violation": null
+    },
+    {
+      "step": "3b) setMetadata(TransferLimit, Maroo Docs: aokrw 숫자 문자열)",
+      "tx": "0xa6ff4f159178728e4de85ab9ac421305cd8807c73982799c7fc097a0f6d0efd2",
+      "block": "19131076",
+      "gasUsed": "93997",
+      "result": "성공"
+    },
+    {
+      "step": "3c) Maroo Docs: aokrw 숫자 문자열, 한도 안 3 OKRW",
+      "value": "3",
+      "ethCall": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+      "estimateGas": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+      "reason": "eth_call AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes) / eth_estimateGas AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+      "violation": null
+    },
+    {
+      "step": "3c) Maroo Docs: aokrw 숫자 문자열, 한도 초과 8 OKRW",
+      "value": "8",
+      "ethCall": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+      "estimateGas": "AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+      "reason": "eth_call AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes) / eth_estimateGas AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)",
+      "violation": null
+    },
+    {
+      "step": "3b) setMetadata(TransferLimit, SDK 주석: 32바이트 big-endian uint256)",
+      "tx": "0x94213b7c0566cc399e51cb5da308039c2bf2163b56da1139f263ed7bd29ea4fd",
+      "block": "19131078",
+      "gasUsed": "98973",
+      "result": "성공"
+    },
+    {
+      "step": "3c) SDK 주석: 32바이트 big-endian uint256, 한도 안 3 OKRW",
+      "value": "3",
+      "ethCall": "통과",
+      "estimateGas": "통과(가스 502410)",
+      "reason": "eth_call 통과 / eth_estimateGas 통과(가스 502410)",
+      "violation": null
+    },
+    {
+      "step": "3c) SDK 주석: 32바이트 big-endian uint256, 한도 초과 8 OKRW",
+      "value": "8",
+      "ethCall": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+      "estimateGas": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+      "reason": "eth_call ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000) / eth_estimateGas ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+      "violation": "{\"kind\":\"agent-transfer-limit\",\"maxLimit\":\"5000000000000000000\",\"value\":\"8000000000000000000\"}"
+    },
+    {
+      "step": "3e) 쓰는 형식",
+      "format": "SDK 주석: 32바이트 big-endian uint256",
+      "getMetadata": "0x0000000000000000000000000000000000000000000000004563918244f40000"
+    },
+    {
+      "step": "4a) 에이전트 결제 3 OKRW(한도 5)",
+      "tx": "0x15601a94f64e0a384873a4e5763a564d377e50d72f31ed233c78135adcff5b83",
+      "block": "19131080",
+      "gasUsed": "502410",
+      "result": "성공"
+    },
+    {
+      "step": "4a) 협력사 A 몫",
+      "owed": "3"
+    },
+    {
+      "step": "4b) 구매 기업 → 에이전트 지갑 OKRW 30",
+      "tx": "0xe0b6cdcb929511b6b3ed54721798b1b72860ecb3952ff38cfb5564d7b275421c",
+      "block": "19131082",
+      "gasUsed": "103945",
+      "result": "성공"
+    },
+    {
+      "step": "4b) 에이전트 결제 8 OKRW(한도 초과)",
+      "tx": "0x13cca2768b5c6c3ddc19a68224c489c38ad112444bc51ea8d59140eecc3bfdf7",
+      "block": "19131084",
+      "gasLimit": "727965",
+      "gasUsed": "363982",
+      "reason": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+      "result": "예상대로 거부"
+    }
+  ]
+}
