@@ -121,6 +121,20 @@ pnpm a:kyb-gate
 - 거부 단계는 시뮬레이션으로 사유를 읽은 뒤, 같은 호출을 가스를 고정해 실제로 보내 실패한 tx도 남깁니다.
 - 확인 방법: 콘솔에 단계마다 탐색기 링크가 찍히고, `evidence/live/pcl-kyb-gate-<시각>.json`에 tx 해시, 블록, 사유, 금고 권한(PCL 정책 관리자, ProxyAdmin, 업그레이드 권한 소유자)이 남습니다.
 
+2026-09-26 00:01 UTC 실행 결과 `[Live Testnet]` [기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json). 37초, tx 18건.
+
+| 단계 | 결과 | tx |
+| --- | --- | --- |
+| 3b PCL 프록시 배포 | 금고 `0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E`. 구현 슬롯이 배포한 구현과 같음. 정책 관리자는 구매 기업, ProxyAdmin 소유자는 `UPGRADE_OWNER` | [0xf200…da03](https://explorer-testnet.maroo.io/tx/0xf200711289e4e371fbf1f892d637eadb710b48949e7cb6742f32da286c4cda03) |
+| 5 협력사 B 청구 | 거부, `EasNoAttestationReceived` | [0xa4c7…557f](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f) |
+| 6b 색인 전 청구 | 거부, `EasNoAttestationReceived` | [0xafe8…9ef4](https://explorer-testnet.maroo.io/tx/0xafe80ae6248a93138104ad72552da5987f24ccdbd74520c01713406fa31a9ef4) |
+| 6d 색인 뒤 청구 | 성공. 협력사 A 잔액 58.65 → 155.89 OKRW | [0x4d67…b81d](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d) |
+| 7c 폐기 뒤 청구 | 거부, `EasAttestationRevoked` | [0x8962…47cc](https://explorer-testnet.maroo.io/tx/0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc) |
+| 8 회수 | 협력사 A, B의 남은 몫 0 | [0xb4c0…2cdd](https://explorer-testnet.maroo.io/tx/0xb4c0dcdb7322ce14e60ede027323f28540bc885e5864952d84c0aee70be62cdd) |
+
+- 쓴 OKRW: 구매 기업 250.06(가스 보충 120, 협력사 A가 받은 100, 가스), 발급자 8.10(가스). 발급자는 이미 잔액이 있어 가스 보충을 건너뛰었습니다.
+- 거부된 청구도 가스를 씁니다. 협력사 A는 60 OKRW를 받은 뒤 색인 전 청구 한 번으로 1.35 OKRW를 썼습니다(가스 한도 300,000으로 고정). 사전 검사를 `eth_estimateGas`로 하면 이 비용을 줄일 수 있습니다.
+
 ## 5. 차폐 정산 `[Local]`
 
 ```bash

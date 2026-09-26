@@ -61,7 +61,7 @@ PCL은 호출하는 쪽을 평가합니다. 차폐 지급에서 받는 쪽은 �
 2. 구매 기업이 지급 목록을 만들 때 체인 밖에서 협력사의 증명을 확인합니다.
 
 - 테스트넷 Privacy 프리컴파일에는 `And(EAS_POLICY, DENYLIST_POLICY)`가 걸려 있습니다. 호출자는 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있고 차단 목록에 없어야 합니다. 개인 본인 인증 스키마이고, 기관용 KYB 스키마와 발급자는 테스트넷에 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
-- EAS 증명은 발급한 뒤 Indexer에 색인해야 PCL이 인식합니다. 색인 전에는 증명이 있어도 거부됩니다. 2026-09-23과 09-25에 테스트넷에서 확인했고, 금고 흐름 스크립트의 6b 단계(색인 전 청구)가 같은 순서를 다시 확인합니다.
+- EAS 증명은 발급한 뒤 Indexer에 색인해야 PCL이 인식합니다. 2026-09-26 금고 흐름에서 협력사 A는 증명을 받은 뒤에도 색인 전 청구가 `EasNoAttestationReceived`로 거부됐고([tx](https://explorer-testnet.maroo.io/tx/0xafe80ae6248a93138104ad72552da5987f24ccdbd74520c01713406fa31a9ef4)), `indexAttestation` 뒤 청구는 통과했습니다([tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)). `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)
 - 권고: 기관 KYB로 Privacy 호출을 제한하려면 KYB 스키마와 발급자를 정하고, 체인 정책 관리자와 정책 변경을 협의하는 일을 PoC 범위에 넣습니다.
 
 ## 6. 보내기 전에 정책 거부를 미리 알 수 있나요?
@@ -95,7 +95,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 
 세 층을 나눠 봅니다.
 
-- 금고 같은 컨트랙트: PCL 정책을 거는 프록시는 Transparent, UUPS, Beacon 세 종류라 항상 업그레이드할 수 있습니다. `[Docs Only]` [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) 이 레포의 금고는 업그레이드 권한(ProxyAdmin 소유자)과 PCL 정책 관리 권한을 다른 주소에 두고, 배포 직후 ERC-1967 구현 슬롯을 직접 읽어 배포한 구현과 같은지 확인합니다. [금고 흐름 스크립트](recipe/pcl-kyb-gate.ts)
+- 금고 같은 컨트랙트: PCL 정책을 거는 프록시는 Transparent, UUPS, Beacon 세 종류라 항상 업그레이드할 수 있습니다. `[Docs Only]` [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) 이 레포의 금고는 업그레이드 권한(ProxyAdmin 소유자)과 PCL 정책 관리 권한을 다른 주소에 두고, 배포 직후 ERC-1967 구현 슬롯을 직접 읽어 배포한 구현과 같은지 확인합니다. [금고 흐름 스크립트](recipe/pcl-kyb-gate.ts), `[Live Testnet]` [실행 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)
 - 차폐 풀과 회로: Clairveil v0.5.0(2026-09-22)은 감사 구조와 회로 식별자를 바꾸면서, 호환되지 않는 이전 genesis에서 올라오는 체인은 새 genesis로 초기화하고 노트, 스캔, 준비된 증명, 산출물 캐시를 버리고 다시 스캔하라고 적습니다. 제자리 이전 경로는 없습니다. `[Docs Only]` [Clairveil CHANGELOG v0.5.0](https://github.com/DELIGHT-LABS/clairveil/blob/v0.5.1/CHANGELOG.md)
 - SDK: `@maroo-chain/viem` 0.4.0(2026-09-17)은 PCL 정책 템플릿 두 개의 작성 함수를 지웠습니다. npm 패키지 두 판을 비교해 확인했습니다.
 - 권고: 업그레이드 권한은 멀티시그와 타임록에 두고, SDK와 참조 구현은 버전을 고정하고, 회로 변경은 노트 이전 계획(재예치, 재스캔)을 포함한 별도 PoC 항목으로 둡니다.

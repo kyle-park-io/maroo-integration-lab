@@ -24,7 +24,7 @@
 | Privacy 프리컴파일의 정책, 요구 증명, 요청 모양 조회 | 실행함 | `[Live Testnet]` | [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | Privacy 예치가 처음 막히는 층 진단 | 전역 정책은 통과하고 요청 검증(`SDKInvalidRequest`)에서 막힘 | `[Live Testnet]` eth_call과 eth_estimateGas, 거부 경로 증거 | [진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
 | 보내기 전 정책 검사 방법 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가함 | `[Live Testnet]` | [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
-| OKRW 지급과 KYB 관문을 건 정산 금고 | 스크립트와 단계 정의 완료. 테스트넷 faucet이 전역 한도에 걸려 실행 대기(2026-09-26 09:00 KST 해제) | `[Live Testnet]` 상태 변경 tx | [레시피 4절](runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet) |
+| OKRW 지급과 KYB 관문을 건 정산 금고 | 실행함. 증명 없음, 색인 전, 폐기 뒤 청구는 거부되고 색인 뒤 청구는 통과. 정책 관리자와 업그레이드 권한이 다른 주소 | `[Live Testnet]` 상태 변경 tx 18건 | [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 | 차폐 정산 전체(예치, 일괄 지급, 스캔, 해독, 인출) | 실행함 | `[Local]` Clairveil v0.4.0 | [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) |
 | 테스트넷에서 유효한 Privacy 상태 변경 | 외부에서 만들 수 없음. 회로 산출물과 상태 조회 경로가 공개되지 않음 | `[Live Testnet]`, `[Docs Only]` | 6절 |
 | 규제기관의 관찰자 노드 열람 | 체인에 구현되지 않음 | `[Docs Only]` | [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/) |
@@ -113,7 +113,7 @@ Clairveil은 Cosmos SDK 체인에 차폐 풀을 넣는 공개 참조 구현이�
 | 청구 | 협력사가 `claim()`을 부릅니다 | 전역 정책과 금고 정책. KYB 증명이 없거나, 색인되지 않았거나, 폐기됐으면 거부 | 협력사 주소, 금액 |
 | 회수 | 청구되지 않은 몫을 구매 기업이 `recall(supplier)`로 돌려받습니다 | 전역 정책 | 구매 기업, 협력사 주소, 금액 |
 
-투명 경로에서는 금액과 거래 관계가 공개되지만, 대금이 나가는 순간 체인이 협력사 자격을 확인합니다. 자격 확인을 체인 기록으로 남겨야 하는 대금이나, 차폐 경로를 쓰기 전의 PoC 첫 단계에 맞습니다. 금고 코드는 [`shared/contracts/SettlementVault.sol`](../shared/contracts/SettlementVault.sol), 실행은 [레시피 4절](runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet)에 있습니다.
+투명 경로에서는 금액과 거래 관계가 공개되지만, 대금이 나가는 순간 체인이 협력사 자격을 확인합니다. 자격 확인을 체인 기록으로 남겨야 하는 대금이나, 차폐 경로를 쓰기 전의 PoC 첫 단계에 맞습니다. 2026-09-26 실행에서 증명이 없는 협력사 B의 청구는 `EasNoAttestationReceived`, 색인 전의 협력사 A 청구도 `EasNoAttestationReceived`, 폐기 뒤 청구는 `EasAttestationRevoked`로 거부됐고, 색인 뒤 청구는 통과해 협력사 A가 100 OKRW를 받았습니다. `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) 금고 코드는 [`shared/contracts/SettlementVault.sol`](../shared/contracts/SettlementVault.sol), 실행은 [레시피 4절](runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet)에 있습니다.
 
 ## 2. 한 번의 정산이 지나가는 길
 
@@ -218,7 +218,7 @@ stateDiagram-v2
 | 금고 업그레이드 권한(ProxyAdmin 소유자) | 정책 관리와 다른 주체, 멀티시그와 타임록 | 버그를 고칠 수 없음 | 금고 로직이 바뀌어 협력사 몫이 빠져나감 | `[Docs Only]` [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) |
 | Privacy 프리컴파일 정책 관리 권한 | 체인 운영 측(`0x58eC…804F`) | 해당 없음 | 모든 Privacy 호출의 조건이 바뀜 | `[Live Testnet]` 조회 기록 |
 
-- PCL 프록시는 Transparent, UUPS, Beacon 세 종류라 금고는 항상 업그레이드할 수 있습니다. 이 레포의 금고 흐름은 업그레이드 권한을 정책 관리와 다른 주소(`UPGRADE_OWNER`)에 두고, 배포 직후 ERC-1967 구현 슬롯과 관리자 슬롯을 직접 읽어 배포한 구현과 같은지 확인합니다. 다르면 흐름을 멈춥니다.
+- PCL 프록시는 Transparent, UUPS, Beacon 세 종류라 금고는 항상 업그레이드할 수 있습니다. 이 레포의 금고 흐름은 업그레이드 권한을 정책 관리와 다른 주소(`UPGRADE_OWNER`)에 두고, 배포 직후 ERC-1967 구현 슬롯과 관리자 슬롯을 직접 읽어 배포한 구현과 같은지 확인합니다. 다르면 흐름을 멈춥니다. 2026-09-26 실행에서 구현 슬롯은 배포한 구현과 같았고, 정책 관리자는 구매 기업, ProxyAdmin 소유자는 `UPGRADE_OWNER`였습니다. `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)
 - 계정 키를 지급 서비스와 떼어 놓으려면 `*WithAuthorization` 변형을 씁니다. 계정 키 보유자(effective sender)가 EIP-712로 서명하고 지급 서비스가 대신 제출하며, PCL은 effective sender를 평가합니다. 서명에는 EVM chain ID와 Cosmos chain ID 해시가 함께 묶여, 다른 네트워크에서 재사용할 수 없습니다. `[Docs Only]` [EIP-712 도메인](https://docs.maroo.io/concepts/privacy/privacy-authorization-eip712-domain/)
 - Maroo Docs는 Privacy 노트 키와 보기 키를 지갑이 어떻게 보관하는지 다루지 않습니다. `[Docs Only]`
 
