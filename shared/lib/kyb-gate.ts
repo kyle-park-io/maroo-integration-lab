@@ -31,6 +31,7 @@ import {
   toFunctionSelector, zeroAddress, zeroHash, type Abi, type Address, type Hex,
 } from "viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
+import { marooWalletActions, pclProxyKinds, policy } from "@maroo-chain/viem";
 import { ROOT } from "./paths.ts";
 import {
   EAS_PARAMS, EXPLORER, PCL, account, addressOf, easAbi, easParamsAbi, indexerAbi, publicClient as pub, revertReason,
@@ -62,13 +63,14 @@ export async function runKybGate(opts: { evidenceDir: string; beforeStage?: (sta
     console.log(`[${data.result ?? "기록"}] ${step}${data.reason ? ` : ${data.reason}` : ""}${tx}`);
   }
 
-  async function send(label: string, role: Role, req: { to: Address; data?: Hex; value?: bigint }) {
-    const hash = await walletFor(role).sendTransaction(req);
+  async function confirm(label: string, hash: Hex) {
     const r = await pub.waitForTransactionReceipt({ hash });
     log(label, { tx: hash, block: r.blockNumber.toString(), gasUsed: r.gasUsed.toString(), result: r.status === "success" ? "성공" : "실패" });
     if (r.status !== "success") throw new Error(`${label} 이 실패했습니다: ${hash}`);
     return r;
   }
+  const send = async (label: string, role: Role, req: { to: Address; data?: Hex; value?: bigint }) =>
+    confirm(label, await walletFor(role).sendTransaction(req));
 
   // 거부가 예상되는 호출. 사유는 시뮬레이션으로 읽고, 실패한 tx 도 남기려고 가스를 고정해 실제로 보낸다.
   async function expectReject(label: string, role: Role, to: Address, functionName: string) {
@@ -118,13 +120,14 @@ export async function runKybGate(opts: { evidenceDir: string; beforeStage?: (sta
   const implRcpt = await pub.waitForTransactionReceipt({ hash: implHash });
   log("3a) SettlementVault 구현 배포", { tx: implHash, address: implRcpt.contractAddress, result: implRcpt.status === "success" ? "성공" : "실패" });
   const initializer = encodeFunctionData({ abi: vaultAbi, functionName: "initialize", args: [buyer] });
-  // Transparent: abi.encode(logic, initialOwner, initializer). initialOwner 가 업그레이드 권한을 갖는다.
-  const initData = encodeAbiParameters([{ type: "address" }, { type: "address" }, { type: "bytes" }], [implRcpt.contractAddress!, upgradeOwner, initializer]);
-  const proxyRcpt = await send("3b) PCL 프록시 배포(deployPclProxy, Transparent)", "BUYER", {
-    to: PCL, data: encodeFunctionData({ abi: iPclAbi, functionName: "deployPclProxy", args: [1, 0n, initData] }),
-  });
+  // Maroo 공식 SDK(@maroo-chain/viem)가 Transparent 의 initData(logic, initialOwner, initializer)를 만든다.
+  // initialOwner 가 업그레이드 권한을 갖고, 보낸 계정(BUYER)이 정책 관리자가 된다.
+  const buyerSdk = walletFor("BUYER").extend(marooWalletActions());
+  const proxyRcpt = await confirm("3b) PCL 프록시 배포(deployPclProxy, Transparent)", await buyerSdk.pcl.deployPclProxy({
+    kind: pclProxyKinds.Transparent, logic: implRcpt.contractAddress!, initialOwner: upgradeOwner, initializer,
+  }));
   // 시뮬레이션 반환값과 실제 주소가 다를 수 있어(9/23, 9/25 재현) 이벤트에서 읽는다.
-  const vault = parseEventLogs({ abi: iPclAbi, logs: proxyRcpt.logs, eventName: "PclProxyDeployed" })[0].args.proxy as Address;
+  const vault = buyerSdk.pcl.deployPclProxy.extractEvent(proxyRcpt.logs).args.proxy;
   const entry = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "pclProxy", args: [vault] });
   const slotAddress = async (slot: Hex) => getAddress(`0x${((await pub.getStorageAt({ address: vault, slot })) ?? "0x").slice(-40)}`);
   const implementation = await slotAddress(IMPLEMENTATION_SLOT);
@@ -141,11 +144,10 @@ export async function runKybGate(opts: { evidenceDir: string; beforeStage?: (sta
   log("3b) 금고 프록시와 권한", { vault, implementation, pclKind: entry.kind, policyAdmin: entry.admin, proxyAdmin, upgradeOwner: proxyAdminOwner });
 
   const claimSelector = toFunctionSelector("claim()");
-  const easPolicy = encodeAbiParameters([{ type: "address" }, { type: "address" }, { type: "bytes32" }], [eas, indexer, schemaUid]);
-  await send("3c) claim() 에 EAS_POLICY(KYB) 바인딩", "BUYER", {
-    to: PCL,
-    data: encodeFunctionData({ abi: iPclAbi, functionName: "changeContractPolicies", args: [{ _contract: vault, admin: buyer, policies: [{ templateId: "EAS_POLICY", policy: easPolicy, selector: claimSelector }] }] }),
-  });
+  await confirm("3c) claim() 에 EAS_POLICY(KYB) 바인딩", await buyerSdk.pcl.changeContractPolicies({
+    contract: vault, admin: buyer,
+    policies: [policy.eas({ easContract: eas, indexContract: indexer, schemaUid, selector: claimSelector })],
+  }));
 
   await opts.beforeStage?.("4");
   // 4. 대금 넣기

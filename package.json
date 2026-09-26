@@ -10,6 +10,7 @@
     "setup:clairveil": "node shared/setup-clairveil.ts",
     "build:contracts": "forge build",
     "test:contracts": "forge test",
+    "test:unit": "node --test \"shared/**/*.test.ts\" \"track-*/**/*.test.ts\"",
     "typecheck": "tsc --noEmit",
     "diagrams:check": "node shared/check-diagrams.ts",
     "a:local": "node track-a-explain/recipe/local-vendor-settlement.ts",
@@ -34,6 +35,7 @@
   },
   "dependencies": {
     "@maroo-chain/contracts": "0.0.9",
+    "@maroo-chain/viem": "0.4.0",
     "viem": "2.56.8"
   },
   "packageManager": "pnpm@11.25.0",

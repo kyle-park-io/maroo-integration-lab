@@ -51,6 +51,7 @@
 | 12 | Maroo Docs와 Clairveil | 서로를 언급하지 않음 | Maroo `IPrivacy` ABI(함수 9, 이벤트 5)가 ClairveilJS의 정식 EVM Privacy 계약 v0.3.1과 정규화 해시까지 같음. 전송 요청 필드도 Clairveil v0.4.0 `MsgTransfer`와 대응 | `pnpm a:abi-compare`, `pnpm a:inspect` | A 가이드 1절 |
 | 13 | faucet | 요청하면 5,000 tOKRW | 2026-09-25 16:41 UTC부터 실패. faucet 계정이 전역 24시간 한도를 다 썼고 KYC 증명이 없음. `resetAt`(2026-09-26 00:00 UTC) 뒤 22초에 요청해 받음 | `pnpm a:probe-global` | DX 3, B 증거 |
 | 14 | Maroo Docs EAS 연동 | 증명 발급 뒤 색인이 필요하다는 순서와 재발급 때의 동작을 적지 않음 | 새 증명을 색인하기 전에는 PCL이 색인된 옛 증명을 봐서, 폐기된 옛 증명이 있으면 `EasAttestationRevoked`로 거부 | `pnpm a:kyb-gate`를 같은 지갑으로 두 번 | A FAQ 5, B T8 |
+| 15 | Maroo Docs 개발자 도구 | 코드 예시가 `@maroo-chain/contracts` ABI로 직접 인코딩함(2026-09-26 판 63쪽). `@maroo-chain/viem`은 한 쪽에도 나오지 않음 | npm의 `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 작성과 해석, 프록시 배포, 프록시 호출 시뮬레이션, PCL 거부 해석, ERC-8004 레지스트리 액션을 제공. 금고 흐름에 써 보니 직접 인코딩과 calldata가 같음 | `pnpm test:unit`, npm 패키지 | A 가이드 1절, DX 10 |
 
 ## Validation
 
@@ -60,7 +61,7 @@
 | --- | --- |
 | OS | Ubuntu 24.04.4 LTS (WSL2, 커널 6.18.33.2) |
 | Node.js, pnpm | 24.19.0, 11.25.0 |
-| TypeScript, viem, `@maroo-chain/contracts` | 5.9.3, 2.56.8, 0.0.9 |
+| TypeScript, viem, `@maroo-chain/contracts`, `@maroo-chain/viem` | 5.9.3, 2.56.8, 0.0.9, 0.4.0 |
 | Go | 1.27.1 linux/amd64 |
 | Foundry, solc, OpenZeppelin | 1.8.1, 0.8.37(EVM cancun), 5.6.1 |
 | Clairveil, ClairveilJS, clairveil-samples | `ca85b027`(v0.4.0), `faf220d5`, `8321ded` |
@@ -71,6 +72,7 @@
 | --- | --- |
 | `pnpm test:contracts` | 금고 테스트 6개 통과 |
 | `pnpm typecheck` | 오류 없음 |
+| `pnpm test:unit` | 2개 통과. 금고 흐름이 `@maroo-chain/viem`으로 만드는 프록시 배포와 정책 바인딩 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
 | `pnpm diagrams:check` | Mermaid 네 개를 두 테마로 8번 렌더링, 실패 0. 그림을 열어 선이 상자를 가로지르는 곳을 찾아 한 번 고침 |
 | 커밋 전 훅 | 타입 검사, `forge fmt`, `forge test`, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어를 커밋마다 검사 |
 
@@ -158,10 +160,11 @@
 | 7 | C | 지웠다고 적힌 `OKRW_EAS_*` 템플릿이 테스트넷에 등록돼 있음 | `pnpm c:grounding` | 정책을 설계하는 개발자 | 낮음. 새 조합 정책으로 같은 규칙을 표현할 수 있음 | 문서와 체인 중 하나를 맞추고, 바뀌는 판을 적음 | Maroo Docs, PCL |
 | 8 | C | 배포 주소 표의 `OKRW_ERC20` 주소에 코드가 없음 | `pnpm c:grounding` | ERC-20 인터페이스로 OKRW를 다루려는 개발자 | 중간. 표를 믿고 호출하면 빈 값을 받음 | 주소를 고치거나 표에서 빼고 네이티브 value 사용을 안내 | Maroo Docs |
 | 9 | A | 인출 금액 예시의 단위가 `aokrw`인데 테스트넷은 `atokrw` | `pnpm a:doc-claims` | 인출을 구현하는 개발자 | 중간. 예시를 복사하면 `PrivacyNativeDenomMismatch` | 예시를 `getParams().mintDenom`으로 읽게 바꿈 | Maroo Docs |
+| 10 | A, C | 공식 TypeScript SDK `@maroo-chain/viem`이 Maroo Docs에 없음 | npm 0.4.0(2026-09-17), Maroo Docs 검색 | TypeScript로 PCL 정책과 에이전트를 다루는 개발자 | 중간. 문서만 보면 정책 바이트, 프록시 초기화 데이터, 거부 사유 해석을 직접 짜게 됨. 이 레포도 처음에는 직접 짰음 | PCL, 에이전트, 개발자 도구 쪽에 SDK 설치와 사용 예를 둠 | Maroo Docs |
 
 ### A
 
-1, 2, 4, 5, 9번. 문서 개선 노트 여섯 항목에 멈추는 사람, 확인 비용, 고친 문구 제안까지 적었습니다.
+1, 2, 4, 5, 9, 10번. 문서 개선 노트 여섯 항목에 멈추는 사람, 확인 비용, 고친 문구 제안까지 적었습니다.
 
 ### B
 
@@ -169,7 +172,7 @@
 
 ### C
 
-2, 4, 6, 7, 8번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
+2, 4, 6, 7, 8, 10번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
 
 ## Known Limitations
 

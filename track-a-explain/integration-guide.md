@@ -90,6 +90,7 @@ flowchart TB
 | EAS, SchemaRegistry, Indexer | `0x1000…0009`의 `getParams()`로 찾음 | KYB 스키마 등록, 증명 발급과 폐기, 색인 | `[Live Testnet]` |
 | Privacy 프리컴파일 | `0x1000…000b` | 예치, 지급, 일괄 지급, 인출과 각각의 `*WithAuthorization` 변형. 조회 함수는 없습니다 | `[Docs Only]`, 호출은 `[Live Testnet]` eth_call |
 | ABI 패키지 | `@maroo-chain/contracts` 0.0.9 | `IPcl`, `IPrivacy` ABI | `[Live Testnet]` 호출에 사용 |
+| 공식 TypeScript SDK | `@maroo-chain/viem` 0.4.0 (npm, Maroo Docs에는 없음) | PCL 정책 해석(`PolicySet.decode`), 금고 프록시 배포(`pcl.deployPclProxy`)와 정책 바인딩(`policy.eas`, `pcl.changeContractPolicies`). Privacy는 ABI와 주소만 있고 증명 생성과 상태 조회는 없습니다 | 정책 해석은 `[Live Testnet]` 정책에 사용, 배포와 바인딩은 직접 인코딩과 calldata가 같음 `[코드 대조]` (`pnpm test:unit`) |
 | 탐색기 | `https://explorer-testnet.maroo.io` (Blockscout) | tx 확인, 이벤트 조회 | `[Live Testnet]` |
 
 Maroo Docs에는 현재 테스트넷 verifier와 맞는 회로 버전과 proving 산출물, 차폐 상태(Merkle witness, nullifier 사용 여부, 암호화 노트 이벤트)를 읽는 조회 경로, 성공한 Privacy 호출의 예시 입력, prover 엔드포인트가 없습니다. `[Docs Only]` 그래서 외부에서 유효한 Privacy tx를 만들 수 없고, 6절의 진단도 그 지점에서 멈춥니다.
@@ -333,6 +334,7 @@ PoC를 시작하기 전에 Maroo에 확인할 항목은 6절의 증명 재료 �
 | Maroo 테스트넷 | chain ID 450815, RPC `https://rpc-testnet.maroo.io` |
 | Maroo Docs | `https://docs.maroo.io`, 2026-09-25 확인 |
 | `@maroo-chain/contracts` | 0.0.9 |
+| `@maroo-chain/viem` | 0.4.0 |
 | Clairveil | v0.4.0 `ca85b02708fdd75259d4d2ee2d671c21198cec69` |
 | ClairveilJS | `faf220d5` |
 | clairveil-samples | `8321ded` |
