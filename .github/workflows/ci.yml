@@ -1,0 +1,34 @@
+# 테스트넷을 부르지 않는 검사만 돌린다: 타입 검사, 금고 서식과 테스트, 단위 테스트.
+# 테스트넷 조회까지 보려면 로컬에서 pnpm review 를 실행한다.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    env:
+      # mermaid-cli 가 쓰는 puppeteer 의 브라우저 내려받기를 끈다. 다이어그램 검사는 CI 에서 돌리지 않는다.
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.8.1
+      - name: 타입 검사
+        run: pnpm typecheck
+      - name: 금고 서식
+        run: forge fmt --check
+      - name: 금고 테스트
+        run: forge test
+      - name: 단위 테스트
+        run: pnpm test:unit
