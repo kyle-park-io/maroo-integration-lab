@@ -52,6 +52,7 @@
 | 13 | faucet | 요청하면 5,000 tOKRW | 2026-09-25 16:41 UTC부터 실패. faucet 계정이 전역 24시간 한도를 다 썼고 KYC 증명이 없음. `resetAt`(2026-09-26 00:00 UTC) 뒤 22초에 요청해 받음 | `pnpm a:probe-global` | DX 3, B 증거 |
 | 14 | Maroo Docs EAS 연동 | 증명 발급 뒤 색인이 필요하다는 순서와 재발급 때의 동작을 적지 않음 | 새 증명을 색인하기 전에는 PCL이 색인된 옛 증명을 봐서, 폐기된 옛 증명이 있으면 `EasAttestationRevoked`로 거부 | `pnpm a:kyb-gate`를 같은 지갑으로 두 번 | A FAQ 5, B T8 |
 | 15 | Maroo Docs 개발자 도구 | 코드 예시가 `@maroo-chain/contracts` ABI로 직접 인코딩함(2026-09-26 판 63쪽). `@maroo-chain/viem`은 한 쪽에도 나오지 않음 | npm의 `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 작성과 해석, 프록시 배포, 프록시 호출 시뮬레이션, PCL 거부 해석, ERC-8004 레지스트리 액션을 제공. 금고 흐름에 써 보니 직접 인코딩과 calldata가 같음 | `pnpm test:unit`, npm 패키지 | A 가이드 1절, DX 10 |
+| 16 | Maroo Docs `eth_estimateGas` | 단순 전송은 `0x5208`(21,000)을 돌려줌 | 1 OKRW 이체의 추정치 283,524. 21,000으로 보내면 블록에 들어가 되돌려지고 수수료 0.189 OKRW. 가스 21,000 `eth_call`은 통과. ClairveilJS 기본 `evmSendGasLimit`도 21,000 | `pnpm a:probe-send-gas` | A 문서 개선 노트 7, FAQ 6, C 트랙 1 15절 |
 
 ## Validation
 
@@ -86,6 +87,7 @@
 | `pnpm a:inspect` | 2026-09-25 19:27 | Privacy 정책, 요구 스키마, 구매 기업 증명 0개, 예치 `SDKInvalidRequest()`, 필드 대응 | [JSON](track-a-explain/evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | `pnpm a:probe` | 2026-09-25 19:33 | 빈 요청과 모양을 갖춘 요청이 두 방법 모두 `SDKInvalidRequest()`. 전역 정책은 통과 | [JSON](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json) |
 | `pnpm a:probe-global` | 2026-09-25 19:08 | `eth_call` 통과, `eth_estimateGas` 거부(faucet 계정의 전역 한도) | [JSON](track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json) |
+| `pnpm a:probe-send-gas` | 2026-09-26 04:30 | 단순 이체 추정 283,524. 가스 21,000 전송은 되돌려짐(수수료 0.189 OKRW), 추정값의 125% 전송도 283,524만 씀 | [JSON](track-a-explain/evidence/live/probe-send-gas-20260926T043013Z.json) |
 | `pnpm a:probe-kyc` | 2026-09-25 20:17 | 카카오 본인 인증 증명이 있는 지갑(주소 비공개)도 증명 없는 지갑과 같이 `SDKInvalidRequest()` | [JSON](track-a-explain/evidence/live/probe-kyc-holder-20260925T201710Z.json) |
 | `pnpm a:doc-claims` | 2026-09-25 19:13 | 문서 개선 노트 1~5의 근거 | [JSON](track-a-explain/evidence/live/doc-claims-20260925T191304Z.json) |
 | `pnpm a:local` | 2026-09-25 18:19 | 로컬 tx 11건. 단독 인출 실패(code 1)와 같은 블록 우회 성공, 역할별 해독 `verified=true` | [기록](track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md) |
@@ -98,6 +100,7 @@
 | `pnpm b:prepare` | 2026-09-25 19:57 | 바이너리와 회로 산출물 108초 | [evidence.md](track-b-enable/evidence.md) |
 | `pnpm b:smoke` | 2026-09-25 20:01 | 64초. 점검, 1·3·4·5단계와 성공 기준 모두 통과. 2단계는 잔액 0으로 건너뜀 | [세션 기록](track-b-enable/evidence/session-20260925T200201Z.md) |
 | `pnpm b:smoke`(2단계 포함) | 2026-09-26 00:02 | 91초. 1~5단계와 성공 기준 모두 통과. 2단계 6b는 같은 협력사 지갑의 두 번째 실행이라 `EasAttestationRevoked` | [2단계 기록](track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json), [세션 기록](track-b-enable/evidence/session-20260926T000329Z.md) |
+| `pnpm b:fund --file <주소 파일> --amount 10` | 2026-09-26 04:27 | 구매 기업 지갑에서 자기 협력사 지갑 둘에 사전 검사 통과 뒤 10 OKRW씩 전송 성공. 한 건 수수료 2.55 OKRW | [JSON](track-b-enable/evidence/live/fund-20260926T042738Z.json) |
 
 ### C
 
@@ -161,10 +164,11 @@
 | 8 | C | 배포 주소 표의 `OKRW_ERC20` 주소에 코드가 없음 | `pnpm c:grounding` | ERC-20 인터페이스로 OKRW를 다루려는 개발자 | 중간. 표를 믿고 호출하면 빈 값을 받음 | 주소를 고치거나 표에서 빼고 네이티브 value 사용을 안내 | Maroo Docs |
 | 9 | A | 인출 금액 예시의 단위가 `aokrw`인데 테스트넷은 `atokrw` | `pnpm a:doc-claims` | 인출을 구현하는 개발자 | 중간. 예시를 복사하면 `PrivacyNativeDenomMismatch` | 예시를 `getParams().mintDenom`으로 읽게 바꿈 | Maroo Docs |
 | 10 | A, C | 공식 TypeScript SDK `@maroo-chain/viem`이 Maroo Docs에 없음 | npm 0.4.0(2026-09-17), Maroo Docs 검색 | TypeScript로 PCL 정책과 에이전트를 다루는 개발자 | 중간. 문서만 보면 정책 바이트, 프록시 초기화 데이터, 거부 사유 해석을 직접 짜게 됨. 이 레포도 처음에는 직접 짰음 | PCL, 에이전트, 개발자 도구 쪽에 SDK 설치와 사용 예를 둠 | Maroo Docs |
+| 11 | A, C | 단순 이체 가스 예시와 ClairveilJS 기본 가스 한도가 21,000인데 테스트넷 단순 이체는 283,524를 씀 | `pnpm a:probe-send-gas` | 네이티브 OKRW를 보내는 지갑 개발자, ClairveilJS 사용자, 해커톤 참가자 | 높음. `eth_call` 사전 검사는 통과하고 tx는 사유 없이 되돌려지며 수수료를 냄 | 문서 예시를 테스트넷 값으로 바꾸고 고정 한도 대신 추정값을 쓰라고 적음. ClairveilJS EVM 프로필은 추정값을 씀 | Maroo Docs, ClairveilJS |
 
 ### A
 
-1, 2, 4, 5, 9, 10번. 문서 개선 노트 여섯 항목에 멈추는 사람, 확인 비용, 고친 문구 제안까지 적었습니다.
+1, 2, 4, 5, 9, 10, 11번. 문서 개선 노트 일곱 항목에 멈추는 사람, 확인 비용, 고친 문구 제안까지 적었습니다.
 
 ### B
 
@@ -172,7 +176,7 @@
 
 ### C
 
-2, 4, 6, 7, 8, 10번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
+2, 4, 6, 7, 8, 10, 11번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
 
 ## Known Limitations
 

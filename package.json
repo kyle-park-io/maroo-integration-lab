@@ -17,6 +17,7 @@
     "a:inspect": "node track-a-explain/recipe/inspect-privacy-boundary.ts",
     "a:probe": "node track-a-explain/recipe/probe-first-failure.ts",
     "a:probe-global": "node track-a-explain/recipe/probe-global-policy.ts",
+    "a:probe-send-gas": "node track-a-explain/recipe/probe-send-gas.ts",
     "a:doc-claims": "node track-a-explain/recipe/check-doc-claims.ts",
     "a:kyb-gate": "node track-a-explain/recipe/pcl-kyb-gate.ts",
     "c:grounding": "node track-c-activate/grounding/check-track-requirements.ts",

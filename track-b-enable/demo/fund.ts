@@ -45,10 +45,11 @@ for (const to of targets as Address[]) {
     results.push({ to, rejected: reason });
     continue;
   }
+  const precheck = `eth_estimateGas 통과(가스 ${BigInt(pre.result!)})`;
   const hash = await walletFor("BUYER").sendTransaction({ to, value: amount });
   const r = await pub.waitForTransactionReceipt({ hash });
-  console.log(`${r.status === "success" ? "✓" : "✗"} ${to}  ${formatEther(amount)} OKRW  ${EXPLORER}/tx/${hash}`);
-  results.push({ to, amount: formatEther(amount), tx: hash, status: r.status, block: r.blockNumber.toString() });
+  console.log(`${r.status === "success" ? "✓" : "✗"} ${to}  ${formatEther(amount)} OKRW  사전 검사 ${precheck}  ${EXPLORER}/tx/${hash}`);
+  results.push({ to, amount: formatEther(amount), precheck, tx: hash, status: r.status, block: r.blockNumber.toString() });
 }
-const file = writeEvidence(LIVE_DIR, "fund", { from, sentAt: new Date().toISOString(), results });
+const file = writeEvidence(LIVE_DIR, "fund", { label: "[Live Testnet] 진행자 배분", from, amountEach: formatEther(amount), sentAt: new Date().toISOString(), results });
 console.log(`기록: ${path.relative(ROOT, file)}`);

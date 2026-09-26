@@ -16,6 +16,7 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 | [probe-kyc-holder-20260925T201710Z.json](evidence/live/probe-kyc-holder-20260925T201710Z.json) | `pnpm a:probe-kyc` | 인증 전용 지갑(주소 비공개)의 Privacy 스키마 증명 조회, 그 지갑과 구매 기업 지갑으로 빈 요청과 모양만 갖춘 요청의 `Privacy.deposit`을 `eth_call`, `eth_estimateGas` | 2026-09-25 20:17 | 본인 인증 증명이 있으면 다른 층에서 막힐 수 있음 | 증명 1개(발급자 `0xBfa4…0aE3`, 2026-09-25, 만료 없음). 두 지갑 모두 네 경우 `SDKInvalidRequest()` |
 | [doc-claims-20260925T191304Z.json](evidence/live/doc-claims-20260925T191304Z.json) | `pnpm a:doc-claims` | Maroo Docs 페이지 다섯 곳의 문장, `OKRW.getParams()`, `PCL.contractPolicies(Privacy)`, 알려진 금고 구현으로 `deployPclProxy`를 빈 초기화와 `initialize()`로 eth_call(Transparent, UUPS) | 2026-09-25 19:13:04 | 문서 개선 노트 1~5번의 주장이 문서와 체인에서 다시 확인됨 | 테스트넷 denom `atokrw`와 문서 예시 `aokrw`, 배포 주소 표에 Privacy 없음, 빈 초기화는 두 종류 모두 `execution reverted`이고 `initialize()`는 통과, 사유 코드 문서에 `eth_estimateGas` 언급 없음 |
 | [pcl-kyb-gate-20260926T000141Z.json](evidence/live/pcl-kyb-gate-20260926T000141Z.json) | `pnpm a:kyb-gate` | OKRW 이체, KYB 스키마 등록, 금고 구현 배포와 Transparent PCL 프록시, `claim()`에 `EAS_POLICY` 바인딩, 입금, 청구 거부 셋과 통과 하나, 증명 폐기, 회수 | 2026-09-26 00:01, 블록 19111555~19111586 | [레시피 4절](runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet)의 단계별 예상 결과 | 모두 예상대로. 5, 6b `EasNoAttestationReceived`, 7c `EasAttestationRevoked`, 6d 성공(협력사 A +100 OKRW, 가스 제외). 구현 슬롯이 배포한 구현과 같고 정책 관리자와 업그레이드 권한이 다름. 구매 기업 250.06 OKRW, 발급자 8.10 OKRW 사용 |
+| [probe-send-gas-20260926T043013Z.json](evidence/live/probe-send-gas-20260926T043013Z.json) | `pnpm a:probe-send-gas` | 구매 기업에서 자기 협력사 A로 1 OKRW 단순 이체. `eth_estimateGas`(1, 100 OKRW), 가스 21,000으로 `eth_call`, 가스 21,000·추정값·추정값의 125%로 실제 전송 | 2026-09-26 04:30 | 문서 예시대로면 21,000 | 추정 283,524(금액과 무관). `eth_call`은 21,000으로 통과. 21,000 전송은 되돌려지고 21,000을 모두 씀(수수료 0.189 OKRW). 추정값 전송 성공(수수료 2.551716 OKRW), 125% 전송도 283,524만 씀 |
 
 이전 실행 기록(`inspect-privacy-boundary-20260925T183013Z.json`, `probe-first-failure-20260925T183014Z.json`)도 같은 폴더에 남아 있습니다. 새 기록은 정책 결합 방식과 `eth_estimateGas` 결과를 더 담았습니다.
 
@@ -27,12 +28,13 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 - Maroo `IPrivacy` 전송 요청과 Clairveil v0.4.0 `MsgTransfer`의 필드 대응
 - PCL 프록시 금고에서 KYB 증명의 유무, 색인, 폐기가 청구 결과를 바꾸고, 업그레이드 권한과 정책 관리 권한이 나뉜다는 것
 - 문서 개선 노트 1~5번의 근거
+- 단순 OKRW 이체가 가스 283,524를 쓰고, 21,000으로 보내면 수수료만 내고 되돌려진다는 것(문서 개선 노트 7번)
 
 ### 검증하지 못한 것
 
 - 테스트넷에서 유효한 Privacy 상태 변경. 현재 verifier와 맞는 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았습니다.
 - Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지. 본인 인증 증명이 있는 지갑과 없는 지갑 모두 요청 검증에서 먼저 막혀 정책 층에 닿지 못했습니다.
-- 금고 흐름 이외의 경로에서 PCL 거부를 tx로 남기는 것. 이 레포의 상태 변경 tx는 금고 흐름 18건입니다.
+- 금고 흐름 이외의 경로에서 PCL 거부를 tx로 남기는 것. 금고 흐름 밖에서 보낸 tx는 전역 정책을 통과한 단순 이체(가스 확인, 진행자 배분)입니다.
 
 ## 1-1. 코드 대조 `[코드 대조]`
 

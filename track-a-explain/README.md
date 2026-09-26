@@ -16,7 +16,7 @@
 | 기관 연동 가이드 | [integration-guide.md](integration-guide.md) | 공급업체 정산 여정으로 짠 0~8절과 부록. 아키텍처 다이어그램, 시퀀스 다이어그램, 노트 상태 다이어그램. 온체인, 오프체인, 지갑, prover, auditor, policy 경계 표. 상태 전이, 가시성, 키와 서비스 책임, 실패 분류와 최초 실패 계층, 4~8주 PoC 설계, 프로덕션 전에 남은 것. 문서 확인(`[Docs Only]`), 직접 검증(`[Live Testnet]`, `[Local]`), 제안(권고)을 문장마다 표시 |
 | 실행 레시피 | [runnable-recipe.md](runnable-recipe.md), [recipe/](recipe/) | TypeScript 스크립트 여섯 개와 Solidity 금고. 준비, 입력값, 예상 결과, 확인 방법, 오류 처리. 테스트넷과 로컬의 검증 범위를 나눔 |
 | 기관 FAQ | [faq.md](faq.md) | 질문 9개. prover에 보이는 것, 감사, disclosure, 키 보관, KYB와 PCL, 사전 검사, 재시도와 이중 지급, 업그레이드, 프로덕션 준비도 |
-| 문서 개선 노트 | [documentation-improvement-notes.md](documentation-improvement-notes.md) | Maroo Docs 5개, Clairveil 1개. 항목마다 멈추는 사람과 단계, 잘못 믿게 되는 것, 확인 비용, 재현 명령, 고친 문구 제안 |
+| 문서 개선 노트 | [documentation-improvement-notes.md](documentation-improvement-notes.md) | Maroo Docs 6개, Clairveil 1개. 항목마다 멈추는 사람과 단계, 잘못 믿게 되는 것, 확인 비용, 재현 명령, 고친 문구 제안 |
 | 기술 워크스루 영상 | 녹화 대기(2026-09-27) | 시니어 엔지니어 대상 아키텍처 리뷰와 실행 경로 시연, 12~18분 |
 
 ## 바로 실행
@@ -35,7 +35,7 @@ pnpm a:local           # [Local] 차폐 정산 전체, 약 4분
 
 | 환경 | 검증한 것 | 증거 |
 | --- | --- | --- |
-| Maroo 테스트넷 | Privacy 정책과 요구 증명 조회, 예치의 최초 실패 계층(요청 검증), 전역 정책 사전 검사 방법, 문서 주장 대조. KYB 관문 금고의 상태 변경 tx 18건(거부 셋, 통과 하나) | [evidence.md 1절](evidence.md#1-maroo-테스트넷-live-testnet) |
+| Maroo 테스트넷 | Privacy 정책과 요구 증명 조회, 예치의 최초 실패 계층(요청 검증), 전역 정책 사전 검사 방법, 단순 이체의 가스(문서 예시 21,000, 실제 283,524), 문서 주장 대조. KYB 관문 금고의 상태 변경 tx 18건(거부 셋, 통과 하나) | [evidence.md 1절](evidence.md#1-maroo-테스트넷-live-testnet) |
 | Clairveil 로컬 | 예치, 일괄 지급, 스캔, 해독, 인출까지 차폐 정산 전체와 역할별 가시성 | [evidence.md 2절](evidence.md#2-clairveil-로컬-local) |
 
 테스트넷에서 유효한 Privacy 상태 변경은 외부에서 만들 재료(회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력)가 공개되지 않아 실행하지 못했습니다. 두 환경의 결과는 서로 다른 라벨로만 적고, PCL과 Privacy가 Maroo에서 함께 성공한 것처럼 합치지 않습니다.

@@ -18,9 +18,9 @@
 ## 워크샵 전날
 
 1. 깨끗한 폴더에 레포를 새로 받아 `pnpm install`, `pnpm b:prepare`, `pnpm b:smoke`를 실행합니다. 스모크 테스트가 "모두 통과"로 끝나야 합니다.
-2. 진행자 지갑을 준비합니다. 진행자용 지갑 파일(`MAROO_LAB_ENV=~/facilitator.env pnpm setup:wallets`)의 BUYER에 참가자 수 × 1,000 OKRW보다 넉넉히 받아 둡니다. 전역 정책상 KYC 증명이 없는 지갑은 24시간에 1,000만 OKRW까지 보낼 수 있습니다.
+2. 진행자 지갑을 준비합니다. 진행자용 지갑 파일(`MAROO_LAB_ENV=~/facilitator.env pnpm setup:wallets`)의 BUYER에 참가자 수 × 1,000 OKRW보다 넉넉히 받아 둡니다. 전역 정책상 KYC 증명이 없는 지갑은 24시간에 1,000만 OKRW까지 보낼 수 있습니다. 보내는 한 건마다 수수료가 약 2.6 OKRW(가스 283,524) 들어, 30명이면 수수료로 약 77 OKRW가 더 듭니다 `[Live Testnet]`.
 3. 참가자에게 사전 준비 안내(참가자 가이드의 "사전 준비")를 보내고, 참가자의 BUYER 주소를 한 줄에 하나씩 `participants.txt`로 모읍니다.
-4. `MAROO_LAB_ENV=~/facilitator.env pnpm b:fund --file participants.txt`로 나눠 줍니다. 사전 검사에서 거부된 주소는 사유와 함께 출력됩니다.
+4. `MAROO_LAB_ENV=~/facilitator.env pnpm b:fund --file participants.txt`로 나눠 줍니다. 주소마다 사전 검사(`eth_estimateGas`) 결과와 tx 링크가 한 줄씩 나오고, 거부된 주소는 사유와 함께 출력됩니다. 기록은 `track-b-enable/evidence/live/fund-<시각>.json`에 남습니다. 실행 예: 자기 협력사 지갑 둘을 적은 파일로 `--amount 10`을 보낸 [기록](evidence/live/fund-20260926T042738Z.json) `[Live Testnet]`
 5. 참가자와 같은 운영체제용 `.work/prebuilt/`를 압축해 USB나 공유 폴더에 둡니다(T2 대비).
 
 ## 워크샵 직전 (10분)
