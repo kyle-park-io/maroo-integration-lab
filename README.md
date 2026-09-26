@@ -1,25 +1,33 @@
 # Maroo 연동 실습: 비공개 공급업체 정산
 
-Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출합니다.
+Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출합니다. English summary: [README.en.md](README.en.md)
 
-구매 기업이 협력사 대금을 Maroo에서 치르면서 협력사별 금액과 거래 관계를 공개 체인에서 숨기는 정산을 하나의 사례로 잡고, 세 독자에게 맞춰 나눴습니다. A는 도입을 검토하는 기관의 시니어 엔지니어가 구조와 신뢰 경계를 이해하고 첫 연동을 시작하도록 쓴 가이드와 실행 레시피입니다. B는 같은 흐름을 기관 실무 엔지니어가 75분 동안 직접 실행하는 워크샵과 데모입니다. C는 이 흐름을 Maroo 해커톤의 Flagship 트랙으로 넓히고, 에이전트 결제와 자격 기반 원화 결제 트랙을 더한 설계입니다.
+한국 대기업집단이 2025년 하반기에 협력사에 치른 하도급대금은 89.1조원이고, 그중 84.71%가 현금으로 나갔습니다([아시아경제 2026-07-14](https://view.asiae.co.kr/article/2026071410535320908)). 단가, 거래량, 거래처는 영업비밀로 보호받을 수 있는 정보라서, 이 대금을 공개 체인으로 옮기려면 금액과 거래 관계를 가리는 장치가 먼저 필요합니다. 2026년에는 카드업권 9개사의 스테이블코인 결제·정산 공동 PoC(7월, [벤처스퀘어](https://www.venturesquare.net/1100826)), 거래정보 보호 기술을 넣은 토스·한국조폐공사 지역화폐 정산 실증(9월, [파이낸셜뉴스](https://www.fnnews.com/news/202609180923593556)), 갤럭시아머니트리의 효성 사업장 간 정산 실증(9월, [뉴스핌](https://www.newspim.com/news/view/20260917000835))이 이어졌습니다. 하도급대금 자체를 다룬 파일럿은 조사에서 찾지 못했습니다.
+
+이 레포는 구매 기업이 협력사 대금을 Maroo에서 치르면서 협력사별 금액과 거래 관계를 공개 체인에서 숨기는 정산을 한 사례로 잡았습니다. A에서 구조와 신뢰 경계를 설명하고, B에서 같은 흐름을 75분 워크샵으로 돌려 보고, C에서 해커톤 트랙으로 넓힙니다.
+
+## 읽는 사람별 입구
+
+| 읽는 사람 | 먼저 볼 곳 | 걸리는 시간 | 먼저 보이는 실제 결과 | 읽고 나서 정할 수 있는 것 |
+| --- | --- | --- | --- | --- |
+| 이 제출물을 처음 보는 리뷰어 | [기관 연동 가이드](track-a-explain/integration-guide.md) 0절, [Track A 증거](track-a-explain/evidence.md), 아래 트랙 표 | 5분 | `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막힘([진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)) | 어느 트랙부터 깊이 볼지 |
+| 도입을 검토하는 기관 시니어 엔지니어(Track A 독자) | [기관 연동 가이드](track-a-explain/integration-guide.md) | 0절 5분, 전체 50분 | `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 `EasNoAttestationReceived`로 거부되고, 증명을 색인한 뒤의 청구는 통과([금고 흐름 기록](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json)) | 4~8주 PoC에서 테스트넷으로 할 부분(OKRW, PCL, KYB 관문)과 로컬로 할 부분(차폐 정산), Maroo에 먼저 요청할 재료 |
+| 기관의 사업·컴플라이언스 담당(개발자가 아닌 평가자 포함) | 같은 가이드 0절의 네 질문 표, [FAQ 9](track-a-explain/faq.md#9-지금-이-구조로-실제-협력사-대금을-처리할-수-있나요) | 10분 | `[Local]` 협력사 B에게 보낸 15는 협력사 B, 구매 기업, 감사인이 각자 키로 풀었고, 제3자가 읽는 지급 tx에는 금액 필드가 없음([로컬 기록](track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md)) | 내부 보안·컴플라이언스 검토에 올릴 범위와 아직 체인에 없는 것(규제기관 열람, 테스트넷 Privacy 상태 변경) |
+| 워크샵을 여는 DevRel·진행자(Track B) | [Track B README](track-b-enable/README.md), [진행자 가이드](track-b-enable/facilitator-guide.md) | 15분 | `[Live Testnet]` `[Local]` `pnpm b:smoke` 한 번에 1~5단계와 성공 기준이 91초 만에 통과([세션 기록](track-b-enable/evidence/session-20260926T000329Z.md)) | 75분 워크샵 일정과 사전 준비(바이너리 빌드 108초, 참가자당 OKRW 1,000과 이체 수수료 약 2.6 OKRW) |
+| 해커톤을 설계하는 팀(Track C) | [트랙 포트폴리오](track-c-activate/portfolio.md), [트랙 2의 16절](track-c-activate/tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet) | 15분 | `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부. 자동 판정 R1~R4 통과([판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json)) | 세 트랙 구성, 트랙별 최소 연동 요건, 심사 자동 판정(`pnpm c:judge`)을 행사에 쓸지 |
+| Maroo 문서·제품 팀 | [SUBMISSION_NOTES의 차이와 DX 피드백](SUBMISSION_NOTES.md#발견한-차이), [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) | 30분 | `[Live Testnet]` 문서대로 `TransferLimit`을 숫자 문자열로 쓰면 한도 안 결제까지 `AgentTransferLimitMetadataInvalid`로 막힘([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)) | 재현 명령과 owner가 붙은 문서 차이 18건, DX 피드백 13건의 처리 순서 |
+
+## 트랙
 
 | 트랙 | 폴더 | 독자 | 먼저 볼 것 | 명령 | 증거 | 영상 |
 | --- | --- | --- | --- | --- | --- | --- |
 | A Explain (Primary) | [track-a-explain/](track-a-explain/) | 도입을 검토하는 기관 테크니컬 리드 | [기관 연동 가이드](track-a-explain/integration-guide.md) 0절 | `pnpm a:inspect`, `a:probe`, `a:kyb-gate`, `a:local` | [evidence.md](track-a-explain/evidence.md) | 녹화 대기(2026-09-27) |
 | B Enable | [track-b-enable/](track-b-enable/) | 워크샵에서 구현하는 기관 실무 엔지니어 | [참가자 가이드](track-b-enable/participant-guide.md) | `pnpm b:prepare`, `b:check`, `b:step 1~5`, `b:smoke` | [evidence.md](track-b-enable/evidence.md) | 녹화 대기(2026-09-27) |
-| C Activate | [track-c-activate/](track-c-activate/) | Maroo 해커톤에 참가할 빌더 | [트랙 포트폴리오](track-c-activate/portfolio.md) | `pnpm c:grounding` | [evidence.md](track-c-activate/evidence.md) | 녹화 대기(2026-09-27) |
+| C Activate | [track-c-activate/](track-c-activate/) | Maroo 해커톤에 참가할 빌더 | [트랙 포트폴리오](track-c-activate/portfolio.md) | `pnpm c:grounding`, `c:agent-limit`, `c:judge` | [evidence.md](track-c-activate/evidence.md) | 녹화 대기(2026-09-27) |
 
 - 권장 구조와의 대응: `docs/`는 `track-a-explain/`, `demo/`와 `workshop/`은 `track-b-enable/`, `hackathon/`은 `track-c-activate/`, `video-link.md`는 위 표의 영상 칸입니다. 세 트랙이 같은 코드(`shared/`)를 쓰므로 트랙별 폴더로 나눴습니다.
 - Clairveil: v0.4.0 [`ca85b02708fdd75259d4d2ee2d671c21198cec69`](https://github.com/DELIGHT-LABS/clairveil/tree/ca85b02708fdd75259d4d2ee2d671c21198cec69). clairveil-samples [`8321dedc231372679cfbea4314d080ecaea2e3f5`](https://github.com/DELIGHT-LABS/clairveil-samples/tree/8321dedc231372679cfbea4314d080ecaea2e3f5)가 맞춰 둔 조합이라 ClairveilJS [`faf220d5b2fa1a186c30893ca74d765474015aee`](https://github.com/DELIGHT-LABS/clairveiljs/tree/faf220d5b2fa1a186c30893ca74d765474015aee)와 함께 받고, 실행 경로는 Clairveil의 Go 바이너리만 씁니다.
 - 제출 메모: [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md)(가정과 차이, 검증, AI 사용, DX 피드백, 알려진 한계)
-
-## 5분 안에 보는 순서
-
-1. [기관 연동 가이드](track-a-explain/integration-guide.md) 0절: 독자 상황, 네 질문의 답, 지금 되는 것과 남은 것
-2. 같은 가이드 1~2절의 아키텍처 다이어그램과 시퀀스 다이어그램
-3. [Track A 증거](track-a-explain/evidence.md): 테스트넷 조회와 로컬 차폐 정산 기록
-4. [Track B README](track-b-enable/README.md)의 명령 표와 [Track C 포트폴리오](track-c-activate/portfolio.md)의 세 트랙 표
 
 ## 실행
 
@@ -72,7 +80,7 @@ track-c-activate/  포트폴리오, tracks/ 세 트랙, grounding/*.ts, evidence
 ## 알려진 한계
 
 - Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 필요한 재료가 공개되지 않았고, 비공개 구성 요소는 추측하지 않았습니다.
-- 테스트넷 faucet이 전역 정책 한도에 걸려 있던 2026-09-25 16:41 UTC부터 09-26 00:00 UTC까지는 상태 변경 tx를 보내지 못했습니다. 한도가 풀린 뒤 KYB 금고 흐름(`a:kyb-gate`, `b:step 2`)과 에이전트 등록(`c:grounding --write`)을 실행해 각 트랙 evidence.md에 넣었습니다.
+- 테스트넷 faucet이 전역 정책 한도에 걸려 있던 2026-09-25 16:41 UTC부터 09-26 00:00 UTC까지는 상태 변경 tx를 보내지 못했습니다. 한도가 풀린 뒤 KYB 금고 흐름(`a:kyb-gate`, `b:step 2`), 에이전트 등록(`c:grounding --write`), 에이전트 한도 실증(`c:agent-limit`)을 실행해 각 트랙 evidence.md에 넣었습니다.
 - 코드는 PoC와 레퍼런스 수준입니다. 프로덕션 키 관리, 지갑, 프론트엔드는 범위 밖입니다.
 - 자세한 목록은 [SUBMISSION_NOTES.md의 Known Limitations](SUBMISSION_NOTES.md#known-limitations)에 있습니다.
 
@@ -87,3 +95,5 @@ track-c-activate/  포트폴리오, tracks/ 세 트랙, grounding/*.ts, evidence
 | [OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) 5.6.1 | 금고의 `Initializable` | MIT |
 | [forge-std](https://github.com/foundry-rs/forge-std) 1.11.0 | 금고 테스트 | MIT 또는 Apache-2.0 |
 | [mermaid-cli](https://github.com/mermaid-js/mermaid-cli) 11.17 | 다이어그램 렌더링 검사 | MIT |
+
+이 레포의 코드와 문서는 [MIT 라이선스](LICENSE)입니다. `vendor/`에 받는 외부 코드는 위 표의 원래 라이선스를 따릅니다.
