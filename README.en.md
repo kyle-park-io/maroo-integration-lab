@@ -6,6 +6,10 @@ Primary Track: A (Explain). Tracks B (Enable) and C (Activate) are submitted as 
 
 One use case runs through all three tracks: a buyer company pays its suppliers in OKRW on Maroo while keeping per-supplier amounts and trading relationships off the public chain. Track A explains the architecture and trust boundaries to an institutional senior engineer, Track B turns the same flow into a 75-minute workshop, and Track C extends it into hackathon tracks.
 
+## How the tracks connect
+
+The three tracks carry the same settlement case forward: Track A explains the architecture and trust boundaries, Track B has participants run the same flow and check success and failure themselves, and Track C extends it into hackathon tracks with automated judging. All three call the same code under `shared/`. Findings from Track A (reason codes, places where the docs and the chain differ) became Track B troubleshooting entries and Track C mentor answers. The diagram and mapping tables are in the Korean README, section "세 트랙이 이어지는 방식".
+
 ## Tracks
 
 | Track | Folder | Audience | Start here | Commands | Evidence |

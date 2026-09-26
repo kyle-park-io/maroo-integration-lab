@@ -2,6 +2,8 @@
 
 기관의 실무 엔지니어가 75분 동안 협력사 대금 정산을 두 환경에서 직접 실행하는 워크샵입니다. Maroo 테스트넷에서는 OKRW 이체와 PCL·EAS 정책이 걸린 정산 금고를 실제 트랜잭션으로 돌리고, 차폐 정산(예치, 지급, 스캔, 해독, 인출)은 Clairveil 로컬 체인에서 돌린 뒤, 두 환경의 경계와 Maroo 테스트넷 Privacy가 멈추는 층을 진단합니다.
 
+- 세 트랙의 연결: 워크샵이 돌리는 흐름의 구조와 신뢰 경계는 [Track A 가이드](../track-a-explain/integration-guide.md)가 설명하고, 워크샵 2, 3단계는 Track A 레시피와 같은 코드(`shared/`)를 부릅니다. 참가자가 막히는 곳은 Track A에서 찾은 사유 코드로 [트러블슈팅](troubleshooting.md)에 적었고, 같은 흐름을 제품으로 넓히는 해커톤 트랙은 [Track C](../track-c-activate/README.md)입니다.
+
 ## 결과물
 
 | 결과물 | 파일 | 담은 것 |
