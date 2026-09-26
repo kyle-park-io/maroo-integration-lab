@@ -326,7 +326,7 @@ PoC를 시작하기 전에 Maroo에 확인할 항목은 6절의 증명 재료 �
 | [inspect-privacy-boundary-20260925T192735Z.json](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) | `[Live Testnet]` | Privacy 정책 결합 방식, 요구 스키마, 예치 eth_call 결과, 요청 필드 대조 |
 | [probe-first-failure-20260925T193314Z.json](evidence/live/probe-first-failure-20260925T193314Z.json) | `[Live Testnet]` | 요청 모양별 최초 실패 계층(eth_call, eth_estimateGas) |
 | [probe-global-policy-20260925T190841Z.json](evidence/live/probe-global-policy-20260925T190841Z.json) | `[Live Testnet]` | `eth_call`과 `eth_estimateGas`의 전역 정책 평가 차이 |
-| [doc-claims-20260925T191304Z.json](evidence/live/doc-claims-20260925T191304Z.json) | `[Live Testnet]` | 문서 문장과 체인 동작 대조 |
+| [doc-claims-20260926T051350Z.json](evidence/live/doc-claims-20260926T051350Z.json) | `[Live Testnet]` | 문서 문장과 체인 동작 대조 |
 | [vendor-settlement-20260925T181924Z.md](evidence/local/vendor-settlement-20260925T181924Z.md) | `[Local]` | 차폐 정산 단계별 tx, 역할별 해독 결과, 공개 필드 |
 
 ## 부록 C. 기준 버전

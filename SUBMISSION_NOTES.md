@@ -94,7 +94,7 @@
 | `pnpm a:probe-global` | 2026-09-25 19:08 | `eth_call` 통과, `eth_estimateGas` 거부(faucet 계정의 전역 한도) | [JSON](track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json) |
 | `pnpm a:probe-send-gas` | 2026-09-26 04:30 | 단순 이체 추정 283,524. 가스 21,000 전송은 되돌려짐(수수료 0.189 OKRW), 추정값의 125% 전송도 283,524만 씀 | [JSON](track-a-explain/evidence/live/probe-send-gas-20260926T043013Z.json) |
 | `pnpm a:probe-kyc` | 2026-09-25 20:17 | 카카오 본인 인증 증명이 있는 지갑(주소 비공개)도 증명 없는 지갑과 같이 `SDKInvalidRequest()` | [JSON](track-a-explain/evidence/live/probe-kyc-holder-20260925T201710Z.json) |
-| `pnpm a:doc-claims` | 2026-09-25 19:13 | 문서 개선 노트 1~5의 근거 | [JSON](track-a-explain/evidence/live/doc-claims-20260925T191304Z.json) |
+| `pnpm a:doc-claims` | 2026-09-26 05:13 | 문서 개선 노트 1~5의 근거. 다섯 항목 모두 같은 결론. 문서 페이지가 200이 아니면 판정하지 않고 멈춤 | [JSON](track-a-explain/evidence/live/doc-claims-20260926T051350Z.json) |
 | `pnpm a:local` | 2026-09-25 18:19 | 로컬 tx 11건. 단독 인출 실패(code 1)와 같은 블록 우회 성공, 역할별 해독 `verified=true` | [기록](track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md) |
 | `pnpm a:kyb-gate` | 2026-09-26 00:01 | tx 18건, 37초. 증명 없음·색인 전 청구 `EasNoAttestationReceived`, 폐기 뒤 `EasAttestationRevoked`, 색인 뒤 청구 성공. 구현 슬롯 확인, 정책 관리자와 업그레이드 권한 분리. 구매 기업 250.06 OKRW 사용 | [JSON](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 
@@ -142,6 +142,7 @@
 | A | Clairveil 메인넷 관문 수를 11개로, 금고 흐름 비용을 400 tOKRW로 적었습니다 | Clairveil 운영 가이드를 다시 세고, 비용 계산 근거가 없음을 확인 | 10개로 고치고 비용 문장은 지움 |
 | A | 금고 흐름 기록을 문서에 옮기면서 tx 수를 "22건"으로 적었습니다. 세지 않고 쓴 숫자였습니다 | 쓴 직후 기록 파일에서 tx가 있는 단계를 셈 | 18건으로 고침 |
 | C | 트랙 3 초안에 "색인 전 호출은 거부됩니다 `[Docs Only]`"라고 적었지만, 그 순서는 문서에서 찾을 수 없었습니다 | 커밋 전 라벨 검토 | 라벨을 지우고 금고 흐름 6b 단계가 확인한다고 바꿈 |
+| A | 배포 주소 페이지 주소를 `/resources/network/deployed-contracts/`로 틀리게 적었고, 문서 대조 스크립트가 그 404 페이지 본문으로 "Privacy 주소가 없다"고 판정했습니다. 결론은 맞았지만 근거가 없는 판정이었습니다 | 새 클론 뒤 문서 전체의 외부 링크 응답 코드를 검사 | 주소를 `/resources/contracts/deployed-contracts/`로 고치고, 스크립트가 200이 아닌 페이지에서는 멈추게 바꾼 뒤 다시 실행(다섯 항목 모두 같은 결론) |
 
 - 검증 방법: 문장마다 기록 파일이나 문서 링크를 붙이고, 커밋 전에 링크와 라벨을 대조했습니다. 코드는 명령을 다시 실행해 결과를 확인했습니다.
 

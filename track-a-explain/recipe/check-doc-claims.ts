@@ -16,8 +16,11 @@ const DOCS = "https://docs.maroo.io";
 const KNOWN_LOGIC = "0x9D90966c73D2838B5605585fB1dB4C1Ec51f592c";
 const SIM_SENDER = "0x000000000000000000000000000000000000bEEF";
 
+// 페이지가 없으면(404 등) 판정하지 않고 멈춘다. 없는 페이지의 본문으로 "문서에 없다"고 판정하지 않기 위해서다.
 async function pageText(p: string): Promise<string> {
-  const html = await (await fetch(`${DOCS}${p}`, { headers: { "user-agent": "Mozilla/5.0" } })).text();
+  const res = await fetch(`${DOCS}${p}`, { headers: { "user-agent": "Mozilla/5.0" } });
+  if (!res.ok) throw new Error(`${DOCS}${p} 응답 ${res.status}. 문서 주소가 바뀌었는지 확인하십시오.`);
+  const html = await res.text();
   return html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ")
     .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
     .replace(/\s+/g, " ");
@@ -57,10 +60,10 @@ record("withdraw-denom", {
 });
 
 // 3. 프리컴파일 목록에 Privacy 가 있는지
-const deployed = await pageText("/resources/network/deployed-contracts/");
+const deployed = await pageText("/resources/contracts/deployed-contracts/");
 const arch = await pageText("/concepts/core/maroo-architecture/");
 record("privacy-precompile-listed", {
-  deployedContractsPage: `${DOCS}/resources/network/deployed-contracts/`,
+  deployedContractsPage: `${DOCS}/resources/contracts/deployed-contracts/`,
   listsPrivacyAddress: count(deployed.toLowerCase(), PRIVACY.toLowerCase()) > 0,
   architecturePage: `${DOCS}/concepts/core/maroo-architecture/`,
   saysFourPrecompiles: count(arch, "네 개의 프리컴파일") > 0,

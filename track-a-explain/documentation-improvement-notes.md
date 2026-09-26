@@ -3,7 +3,7 @@
 비공개 공급업체 정산을 Maroo 테스트넷과 Clairveil 로컬 체인에서 따라가며, 개발자가 멈추거나 잘못 믿게 되는 곳을 모았습니다. 문체보다는 개발자가 실제로 겪는 마찰, 오해할 가능성, 확인에 드는 비용을 기준으로 골랐습니다.
 
 - 확인 날짜: 2026-09-26. Maroo Docs 문장은 그날의 docs.maroo.io에서, 체인 동작은 Maroo 테스트넷(chain ID 450815)에서 확인했습니다.
-- 재현: `pnpm a:doc-claims`가 1~5번의 문서 문장과 체인 동작을 한 번에 다시 대조합니다. 트랜잭션은 보내지 않습니다. 기록: [doc-claims](evidence/live/doc-claims-20260925T191304Z.json)
+- 재현: `pnpm a:doc-claims`가 1~5번의 문서 문장과 체인 동작을 한 번에 다시 대조합니다. 트랜잭션은 보내지 않습니다. 기록: [doc-claims](evidence/live/doc-claims-20260926T051350Z.json)
 - 우선순위는 막히는 단계가 이를수록, 오해가 조용할수록 높게 매겼습니다.
 
 | 번호 | 문서 | 요지 | 우선순위 |
@@ -57,7 +57,7 @@
 
 ## 5. 프리컴파일 목록과 배포 주소 표에 Privacy가 없다
 
-- 대상: [Maroo 아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/), [배포된 컨트랙트](https://docs.maroo.io/resources/network/deployed-contracts/)
+- 대상: [Maroo 아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/), [배포된 컨트랙트](https://docs.maroo.io/resources/contracts/deployed-contracts/)
 - 멈추는 사람과 단계: 아키텍처 리뷰를 위해 프리컴파일과 주소를 한 표로 정리하는 기관 엔지니어.
 - 잘못 믿게 되는 것: 아키텍처 페이지는 "네 개의 프리컴파일"이라고 적고, 배포 주소 표에는 Privacy 주소(`0x100000000000000000000000000000000000000b`)가 없습니다. 검토하는 사람은 Privacy가 아직 배포되지 않았다고 볼 수 있습니다. 테스트넷에는 이 주소에 PCL 정책이 걸려 있습니다.
 - 확인 비용: 주소를 `IPrivacy.sol` 상수나 API 페이지에서 따로 찾아야 합니다.
