@@ -47,6 +47,7 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 | 기록 | 명령 | 환경 | 실행 시각 | 결과 |
 | --- | --- | --- | --- | --- |
 | [vendor-settlement-20260925T181924Z.md](evidence/local/vendor-settlement-20260925T181924Z.md) | `pnpm setup:clairveil`, `pnpm a:local` | Clairveil `ca85b027`(v0.4.0), chain-id `vendor-settlement-local-1`, Go 1.27.1 linux/amd64 | 2026-09-25 18:19:24 | 예치 여섯 건, 협력사 A 일괄 지급(12, 8), 협력사 B 수신자 암호화 지급(15), 스캔과 해독(협력사, self-view, 감사인), 인출 단독 실패와 같은 블록 우회 성공, 준비금 불변식 `invariant_holds=true` |
+| [vendor-settlement-20260926T041658Z.md](evidence/local/vendor-settlement-20260926T041658Z.md) | `pnpm a:local --extras` | 같은 Clairveil v0.4.0, 미리 빌드한 바이너리 | 2026-09-26 04:16 | 1~4절은 첫 실행과 같은 흐름. 5절: 증명 하나짜리 일괄 지급(메시지 1, 출력 32, 실제 지급 3, 가스 1,615만), 대리 인출(보낸 계정은 중계자, 받는 주소와 금액 공개). 대리 인출은 0 노트 예치를 먼저 보낸 뒤에야 같은 블록에서 성공(순서를 정하지 않은 첫 실행은 세 번 모두 스냅샷 오류) |
 
 ### 검증한 것
 

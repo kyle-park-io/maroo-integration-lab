@@ -110,5 +110,30 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
     `- 협력사 A 일괄 지급 tx에는 MsgTransfer가 ${aMsgs}개 들어 있어 송장 건수가 공개됩니다.`,
     "- 지급 tx(MsgTransfer)에는 amount와 recipient 필드가 없습니다. 보낸 계정(creator)은 공개됩니다.",
     "");
+
+  // 선택 단계(--extras)를 실행했을 때만 붙는다
+  if (fs.existsSync(path.join(out, "extra-batch-query.json"))) {
+    const bq = load(out, "extra-batch-query.json");
+    const relayFile = ["extra-relay-withdraw-query.json", "extra-relay-3-query.json", "extra-relay-2-query.json", "extra-relay-1-query.json"].find((f) => fs.existsSync(path.join(out, f)));
+    const rq = relayFile ? load(out, relayFile) : undefined;
+    const row = (label: string, q: Json) => `| ${label} | \`${q.txhash}\` | ${q.height} | ${(q.code ?? 0) === 0 ? "성공" : `실패 code ${q.code}: \`${String(q.raw_log ?? "").slice(0, 160)}\``} | ${q.gas_used} |`;
+    lines.push("## 5. 참조 구현의 대량 지급 기능(선택 단계)", "",
+      "| 단계 | tx | 높이 | 결과 | gas_used |", "| --- | --- | --- | --- | --- |",
+      row("구매 기업 예치 30", load(out, "extra-deposit-30-query.json")),
+      row("증명 하나짜리 일괄 지급: A 5, B 7, A 3 (출력 32칸 고정)", bq));
+    if (rq) lines.push(row("협력사 B 7 대리 인출(중계자 제출, 0 노트 예치와 같은 블록)", rq));
+    const bm = (bq.tx.body.messages as Json[])[0] ?? {};
+    lines.push("", "| 제3자가 읽는 것 | 값 |", "| --- | --- |",
+      `| 일괄 지급 tx의 메시지 | ${(bq.tx.body.messages as Json[]).length}개, ${String(bm["@type"]).split(".").pop()} |`,
+      `| 일괄 지급의 보낸 계정(creator) | \`${bm.creator}\` |`,
+      `| 일괄 지급의 출력 수(outputs) | ${(bm.outputs ?? []).length}개. 실제 지급은 3건 |`,
+      `| 일괄 지급의 입력 수(nullifiers) | ${(bm.nullifiers ?? []).length}개 |`);
+    if (rq && (rq.code ?? 0) === 0) {
+      const wm = (rq.tx.body.messages as Json[])[0] ?? {};
+      lines.push(`| 대리 인출의 보낸 계정(creator) | \`${wm.creator}\`(중계자) |`,
+        `| 대리 인출의 받는 주소(recipient)와 금액 | \`${wm.recipient}\`(협력사 B), ${wm.amount} |`);
+    }
+    lines.push("");
+  }
   fs.writeFileSync(opts.report, lines.join("\n"));
 }

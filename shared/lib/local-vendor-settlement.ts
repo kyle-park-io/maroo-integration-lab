@@ -42,8 +42,10 @@ export function buildClairveil(dir: string, log: string) {
 
 // prebuiltDir 에 buildClairveil 결과가 있고 vendor/clairveil 과 같은 커밋이면 빌드를 건너뛴다.
 // beforeStage 는 1~10 단계 번호를 받는다. 워크샵 실행기는 여기서 예상 결과를 먼저 보여 주고 진행을 멈춘다.
+// extras 를 켜면 기존 흐름 뒤에 참조 구현의 대량 지급 기능 두 가지를 더 실행한다(작업 기록 5절).
+//   증명 하나짜리 일괄 지급(transfer-batch-16x32, 출력 32칸 고정), 중계자가 보내는 대리 인출(prepare-withdraw, relay-withdraw)
 export async function runLocalVendorSettlement(opts: {
-  evidenceDir: string; command: string; prebuiltDir?: string; beforeStage?: (stage: number) => Promise<void>;
+  evidenceDir: string; command: string; prebuiltDir?: string; beforeStage?: (stage: number) => Promise<void>; extras?: boolean;
 }): Promise<string> {
   if (!fs.existsSync(path.join(CORE, ".git"))) {
     throw new Error("vendor/clairveil 이 없습니다. 먼저 pnpm setup:clairveil 을 실행하십시오.");
@@ -119,7 +121,7 @@ export async function runLocalVendorSettlement(opts: {
 
   await stage(2);
   console.log("2) 역할 키와 체인 초기화 (감사 키는 auditor 의 공개키)");
-  const roles = ["buyer", "supplier-a", "supplier-b", "auditor"] as const;
+  const roles = opts.extras ? ["buyer", "supplier-a", "supplier-b", "auditor", "relayer"] : ["buyer", "supplier-a", "supplier-b", "auditor"];
   const address: Record<string, string> = {};
   for (const who of roles) {
     save(`${who}-key.json`, await cli(["keys", "add", who, ...keyring, "--output", "json"]));
@@ -247,6 +249,37 @@ export async function runLocalVendorSettlement(opts: {
   save("supplier-a-balance-after.json", await balances());
   await notes("supplier-a", "supplier-a-notes-after.json");
   save("reserve.json", await cli(["query", "privacy", "reserve", "uclair", "--node", node, "--output", "json"]));
+
+  if (opts.extras) {
+    console.log("추가 1) 증명 하나짜리 일괄 지급: 협력사 A 5, B 7, A 3 을 출력 32칸 고정으로");
+    await submit("extra-deposit-30", privacyTx("deposit", "30uclair", "--from", "buyer", ...keyring, "--gas", "2500000"));
+    const batchRes = await cliJson([...privacyTx("transfer-batch-16x32",
+      "--payment", `${shielded["supplier-a"]},5uclair`, "--payment", `${shielded["supplier-b"]},7uclair`, "--payment", `${shielded["supplier-a"]},3uclair`,
+      "--output-mode", "exact32", "--prepared-out", path.join(out, "extra-batch-prepared.json"), "--proof-out", path.join(out, "extra-batch-proof.json"),
+      "--from", "buyer", ...keyring, "--gas", "40000000"), ...txFlags]);
+    save("extra-batch.json", batchRes);
+    const batchQ = await waitTx(batchRes.txhash ?? batchRes.tx_response?.txhash ?? batchRes.broadcast?.txhash);
+    save("extra-batch-query.json", batchQ);
+    console.log(`  extra-batch  ${batchQ.txhash}  높이 ${batchQ.height}  code ${batchQ.code ?? 0}`);
+    await notes("supplier-b", "extra-supplier-b-notes.json");
+
+    console.log("추가 2) 대리 인출: 협력사 B 가 7 을 인출 재료로 만들고 중계자가 보낸다(같은 블록에 0 노트 예치)");
+    const payload = path.join(out, "extra-withdraw-payload.json");
+    await cli(privacyTx("prepare-withdraw", "7uclair", "--recipient", address["supplier-b"], "--from", "supplier-b", ...keyring,
+      "--node", node, "--chain-id", chainId, "--out", payload, "--output", "json"));
+    let relayed = false;
+    for (let attempt = 1; attempt <= 3 && !relayed; attempt++) {
+      // 대리 인출은 증명을 새로 만들지 않아 예치보다 먼저 도착한다. 같은 블록 안에서도 인출이 먼저 실행되면
+      // 루트가 바뀌기 전이라 실패한다(1차 시도 기록). 예치를 먼저 mempool 에 넣은 뒤 인출을 보낸다.
+      const dep = await cliJson([...privacyTx("deposit", "0uclair", "--from", "buyer", ...keyring, "--gas", "2500000"), ...txFlags]);
+      const rw = await cliJson([...privacyTx("relay-withdraw", payload, "--from", "relayer", ...keyring, "--gas", "3500000"), ...txFlags]);
+      const [dq, rq] = await Promise.all([waitTx(dep.txhash), waitTx(rw.txhash)]);
+      console.log(`  시도 ${attempt}: 0 노트 예치 높이 ${dq.height} code ${dq.code ?? 0}, 대리 인출 높이 ${rq.height} code ${rq.code ?? 0}`);
+      save(`extra-relay-${attempt}-query.json`, rq);
+      if ((rq.code ?? 0) === 0) { save("extra-relay-withdraw-query.json", rq); relayed = true; }
+    }
+    if (!relayed) console.log("  대리 인출이 세 번 모두 같은 블록에 들어가지 못했습니다. 기록에는 마지막 시도를 남깁니다.");
+  }
 
   await stage(10);
   console.log("10) 기록 정리");
