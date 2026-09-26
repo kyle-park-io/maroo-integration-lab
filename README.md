@@ -71,7 +71,7 @@ track-c-activate/  포트폴리오, tracks/ 세 트랙, grounding/*.ts, evidence
 ## 알려진 한계
 
 - Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 필요한 재료가 공개되지 않았고, 비공개 구성 요소는 추측하지 않았습니다.
-- KYB 금고 흐름(`a:kyb-gate`, `b:step 2`)과 에이전트 등록(`c:grounding --write`)의 테스트넷 tx는 faucet이 전역 정책 한도에 걸려 있던 동안 실행하지 못했고, 한도가 풀린 뒤 실행해 각 트랙 evidence.md에 추가합니다.
+- 테스트넷 faucet이 전역 정책 한도에 걸려 있던 2026-09-25 16:41 UTC부터 09-26 00:00 UTC까지는 상태 변경 tx를 보내지 못했습니다. 한도가 풀린 뒤 KYB 금고 흐름(`a:kyb-gate`, `b:step 2`)과 에이전트 등록(`c:grounding --write`)을 실행해 각 트랙 evidence.md에 넣었습니다.
 - 코드는 PoC와 레퍼런스 수준입니다. 프로덕션 키 관리, 지갑, 프런트엔드는 범위 밖입니다.
 - 자세한 목록은 [SUBMISSION_NOTES.md의 Known Limitations](SUBMISSION_NOTES.md#known-limitations)에 있습니다.
 

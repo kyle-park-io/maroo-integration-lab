@@ -49,7 +49,8 @@
 | 10 | Maroo Docs ERC-8004 | Reputation은 V1에 없음 | `IAgent.getParams`가 ReputationRegistry `0x8004…0002`를 돌려주고 코드가 있음 | `pnpm c:grounding` | C evidence 3절 |
 | 11 | Maroo Docs 전역 정책 | 건당 한도를 체인 설정으로 적지 않음 | 전역 정책에 KYC 증명이 없는 계정의 건당 200만 OKRW 한도(`VOLUME_POLICY`) | `pnpm c:grounding` | C 포트폴리오, 트랙 3 |
 | 12 | Maroo Docs와 Clairveil | 서로를 언급하지 않음 | 연결 고리는 전송 요청 필드 대응과 clairveil-samples의 Privacy 주소 예시 | `pnpm a:inspect` | A 가이드 1절 |
-| 13 | faucet | 요청하면 5,000 tOKRW | 2026-09-25 16:41 UTC부터 실패. faucet 계정이 전역 24시간 한도를 다 썼고 KYC 증명이 없음 | `pnpm a:probe-global` | DX 3, B 증거 |
+| 13 | faucet | 요청하면 5,000 tOKRW | 2026-09-25 16:41 UTC부터 실패. faucet 계정이 전역 24시간 한도를 다 썼고 KYC 증명이 없음. `resetAt`(2026-09-26 00:00 UTC) 뒤 22초에 요청해 받음 | `pnpm a:probe-global` | DX 3, B 증거 |
+| 14 | Maroo Docs EAS 연동 | 증명 발급 뒤 색인이 필요하다는 순서와 재발급 때의 동작을 적지 않음 | 새 증명을 색인하기 전에는 PCL이 색인된 옛 증명을 봐서, 폐기된 옛 증명이 있으면 `EasAttestationRevoked`로 거부 | `pnpm a:kyb-gate`를 같은 지갑으로 두 번 | A FAQ 5, B T8 |
 
 ## Validation
 
@@ -83,7 +84,7 @@
 | `pnpm a:probe-kyc` | 2026-09-25 20:17 | 카카오 본인 인증 증명이 있는 지갑(주소 비공개)도 증명 없는 지갑과 같이 `SDKInvalidRequest()` | [JSON](track-a-explain/evidence/live/probe-kyc-holder-20260925T201710Z.json) |
 | `pnpm a:doc-claims` | 2026-09-25 19:13 | 문서 개선 노트 1~5의 근거 | [JSON](track-a-explain/evidence/live/doc-claims-20260925T191304Z.json) |
 | `pnpm a:local` | 2026-09-25 18:19 | 로컬 tx 11건. 단독 인출 실패(code 1)와 같은 블록 우회 성공, 역할별 해독 `verified=true` | [기록](track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md) |
-| `pnpm a:kyb-gate` | 실행 대기 | faucet 한도 창이 풀린 뒤 실행 | [레시피 4절](track-a-explain/runnable-recipe.md#4-kyb-관문이-걸린-정산-금고-live-testnet) |
+| `pnpm a:kyb-gate` | 2026-09-26 00:01 | tx 18건, 37초. 증명 없음·색인 전 청구 `EasNoAttestationReceived`, 폐기 뒤 `EasAttestationRevoked`, 색인 뒤 청구 성공. 구현 슬롯 확인, 정책 관리자와 업그레이드 권한 분리. 구매 기업 250.06 OKRW 사용 | [JSON](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 
 ### B
 
@@ -91,14 +92,15 @@
 | --- | --- | --- | --- |
 | `pnpm b:prepare` | 2026-09-25 19:57 | 바이너리와 회로 산출물 108초 | [evidence.md](track-b-enable/evidence.md) |
 | `pnpm b:smoke` | 2026-09-25 20:01 | 64초. 점검, 1·3·4·5단계와 성공 기준 모두 통과. 2단계는 잔액 0으로 건너뜀 | [세션 기록](track-b-enable/evidence/session-20260925T200201Z.md) |
-| `pnpm b:step 2` | 실행 대기 | faucet 한도 창이 풀린 뒤 실행 | |
+| `pnpm b:smoke`(2단계 포함) | 2026-09-26 00:02 | 91초. 1~5단계와 성공 기준 모두 통과. 2단계 6b는 같은 협력사 지갑의 두 번째 실행이라 `EasAttestationRevoked` | [2단계 기록](track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json), [세션 기록](track-b-enable/evidence/session-20260926T000329Z.md) |
 
 ### C
 
 | 명령 | 시각(UTC) | 결과 | 기록 |
 | --- | --- | --- | --- |
 | `pnpm c:grounding` | 2026-09-25 19:42 | 템플릿 9개 등록, 전역 정책 트리, Privacy 정책, 레지스트리 등록 시뮬레이션(다음 agentId 79), 레지스트리 마지막 tx 2026-09-06 | [JSON](track-c-activate/evidence/live/grounding-20260925T194211Z.json) |
-| `pnpm c:grounding --write` | 실행 대기 | 에이전트 등록 tx 한 건 | |
+| `pnpm c:grounding --write` | 2026-09-26 00:04 | 에이전트 등록 tx 성공(agentId 79, 블록 19111740). 등록한 지갑의 `getAgentIds`가 바로 `[79]` | [JSON](track-c-activate/evidence/live/grounding-20260926T000418Z.json) |
+| `pnpm c:judge-example` | 2026-09-26 00:03 | Track A 기록으로 만든 트랙 1 예시 제출물이 R1~R5 모두 통과. 거부 tx 둘의 사유를 직전 블록 재시뮬레이션으로 재현 | [판정 결과](track-c-activate/evidence/judge-example/evidence.judge.json) |
 
 ### 직접 검증한 것과 문서로만 확인한 것
 
@@ -123,6 +125,7 @@
 | A, B | 레시피에 `RPC_PORT`로 로컬 노드 포트를 바꿀 수 있다고 적었지만, 실행기는 CLI가 접속할 포트만 바꾸고 노드는 26657에서 떴습니다 | B 트러블슈팅을 쓰면서 `clairveild start --help`로 노드 시작 인자를 확인 | 노드 시작 인자에 `--rpc.laddr`, `--p2p.laddr`, `--grpc.address`, `--api.address`를 넘기도록 실행기를 고침 |
 | A | 공개 증거 없이 "테스트넷 withdraw 8건 성공", "색인 전 거부 `[Live Testnet]`"을 문서 문장으로 썼습니다 | 커밋 전 검토에서 문장마다 증거 파일을 찾음 | 문장을 지우거나, 확인하는 명령(금고 흐름 6b)을 가리키게 바꿈 |
 | A | Clairveil 메인넷 관문 수를 11개로, 금고 흐름 비용을 400 tOKRW로 적었습니다 | Clairveil 운영 가이드를 다시 세고, 비용 계산 근거가 없음을 확인 | 10개로 고치고 비용 문장은 지움 |
+| A | 금고 흐름 기록을 문서에 옮기면서 tx 수를 "22건"으로 적었습니다. 세지 않고 쓴 숫자였습니다 | 쓴 직후 기록 파일에서 tx가 있는 단계를 셈 | 18건으로 고침 |
 | C | 트랙 3 초안에 "색인 전 호출은 거부됩니다 `[Docs Only]`"라고 적었지만, 그 순서는 문서에서 찾을 수 없었습니다 | 커밋 전 라벨 검토 | 라벨을 지우고 금고 흐름 6b 단계가 확인한다고 바꿈 |
 
 - 검증 방법: 문장마다 기록 파일이나 문서 링크를 붙이고, 커밋 전에 링크와 라벨을 대조했습니다. 코드는 명령을 다시 실행해 결과를 확인했습니다.
@@ -170,20 +173,19 @@
 ### A
 
 - Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았고, 가이드 6절에 최초 실패 계층과 필요한 재료를 적었습니다.
-- KYB 금고 흐름의 테스트넷 tx는 faucet이 전역 한도에 걸려 있던 동안 실행하지 못했습니다. 한도가 풀린 뒤 실행해 증거를 추가합니다.
 - 가이드의 권고(주기 총액 예치, 일괄 지급 크기 고정, 원장 상태)는 검증하지 않은 설계입니다.
 
 ### B
 
 - 실제 참가자와 워크숍을 진행하지 않았습니다. 시간표는 한 머신의 실행 시간(사전 준비 108초, 3단계 61초)과 설명 분량으로 잡았습니다.
 - 미리 빌드한 바이너리는 운영체제와 CPU에 따라 다시 만들어야 합니다. 확인한 환경은 Linux(WSL2) 하나입니다.
-- 2단계(테스트넷 금고)와 그 증거는 faucet 복구 뒤 추가합니다.
+- 같은 지갑으로 2단계를 다시 실행하면 6b의 거부 사유가 바뀝니다(`EasAttestationRevoked`). 참가자 가이드, 진행자 가이드, 트러블슈팅 T8에 적었습니다.
 
 ### C
 
 - 스타터 키트는 명세만 있습니다. Flagship 첫 성공 경로의 기준 구현은 이 레포의 `pnpm a:local`이고, 심사 자동 판정은 `pnpm c:judge`로 구현했습니다.
 - 트랙별 배점과 멘토 답변은 제안입니다. 실제 행사에서 조정이 필요합니다.
-- 에이전트 등록 tx(`pnpm c:grounding --write`)는 faucet 복구 뒤 실행합니다.
+- 에이전트 한도(`TransferLimit`)와 그 거부는 테스트넷 tx로 확인하지 않았습니다. 등록 tx까지 보냈고, 한도 거부는 트랙 2 참가자 요건으로 남겼습니다.
 
 ### 프로덕션 전에 필요한 것
 
