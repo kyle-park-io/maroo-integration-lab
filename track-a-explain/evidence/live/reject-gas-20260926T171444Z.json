@@ -1,0 +1,58 @@
+{
+  "checkedAt": "2026-09-26T17:14:44.119Z",
+  "label": "[Live Testnet] 영수증 조회. tx 없음",
+  "sources": [
+    "track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json",
+    "track-c-activate/evidence/live/agent-limit-20260926T044056Z.json"
+  ],
+  "rows": [
+    {
+      "step": "5) 협력사 B claim, 증명 없음",
+      "source": "track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json",
+      "tx": "0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f",
+      "reason": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+      "status": "reverted",
+      "block": "19111569",
+      "gasLimit": "300000",
+      "gasUsed": "150000",
+      "usedOverLimit": 0.5,
+      "fee": "1.35"
+    },
+    {
+      "step": "6b) 협력사 A claim, 증명은 있으나 색인 전",
+      "source": "track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json",
+      "tx": "0xafe80ae6248a93138104ad72552da5987f24ccdbd74520c01713406fa31a9ef4",
+      "reason": "EasNoAttestationReceived(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "status": "reverted",
+      "block": "19111574",
+      "gasLimit": "300000",
+      "gasUsed": "150000",
+      "usedOverLimit": 0.5,
+      "fee": "1.35"
+    },
+    {
+      "step": "7c) 협력사 A claim, 증명 폐기 뒤",
+      "source": "track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json",
+      "tx": "0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc",
+      "reason": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "status": "reverted",
+      "block": "19111583",
+      "gasLimit": "300000",
+      "gasUsed": "150000",
+      "usedOverLimit": 0.5,
+      "fee": "1.35"
+    },
+    {
+      "step": "4b) 에이전트 결제 8 OKRW(한도 초과)",
+      "source": "track-c-activate/evidence/live/agent-limit-20260926T044056Z.json",
+      "tx": "0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9",
+      "reason": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+      "status": "reverted",
+      "block": "19128104",
+      "gasLimit": "728023",
+      "gasUsed": "364011",
+      "usedOverLimit": 0.49999931320851126,
+      "fee": "3.276099"
+    }
+  ]
+}

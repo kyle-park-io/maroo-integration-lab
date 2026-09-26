@@ -55,7 +55,7 @@
 | 16 | Maroo Docs `eth_estimateGas` | 단순 전송은 `0x5208`(21,000)을 돌려줌 | 1 OKRW 이체의 추정치가 일반 계정 104,017, 에이전트 지갑 283,560. 21,000으로 보내면 블록에 들어가 되돌려지고 수수료 0.189 OKRW. 가스 21,000 `eth_call`은 통과. ClairveilJS 기본 `evmSendGasLimit`도 21,000 | `pnpm a:probe-send-gas` | A 문서 개선 노트 7, FAQ 6, C 트랙 1 15절 |
 | 17 | Maroo Docs `AGENT_OKRW_TRANSFER_LIMIT_POLICY` | `TransferLimit`은 aokrw 숫자 문자열이고, 메타데이터가 없거나 잘못되면 해석할 수 없는 문자열 사유로 되돌림 | 숫자 문자열은 `AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)`로 한도 안 결제까지 거부. 32바이트 uint256만 동작. 오류는 해석 가능한 `AgentTransferLimitMetadataInvalid(string)` | `pnpm c:agent-limit` | C 트랙 2 R2, 15절, 16절, 판정 스크립트 |
 | 18 | Maroo Docs `IAgent.getAgentIds` | "지갑에 등록된 agent ID" | 연결된 에이전트 지갑 기준. `setAgentWallet` 뒤 소유자 주소로는 빈 목록, 에이전트 지갑으로 `[79]` | `pnpm c:agent-limit` | C 트랙 2 R1 |
-| 19 | Maroo Docs PCL 정책 강제, 아키텍처 | 정책 평가가 거절하면 RPC가 브로드캐스트 전에 막아 가스를 내지 않고 블록에도 들어가지 않음. 비준수 tx는 실행 전에 거절 | PCL 프록시의 컨트랙트 정책(`claim()`의 `EAS_POLICY`, `fund()`의 에이전트 한도) 거부 tx는 블록에 들어가 되돌려지고 가스 한도의 절반을 냄(150,000/300,000, 363,982/727,965) | `pnpm a:kyb-gate` 5·6b·7c, `pnpm c:agent-limit` 4b | A 가이드 1절 층 표, 문서 개선 노트 8 |
+| 19 | Maroo Docs PCL 정책 강제, 아키텍처 | 정책 평가가 거절하면 RPC가 브로드캐스트 전에 막아 가스를 내지 않고 블록에도 들어가지 않음. 비준수 tx는 실행 전에 거절 | PCL 프록시의 컨트랙트 정책(`claim()`의 `EAS_POLICY`, `fund()`의 에이전트 한도) 거부 tx는 블록에 들어가 되돌려지고 가스 한도의 절반을 냄(150,000/300,000, 363,982/727,965) | `pnpm a:kyb-gate` 5·6b·7c, `pnpm c:agent-limit` 4b, `pnpm a:reject-gas` | A 가이드 1절 층 표, 문서 개선 노트 8 |
 
 ## Validation
 
@@ -79,7 +79,7 @@
 | `pnpm test:contracts` | 금고 테스트 6개 통과 |
 | `pnpm typecheck` | 오류 없음 |
 | `pnpm test:unit` | 24개 통과(체인 호출 없음). 정책 해석이 테스트넷 정책 원문에서 SDK 도입 전 해석기의 기록과 같음, 심사 판정 규칙(트랙 1~3), 워크샵 4단계 분류, revert 사유 해석, 금고 흐름이 `@maroo-chain/viem`으로 만드는 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
-| 에이전트 스킬 시험 | 새 하위 에이전트가 스킬 파일만 읽고 연동 질문 11개에 답함. 8개는 스킬의 규칙과 라벨대로 맞게 답했고, 스킬에 없는 두 질문(메인넷 RPC, OKRW ERC-20 주소)은 짐작하지 않았음. 성공 경로가 지금 없다는 것과 OKRW는 네이티브 value라는 것을 스킬에 더 적음 [기록](track-a-explain/evidence/code/skill-check-20260927.md) |
+| 에이전트 스킬 시험 | 새 하위 에이전트가 스킬 파일만 읽고 연동 질문 11개에 답함. 8개는 스킬의 규칙과 라벨대로 맞게 답했고, 3개는 "스킬에 없음"으로 답해 짐작하지 않았음(메인넷 RPC, OKRW ERC-20 주소, Privacy 성공 방법). 성공 경로가 지금 없다는 것과 OKRW는 네이티브 value라는 것을 스킬에 더 적음 [기록](track-a-explain/evidence/code/skill-check-20260927.md) |
 | GitHub Actions `ci` | 2026-09-26 05:01 UTC 첫 실행 35초, 타입 검사, `forge fmt --check`, 금고 테스트 6개, 단위 테스트 24개 모두 통과. 테스트넷 호출 없음 |
 | `pnpm diagrams:check` | Mermaid 다섯 개를 두 테마로 10번 렌더링, 실패 0. 그림을 열어 선이 상자를 가로지르는 곳을 찾아 한 번 고침 |
 | 커밋 전 훅 | 타입 검사, `forge fmt`, `forge test`, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어를 커밋마다 검사 |
@@ -95,6 +95,7 @@
 | `pnpm a:probe` | 2026-09-25 19:33 | 빈 요청과 모양을 갖춘 요청이 두 방법 모두 `SDKInvalidRequest()`. 전역 정책은 통과 | [JSON](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json) |
 | `pnpm a:probe-global` | 2026-09-25 19:08 | `eth_call` 통과, `eth_estimateGas` 거부(faucet 계정의 전역 한도) | [JSON](track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json) |
 | `pnpm a:probe-send-gas` | 2026-09-26 05:21 | 단순 이체 추정 104,017(일반 계정), 283,560(에이전트 지갑). 가스 21,000 전송은 되돌려짐(수수료 0.189 OKRW), 추정값의 125% 전송도 104,017만 씀. 04:30 실행의 283,524는 구매 기업 지갑이 에이전트 지갑이던 때의 값 | [JSON](track-a-explain/evidence/live/probe-send-gas-20260926T052147Z.json) |
+| `pnpm a:reject-gas` | 2026-09-26 17:14 | 두 번의 금고 흐름과 두 번의 트랙 2 실행에서 정책에 걸린 tx 여덟 건의 영수증. 모두 블록에 들어가 되돌려졌고 가스 한도의 50.0%를 씀(청구 150,000/300,000으로 1.35 OKRW, 결제 약 364,000/728,000으로 3.28 OKRW). 조회만 함 | [JSON](track-a-explain/evidence/live/reject-gas-20260926T171442Z.json), [JSON](track-a-explain/evidence/live/reject-gas-20260926T171444Z.json) |
 | `pnpm a:probe-kyc` | 2026-09-25 20:17 | 카카오 본인 인증 증명이 있는 지갑(주소 비공개)도 증명 없는 지갑과 같이 `SDKInvalidRequest()` | [JSON](track-a-explain/evidence/live/probe-kyc-holder-20260925T201710Z.json) |
 | `pnpm a:doc-claims` | 2026-09-26 05:13 | 문서 개선 노트 1~5의 근거. 다섯 항목 모두 같은 결론. 문서 페이지가 200이 아니면 판정하지 않고 멈춤 | [JSON](track-a-explain/evidence/live/doc-claims-20260926T051350Z.json) |
 | `pnpm a:local` | 2026-09-25 18:19 | 로컬 tx 11건. 단독 인출 실패(code 1)와 같은 블록 우회 성공, 역할별 해독 `verified=true` | [기록](track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md) |
@@ -191,7 +192,7 @@
 | 11 | A, C | 단순 이체 가스 예시와 ClairveilJS 기본 가스 한도가 21,000인데 테스트넷 단순 이체는 일반 계정 약 104,000, 에이전트 지갑 약 284,000을 씀 | `pnpm a:probe-send-gas` | 네이티브 OKRW를 보내는 지갑 개발자, ClairveilJS 사용자, 해커톤 참가자 | 높음. `eth_call` 사전 검사는 통과하고 tx는 사유 없이 되돌려지며 수수료를 냄 | 문서 예시를 테스트넷 값으로 바꾸고 고정 한도 대신 추정값을 쓰라고 적음. ClairveilJS EVM 프로필은 추정값을 씀 | Maroo Docs, ClairveilJS |
 | 12 | C | 에이전트 한도 문서가 `TransferLimit`을 숫자 문자열로 안내하는데 체인은 32바이트 uint256만 받음 | `pnpm c:agent-limit` | 에이전트 결제를 만드는 개발자, 트랙 2 참가자 | 높음. 문서대로 쓰면 한도 안 결제까지 모든 결제가 막히고, 문서가 해석할 수 없다고 한 오류라 사유를 읽으려 하지 않게 됨 | 형식을 `abi.encode(uint256)`로 고치고 `AgentTransferLimitMetadataInvalid(string)` 예시를 둠. SDK 주석은 이미 맞음 | Maroo Docs |
 | 13 | C | `getAgentIds`의 기준 지갑이 문서에 없음 | `pnpm c:agent-limit` | 지갑에서 에이전트를 찾는 화면, 백엔드 | 중간. 에이전트 지갑을 연결하면 소유자 주소로 찾던 화면이 빈 목록을 보여 줌 | "연결된 에이전트 지갑 기준, 연결 전에는 소유자"를 적고 소유자 기준 조회는 `ownerOf`나 이벤트로 안내 | Maroo Docs |
-| 14 | A, B, C | PCL 프록시의 컨트랙트 정책 거부가 블록에 들어가 수수료를 내는데, 문서는 제출 시점에 걸러져 가스를 내지 않는다고 적음 | `pnpm a:kyb-gate` 5·6b·7c, `pnpm c:agent-limit` 4b | 규제 트랙 컨트랙트를 운영하는 기관, 워크샵·해커톤 참가자 | 중간. 거부 시험마다 한도의 절반을 수수료로 내고, 자격 없는 청구 시도가 주소와 함께 공개 체인에 남음 | 사전 거절이 전역 정책에만 해당한다고 적고, 컨트랙트 정책은 `eth_estimateGas` 사전 검사를 안내 | Maroo Docs, PCL |
+| 14 | A, B, C | PCL 프록시의 컨트랙트 정책 거부가 블록에 들어가 수수료를 내는데, 문서는 제출 시점에 걸러져 가스를 내지 않는다고 적음 | `pnpm a:reject-gas`(거부 tx 여덟 건의 영수증) | 규제 트랙 컨트랙트를 운영하는 기관, 워크샵·해커톤 참가자 | 중간. 거부 시험마다 한도의 절반을 수수료로 내고, 자격 없는 청구 시도가 주소와 함께 공개 체인에 남음 | 사전 거절이 전역 정책에만 해당한다고 적고, 컨트랙트 정책은 `eth_estimateGas` 사전 검사를 안내 | Maroo Docs, PCL |
 
 ### A
 

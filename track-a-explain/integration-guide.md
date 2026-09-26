@@ -134,8 +134,8 @@ flowchart TB
 | 층 | 평가되는 것 | `eth_call` | `eth_estimateGas` | 실제 tx가 거부되면 | 근거 |
 | --- | --- | --- | --- | --- | --- |
 | RPC 제출 | 문서는 브로드캐스트 전에 PCL을 평가해 거절하고, 그러면 가스를 내지 않고 블록에도 들어가지 않는다고 적음 | 해당 없음 | 해당 없음 | 컨트랙트 정책 거부는 제출 때 걸러지지 않았음(아래 행) | `[Docs Only]` [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/), `[Live Testnet]` |
-| AnteHandler 전역 정책 | 발신자와 값. KYC 증명이 없는 계정의 건당·24시간 한도, 에이전트 지갑이면 소유자 기준 평가 | 평가하지 않음 | 평가함 | 이 레포는 전역 정책에 걸리는 tx를 보내지 않았음(사전 검사에서 걸러 냄) | `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
-| PCL 프록시의 컨트랙트 정책 | 프록시를 부른 계정과 선택자. 금고 `claim()`의 `EAS_POLICY`, 에이전트 결제의 `fund()` 한도 | 평가함 | 평가함 | 블록에 들어가 되돌려지고 가스 한도의 절반을 냄. 청구 150,000/300,000, 결제 363,982/727,965 | `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T052641Z.json), [트랙 2 기록](../track-c-activate/evidence/live/agent-limit-20260926T053121Z.json) |
+| AnteHandler 전역 정책(이름과 위치는 `[Docs Only]` 아키텍처 페이지) | 발신자와 값. KYC 증명이 없는 계정의 건당·24시간 한도, 에이전트 지갑이면 소유자 기준 평가 | 평가하지 않음 | 평가함 | 이 레포는 전역 정책에 걸리는 tx를 보내지 않았음(사전 검사에서 걸러 냄) | `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
+| PCL 프록시의 컨트랙트 정책 | 프록시를 부른 계정과 선택자. 금고 `claim()`의 `EAS_POLICY`, 에이전트 결제의 `fund()` 한도 | 평가함 | 평가함 | 블록에 들어가 되돌려지고 가스 한도의 절반을 냄. 청구 150,000/300,000, 결제 363,982/727,965. 두 번의 실행에서 거부 tx 여덟 건 모두 50.0% | `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171442Z.json), [앞 실행](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` |
 | Privacy 프리컴파일의 자체 정책 | 호출자의 본인 인증 증명(`And(EAS_POLICY, DENYLIST_POLICY)`). PCL 프록시 없이 프리컴파일이 직접 정책을 가짐 | 요청 검증(`SDKInvalidRequest()`)이 먼저 막아 정책까지 닿지 못함 | 같음 | 보내지 않음 | `[Docs Only]` [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/), `[Live Testnet]` 정책 조회 |
 | 프리컴파일과 모듈 | 프리컴파일이 Cosmos SDK 모듈의 상태를 읽고 씀. 문서의 아키텍처 페이지는 프리컴파일을 넷으로 적고 Privacy를 빼 놓음 | 해당 없음 | 해당 없음 | 해당 없음 | `[Docs Only]` [Maroo 아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/), Privacy 주소는 `[Live Testnet]`, `x/privacy`와 Clairveil은 `[코드 대조]` |
 
