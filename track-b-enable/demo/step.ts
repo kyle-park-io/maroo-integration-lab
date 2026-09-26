@@ -21,6 +21,7 @@ import {
   writeEvidence, type Role,
 } from "../../shared/lib/maroo.ts";
 import { DISCUSSION, LIVE_DIR, LOCAL_DIR, PREBUILT_DIR, STEP2, STEP3, announce, newest, pause, trouble } from "./lib.ts";
+import { classify } from "./classify.ts";
 
 const step = Number(process.argv.find((a) => /^[1-5]$/.test(a)));
 const rel = (f: string) => path.relative(ROOT, f);
@@ -94,15 +95,6 @@ async function step3() {
   }
 }
 
-// 오류 이름으로 결과를 넷으로 나눈다.
-const POLICY = /^(AnyOfRejected|Eas[A-Za-z]*|Exceeded[A-Za-z]*|InDenylist|Volume(Above|Below)[A-Za-z]*|AgentTransferLimit[A-Za-z]*)\b/;
-const INPUT = /^(SDKInvalid[A-Za-z]*|Privacy[A-Za-z]*|InvalidAmount|InvalidAddress)\b/;
-function classify(outcome: string): string {
-  if (outcome === "통과") return "성공";
-  if (POLICY.test(outcome)) return "정책 거부";
-  if (INPUT.test(outcome)) return "증명·입력 거부";
-  return "인프라·자료 부재";
-}
 async function callOutcome(req: { from: Address; to: Address; data: Hex; value?: bigint }, method: "eth_call" | "eth_estimateGas") {
   const r = await rawEthCall(req, method).catch((e: Error) => ({ error: { message: `요청 실패: ${e.message}`, data: undefined } }));
   if (!r.error) return "통과";

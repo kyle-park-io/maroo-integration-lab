@@ -4,7 +4,7 @@
   "sources": [
     "track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json",
     "track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json",
-    "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+    "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
   ],
   "items": [
     {
@@ -13,10 +13,10 @@
       "network": "clairveil-local",
       "call": "transfer-batch",
       "input": "협력사 A 송장 12, 8",
-      "txHash": "EE2FFE3F8B64FCB469A43FA3E4321F615FB1C1DC123470E725B86AE80F330778",
+      "txHash": "45CFD39B40C333C81D9FB0AB026F0308C12EFBD6DA4D5330F381793CBA29D942",
       "expected": "성공",
       "actual": "code 0",
-      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
     },
     {
       "requirement": "R1",
@@ -24,10 +24,10 @@
       "network": "clairveil-local",
       "call": "withdraw",
       "input": "협력사 A 12, 같은 블록 0 노트 예치",
-      "txHash": "75B134188108FABFBC19F610788DDECBC2F6AC2FF913D067C243FC226B9C0492",
+      "txHash": "3B2EB48FE77B38814DA830DDCA697F671081FADE5FEE97C7CAD0BAD9A9BB8A72",
       "expected": "성공",
       "actual": "code 0",
-      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
     },
     {
       "requirement": "R2",
@@ -35,10 +35,10 @@
       "network": "clairveil-local",
       "call": "decode-transfer-disclosure",
       "input": "협력사 B 수신자 disclosure",
-      "txHash": "943BCBBC1146F54AEF9C7BD289845CFE9E51DBBE2971C42088C3065C7966DC7C",
+      "txHash": "36C936270B358CB6C573206792121E4AB2A5ED4D9B312BACBCD19BAA2B500CBE",
       "expected": "verified=true",
       "actual": "verified=true, amount 15",
-      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md"
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
     },
     {
       "requirement": "R3",
