@@ -1,0 +1,43 @@
+{
+  "checkedAt": "2026-09-26T04:12:13.600Z",
+  "label": "SDK 실행과 테스트넷 조회(chain ID, mintDenom). tx 없음, 버리는 키로 서명, 거절된 조회는 채우지 않음",
+  "clairveiljs": "faf220d5b2fa1a186c30893ca74d765474015aee",
+  "rpc": "https://rpc-testnet.maroo.io",
+  "chainId": 450815,
+  "mintDenom": "atokrw",
+  "profileWithoutAdapter": "profile.rpc must be a string with 1-unbounded characters",
+  "prepareDeposit": {
+    "stoppedAt": "Maroo 가 공개하지 않은 조회: fetchAssetByDenom",
+    "calledInOrder": [
+      "fetchCircuitConfig",
+      "fetchAssetByDenom",
+      "fetchAssetByDenom",
+      "fetchCircuitConfig",
+      "fetchAssetByDenom"
+    ],
+    "firstCalls": [
+      "fetchCircuitConfig",
+      "fetchAssetByDenom"
+    ],
+    "proverReached": false
+  },
+  "requiredStateQueries": [
+    "fetchPrivacyScan",
+    "fetchTreeState",
+    "fetchCommitmentInfo",
+    "lookupMerklePath",
+    "fetchAuditConfig",
+    "fetchDisclosureConfig",
+    "fetchCircuitConfig",
+    "fetchReserve",
+    "fetchAssetByDenom",
+    "fetchAssetByID",
+    "fetchCommitmentPathsAtRoot",
+    "checkNullifiers"
+  ],
+  "optionalStateQueries": [
+    "fetchPrivacyEvents",
+    "fetchScanEvents",
+    "checkNullifier"
+  ]
+}

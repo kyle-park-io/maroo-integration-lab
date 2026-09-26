@@ -9,6 +9,7 @@
 | Maroo 테스트넷 | `pnpm a:probe-global` | 같은 전송을 `eth_call`과 `eth_estimateGas`로 불렀을 때 전역 정책의 평가 차이 | `[Live Testnet]` 조회 |
 | Maroo 테스트넷 | `pnpm a:probe-kyc` | 카카오 본인 인증 증명이 있는 지갑과 없는 지갑에서 deposit이 처음 막히는 층 비교 | `[Live Testnet]` eth_call, 거부 경로 증거 |
 | 코드 대조 | `pnpm a:abi-compare` | Maroo `IPrivacy` ABI와 ClairveilJS 정식 EVM Privacy 계약(v0.3.1)의 선택자, 이벤트, 정규화 해시 | `[코드 대조]`, 체인 호출 없음 |
+| SDK와 테스트넷 조회 | `pnpm a:probe-sdk` | 공식 SDK(ClairveilJS)의 EVM 예치 준비가 Maroo 설정에서 어느 조회에 멈추는지 | `[코드 대조]`, 테스트넷 조회, tx 없음 |
 | Maroo 테스트넷 | `pnpm a:kyb-gate` | OKRW 이체, 정산 금고 배포, `claim()`의 KYB 정책 거부와 통과, 증명 폐기 뒤 거부, 회수 | `[Live Testnet]` 상태 변경 tx |
 | Maroo 테스트넷 | `pnpm a:doc-claims` | 문서 개선 노트의 근거가 되는 문서 문장과 체인 동작 | `[Live Testnet]` 조회와 eth_call |
 | Clairveil 로컬 | `pnpm a:local` | 차폐 정산 전체 흐름, 역할마다 볼 수 있는 것, 제3자에게 공개되는 것 | `[Local]` |

@@ -80,6 +80,7 @@
 | --- | --- | --- | --- |
 | `pnpm a:abi-compare` | 2026-09-26 04:03 | Maroo `IPrivacy` 함수 9, 이벤트 5가 ClairveilJS 정식 EVM 계약 v0.3.1과 정규화 sha256까지 같음 | [JSON](track-a-explain/evidence/code/abi-compare-20260926T040350Z.json) |
 | `pnpm sdk:check` | 2026-09-26 04:09 | ClairveilJS conformance 113/113, 단위 503/575(71 건너뜀, 1 실패는 Node 24의 `navigator.locks` 때문에 전제가 맞지 않는 테스트) | [JSON](track-a-explain/evidence/code/clairveiljs-tests-20260926T040910Z.json) |
+| `pnpm a:probe-sdk` | 2026-09-26 04:12 | SDK EVM 예치 준비가 회로 설정과 자산 등록 조회에서 멈춤. prover 도달 없음, tx 없음 | [JSON](track-a-explain/evidence/code/probe-sdk-deposit-20260926T041213Z.json) |
 | `pnpm a:inspect` | 2026-09-25 19:27 | Privacy 정책, 요구 스키마, 구매 기업 증명 0개, 예치 `SDKInvalidRequest()`, 필드 대응 | [JSON](track-a-explain/evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | `pnpm a:probe` | 2026-09-25 19:33 | 빈 요청과 모양을 갖춘 요청이 두 방법 모두 `SDKInvalidRequest()`. 전역 정책은 통과 | [JSON](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json) |
 | `pnpm a:probe-global` | 2026-09-25 19:08 | `eth_call` 통과, `eth_estimateGas` 거부(faucet 계정의 전역 한도) | [JSON](track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json) |
@@ -174,7 +175,7 @@
 
 ### A
 
-- Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았고, 가이드 6절에 최초 실패 계층과 필요한 재료를 적었습니다.
+- Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았고, 가이드 6절에 최초 실패 계층과 필요한 재료를 적었습니다. 공식 SDK(ClairveilJS)의 예치 경로로도 시험했고, 증명을 만들기 전 회로 설정과 자산 등록 조회에서 멈췄습니다.
 - 가이드의 권고(주기 총액 예치, 일괄 지급 크기 고정, 원장 상태)는 검증하지 않은 설계입니다.
 
 ### B

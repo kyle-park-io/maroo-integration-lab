@@ -267,7 +267,8 @@ stateDiagram-v2
 | 5. 증명 검증과 차폐 상태 | 유효한 요청 | 시험할 수 없음 | Merkle witness와 nullifier를 읽는 조회 경로, 성공한 예시 입력 |
 
 - 카카오 본인 인증을 마쳐 Privacy 정책의 증명을 가진 지갑도, 증명이 없는 지갑과 똑같이 `SDKInvalidRequest()`에서 막혔습니다. 외부 개발자를 막는 것은 본인 인증보다 앞에 있는 증명 재료입니다. 요청 검증이 컨트랙트 정책 평가보다 앞서는지, 시뮬레이션에서 컨트랙트 정책이 평가되지 않는지는 이 진단으로 가릴 수 없습니다. `[Live Testnet]` [인증 지갑 진단 기록](evidence/live/probe-kyc-holder-20260925T201710Z.json)
-- 권고: 3층과 5층을 넘으려면 Maroo에서 네 가지를 받아야 합니다. 현재 테스트넷 verifier와 맞는 회로 버전 고정값, 그 회로의 proving 산출물, 차폐 상태 조회 경로(엔드포인트와 proto 또는 예시), 성공한 예치와 지급의 예시 입력입니다. 받기 전까지 차폐 흐름은 Clairveil 로컬에서 검증하고, 두 환경의 결과를 한 흐름으로 합쳐 표현하지 않습니다.
+- 공식 SDK(ClairveilJS)의 EVM 예치 경로로도 시험했습니다. Maroo가 공개한 값(EVM JSON-RPC, chain ID, Privacy 주소, `atokrw`)만 넣으면 SDK는 프로필 생성에서 Cosmos RPC 주소를 요구하며 멈춥니다. 차폐 상태 어댑터 자리를 비워 둘 수 없어서, 모든 조회를 거절하는 어댑터를 넣었습니다. 그러자 예치 준비는 회로 설정(`fetchCircuitConfig`)과 자산 등록(`fetchAssetByDenom`)을 조회하다 멈췄고, 증명 요청은 prover로 가지 않았습니다. SDK는 활성 회로와 자산 대응을 확인하기 전에는 증명 재료를 prover에 넘기지 않게 되어 있습니다. 거절한 조회를 짐작한 값으로 채우지 않았습니다. `[코드 대조]`와 테스트넷 조회 [SDK 진단 기록](evidence/code/probe-sdk-deposit-20260926T041213Z.json), 재현: `pnpm a:probe-sdk`
+- 권고: 3층과 5층을 넘으려면 Maroo에서 받아야 할 것은 이렇습니다. 첫째, 현재 테스트넷 verifier와 맞는 회로 버전 고정값과 그 회로의 proving 산출물(또는 prover 엔드포인트)입니다. 둘째, 차폐 상태 조회 경로입니다. SDK 기준으로는 차폐 상태 어댑터의 필수 조회 12개(회로 설정, 자산 등록, 트리 상태, Merkle 경로, 루트 기준 경로, nullifier 확인, 스캔, 커밋먼트 정보, 준비금, 감사·disclosure 설정)이고, Clairveil 체인이라면 Cosmos REST `/clairveil/privacy/v1/*`가 같은 역할을 합니다. 셋째, 성공한 예치와 지급의 예시 입력입니다. 받기 전까지 차폐 흐름은 Clairveil 로컬에서 검증하고, 두 환경의 결과를 한 흐름으로 합쳐 표현하지 않습니다.
 
 ## 7. 4~8주 PoC 설계 (권고)
 

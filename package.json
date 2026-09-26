@@ -29,7 +29,8 @@
     "a:probe-kyc": "node track-a-explain/recipe/probe-kyc-holder.ts",
     "c:judge-example": "node track-c-activate/judge/example-from-track-a.ts",
     "a:abi-compare": "node track-a-explain/recipe/compare-privacy-abi.ts",
-    "sdk:check": "node shared/check-clairveiljs.ts"
+    "sdk:check": "node shared/check-clairveiljs.ts",
+    "a:probe-sdk": "node track-a-explain/recipe/probe-sdk-deposit.ts"
   },
   "dependencies": {
     "@maroo-chain/contracts": "0.0.9",
