@@ -4,6 +4,8 @@
 - 표시: `[Live Testnet]` Maroo 테스트넷에서 직접 확인, `[Local]` Clairveil 로컬 체인에서 확인, `[Docs Only]` 문서로만 확인. 설계 판단은 근거와 함께 적습니다.
 - 트랙 문서: [1. 기밀 정산(Flagship)](tracks/1-private-settlement.md), [2. 규칙 안의 에이전트 결제](tracks/2-agent-payments.md), [3. 자격으로 여는 원화 결제](tracks/3-credentialed-krw-payments.md)
 
+이 포트폴리오는 Maroo가 여는 해커톤을 가정했습니다. 형식은 킥오프, 오피스아워 두 번, 제출 전 점검이 있는 행사이고, 참가자는 크립토 경험이 적은 백엔드, AI 에이전트, 기기 개발자까지 포함합니다. 참가자는 자기 노트북에서 Node 24와 TypeScript로 시작하고, 테스트넷 OKRW는 faucet이 전역 한도에 걸릴 수 있어 운영진 배분으로 받습니다. 주최 측(Maroo DevRel)은 이 문서로 트랙 구성, 트랙별 최소 연동 요건, 심사 방식을 정하고, 참가자는 트랙 문서로 무엇을 만들어야 요건을 채우는지 정합니다.
+
 ## 1. 세 트랙
 
 | 트랙 | 핵심 주제 | 부르는 빌더 | 필수 primitive |
@@ -33,7 +35,7 @@
 | 비어 있는 자리 | 테스트넷에서 확인한 것 | 채우는 트랙 |
 | --- | --- | --- |
 | 외부 개발자가 Privacy를 끝까지 쓴 사례 | Privacy 프리컴파일로 간 최근 tx 50건이 모두 성공했지만 마지막 tx는 2026-09-21 04:40 UTC입니다. 외부 개발자가 유효한 증명을 만들 회로 산출물과 차폐 상태 조회 경로는 공개되지 않았습니다 `[Live Testnet]` | 1 |
-| 에이전트 신원 등록 | IdentityRegistry의 다음 agentId는 79이고, 레지스트리로 간 마지막 tx는 2026-09-06 18:15 UTC입니다 `[Live Testnet]` | 2 |
+| 에이전트 신원 등록 | 2026-09-25 조회에서 IdentityRegistry의 다음 agentId는 79였고, 레지스트리로 간 마지막 tx는 2026-09-06 18:15 UTC였습니다. 이 레포가 09-26에 79를 등록해 트랙 2 요건을 직접 채웠습니다 `[Live Testnet]` | 2 |
 | 기관과 사용자가 참고할 원화 결제 레퍼런스 | 전역 정책이 KYC 없는 계정에 건당 200만 OKRW, 24시간 1,000만 OKRW 한도를 두고 있지만, 이 규칙 위에서 자격별 한도를 설계한 공개 앱을 찾지 못했습니다 `[Live Testnet]` | 3 |
 
 - 근거: [기술 근거 기록](evidence/live/grounding-20260925T194211Z.json), 재현 `pnpm c:grounding`
@@ -72,6 +74,16 @@
 - 로컬 결과를 테스트넷 결과로 적은 제출
 - 일부러 잘못된 증명을 보내 되돌려진 tx를 Privacy 연동 성공으로 적은 제출
 - 다른 체인에서 만든 결과를 Maroo 결과로 적은 제출
+
+### 도움을 받는 곳
+
+| 막힌 곳 | 도움을 받는 곳 |
+| --- | --- |
+| 첫 실행과 환경 | 트랙 1의 [15분 첫 성공 경로](tracks/1-private-settlement.md#21-15분-첫-성공-경로-local), Track B [트러블슈팅](../track-b-enable/troubleshooting.md)(오류 10개의 증상, 원인, 확인, 해결) |
+| 테스트넷 OKRW | 운영진 배분. 신청 채널은 주최 측이 행사 공지에서 정합니다 |
+| 정책 거부 사유 해석 | 오피스아워 2([트랙 1의 25절](tracks/1-private-settlement.md#25-워크샵과-오피스아워)), [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/), `pnpm c:judge`가 직전 블록으로 다시 시뮬레이션한 사유 |
+| 제출 증거 형식 | 제출 전 점검 회차, `pnpm c:judge <evidence.json> --track N` 자동 판정. 트랙 2는 [이 레포가 직접 채운 예시](tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet)가 있습니다 |
+| 그 밖의 질문 | 멘토 채널(주최 측이 정하는 채널), [트랙 1의 26절](tracks/1-private-settlement.md#26-멘토가-자주-받을-질문과-답변-방향) 멘토 답변 방향 |
 
 ### 공통 심사 흐름
 

@@ -15,22 +15,22 @@
 
 ## 2. 요건별로 확인한 것
 
-| 트랙 | 요건 | 테스트넷에서 확인한 것 | 결과 |
-| --- | --- | --- | --- |
-| 1 | R3, R5 | Privacy 프리컴파일 정책 | `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY(0개 주소))`, 관리자 `0x58eC…804F` |
-| 1 | R5 | 빈 예치 요청의 최초 실패 계층 | `eth_call`과 `eth_estimateGas` 모두 `SDKInvalidRequest()` |
-| 1 | 심사 | 탐색기 API로 Privacy tx를 확인하는 경로 | 최근 50건 모두 `ok/success`, 마지막 2026-09-21 04:40 |
-| 2 | R1 | 에이전트 등록 tx | `register(string)` 성공, agentId 79(시뮬레이션이 예측한 번호와 같음), 등록한 지갑의 `getAgentIds`가 바로 `[79]` |
-| 2 | R1 | Agent 프리컴파일과 IdentityRegistry | 레지스트리 `0x8004…0001`(AgentIdentity, preinstall-1.0.0), `register(string)` 시뮬레이션 통과(다음 agentId 79) |
-| 2 | R2, R4 | 에이전트 한도 템플릿 | `AGENT_OKRW_TRANSFER_LIMIT_POLICY` 등록됨 |
-| 2 | R1 | 에이전트 지갑 연결(`pnpm c:agent-limit`) | `setAgentWallet` 성공. 연결 뒤 `getAgentIds(에이전트 지갑)` = `[79]`, `getAgentIds(소유자)` = `[]`, `ownerOf(79)`는 구매 기업 그대로 ([기록](evidence/live/agent-limit-20260926T044056Z.json)) |
-| 2 | R2~R4 | 한도, 정책, 결제, 거부(`pnpm c:agent-limit`) | `TransferLimit` 5 OKRW(32바이트 uint256), 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW 결제 `ExceededAgentTransferLimit(5e18, 8e18)`로 되돌려짐 ([기록](evidence/live/agent-limit-20260926T044056Z.json), [트랙 2 16절](tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet)) |
-| 2 | 주의 사항 | 전역 정책의 에이전트 소유자 평가 | `ForEach(Every, AgentOwners, Or(24시간 1,000만 OKRW, KYC 증명))`, `ForEach(Any, AgentOwners, KYC 증명)` |
-| 2 | 문제 정의 | 레지스트리 활동 | 최근 50건(`register` 22, `setMetadata` 15, `setAgentURI` 11, 실패 2), 마지막 2026-09-06 18:15 |
-| 3 | R2, R4 | 정책 템플릿 | `EAS_POLICY`, `VOLUME_POLICY`, `PERIODIC_VOLUME_POLICY`, `LOGICAL_POLICY`, `FOR_EACH_POLICY` 등록됨. 없는 ID는 되돌려짐 |
-| 3 | 문제 정의, R5 | 전역 정책의 무인증 한도 | 건당 `VOLUME_POLICY(atokrw 0~2,000,000)`, 24시간 `PERIODIC_VOLUME_POLICY(atokrw ≤ 10,000,000)`, 둘 다 KYC 증명이 있으면 면제 |
-| 3 | R5 | 주소별 24시간 사용량 조회 | 구매 기업 사용량 0, 한도 1,000만 OKRW, 초기화 시각 1790380800 |
-| 3 | R1 | EAS 주소 | SchemaRegistry `0x1000…0006`, EAS `0x1000…0007`, Indexer `0x1000…0008` |
+| 트랙 | 요건 | 확인한 것 | 예상 결과 | 실제 결과 |
+| --- | --- | --- | --- | --- |
+| 1 | R3, R5 | Privacy 프리컴파일 정책 | Privacy 호출을 제한하는 정책이 걸려 있음(문서에는 KYC 서비스가 "mock"으로만 적힘) | `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY(0개 주소))`, 관리자 `0x58eC…804F` |
+| 1 | R5 | 빈 예치 요청의 최초 실패 계층 | 전역 정책은 통과하고 요청 검증에서 거부 | `eth_call`과 `eth_estimateGas` 모두 `SDKInvalidRequest()` |
+| 1 | 심사 | 탐색기 API로 Privacy tx를 확인하는 경로 | Privacy tx 목록과 성공 여부를 탐색기 API로 읽을 수 있음 | 최근 50건 모두 `ok/success`, 마지막 2026-09-21 04:40 |
+| 2 | R1 | 에이전트 등록 tx | 등록 성공, 등록한 지갑으로 새 ID를 찾음 | `register(string)` 성공, agentId 79(시뮬레이션이 예측한 번호와 같음), 등록한 지갑의 `getAgentIds`가 바로 `[79]` |
+| 2 | R1 | Agent 프리컴파일과 IdentityRegistry | 레지스트리가 배포돼 있고 `register`가 통과 | 레지스트리 `0x8004…0001`(AgentIdentity, preinstall-1.0.0), `register(string)` 시뮬레이션 통과(다음 agentId 79) |
+| 2 | R2, R4 | 에이전트 한도 템플릿 | 템플릿이 등록돼 있음 | `AGENT_OKRW_TRANSFER_LIMIT_POLICY` 등록됨 |
+| 2 | R1 | 에이전트 지갑 연결(`pnpm c:agent-limit`) | 연결 뒤 에이전트 지갑으로 ID를 찾음 | `setAgentWallet` 성공. 연결 뒤 `getAgentIds(에이전트 지갑)` = `[79]`, `getAgentIds(소유자)` = `[]`, `ownerOf(79)`는 구매 기업 그대로 ([기록](evidence/live/agent-limit-20260926T044056Z.json)) |
+| 2 | R2~R4 | 한도, 정책, 결제, 거부(`pnpm c:agent-limit`) | 한도 안 결제 성공, 한도 초과 `ExceededAgentTransferLimit` | `TransferLimit` 5 OKRW(32바이트 uint256), 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW 결제 `ExceededAgentTransferLimit(5e18, 8e18)`로 되돌려짐 ([기록](evidence/live/agent-limit-20260926T044056Z.json), [트랙 2 16절](tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet)) |
+| 2 | 주의 사항 | 전역 정책의 에이전트 소유자 평가 | 에이전트 결제를 소유자 기준으로 평가 | `ForEach(Every, AgentOwners, Or(24시간 1,000만 OKRW, KYC 증명))`, `ForEach(Any, AgentOwners, KYC 증명)` |
+| 2 | 문제 정의 | 레지스트리 활동 | 등록과 메타데이터 활동이 있음 | 최근 50건(`register` 22, `setMetadata` 15, `setAgentURI` 11, 실패 2), 마지막 2026-09-06 18:15 |
+| 3 | R2, R4 | 정책 템플릿 | 문서가 적은 템플릿이 등록돼 있고, 지웠다는 두 템플릿은 없음 | `EAS_POLICY`, `VOLUME_POLICY`, `PERIODIC_VOLUME_POLICY`, `LOGICAL_POLICY`, `FOR_EACH_POLICY` 등록됨. 없는 ID는 되돌려짐 |
+| 3 | 문제 정의, R5 | 전역 정책의 무인증 한도 | 문서에 적힌 24시간 한도만 있음 | 건당 `VOLUME_POLICY(atokrw 0~2,000,000)`, 24시간 `PERIODIC_VOLUME_POLICY(atokrw ≤ 10,000,000)`, 둘 다 KYC 증명이 있으면 면제 |
+| 3 | R5 | 주소별 24시간 사용량 조회 | 구매 기업 사용량 0 | 구매 기업 사용량 0, 한도 1,000만 OKRW, 초기화 시각 1790380800 |
+| 3 | R1 | EAS 주소 | `IEas.getParams`가 세 주소를 돌려줌 | SchemaRegistry `0x1000…0006`, EAS `0x1000…0007`, Indexer `0x1000…0008` |
 
 ## 3. 문서와 다르게 동작한 것
 
@@ -48,7 +48,6 @@
 ## 4. 검증하지 못한 것
 
 - 전역 범위 정책에서 다른 컨트랙트가 에이전트가 시작한 호출을 옮길 때 한도가 에이전트에게 귀속되는지. 트랙 2 실증은 컨트랙트 범위에서 에이전트 지갑이 직접 보낸 경우만 확인했습니다.
-- `setAgentWallet` 마감이 5분을 넘을 때의 거부. SDK 주석으로만 확인했습니다.
 - 외부에서 유효한 Privacy 상태 변경. 회로 산출물과 차폐 상태 조회 경로가 공개되지 않았습니다. 트랙 1의 R1은 이 때문에 로컬 경로를 허용합니다.
 
 ## 5. 심사 자동 판정 예시 `[Live Testnet]` 조회

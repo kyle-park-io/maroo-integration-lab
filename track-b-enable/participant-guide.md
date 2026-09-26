@@ -2,6 +2,23 @@
 
 75분 동안 구매 기업이 협력사에 대금을 치르는 흐름을 두 환경에서 직접 실행합니다. Maroo 테스트넷에서는 OKRW 이체와 PCL 정책이 걸린 정산 금고를 실제 트랜잭션으로 돌리고, 금액과 받는 쪽을 숨기는 차폐 정산은 Clairveil 로컬 체인에서 끝까지 돌립니다. 마지막에는 Maroo 테스트넷 Privacy가 어디서 멈추는지 진단하고, 두 환경의 결과를 구분해 설명합니다.
 
+이 워크샵이 가정한 참가자는 은행, 결제사, 기업 재무 조직에서 원화 스테이블코인 정산 PoC를 맡게 될 실무 엔지니어입니다. TypeScript 백엔드를 만들어 봤고 블록체인 지갑과 트랜잭션을 한 번 이상 다뤄 봤습니다. 워크샵을 마치면 팀에 돌아가 무엇을 Maroo 테스트넷에서 직접 검증하고 무엇을 로컬 참조 구현으로 대신할지 제안해야 합니다. 개발 환경은 개인 노트북에서 공용 테스트넷 RPC에 닿는 네트워크로 가정했고, 사내 망 분리 환경은 다루지 않습니다. 확인한 운영체제는 Linux(WSL2)입니다.
+
+```mermaid
+flowchart TB
+  PREP["사전 준비(전날)<br/>pnpm b:prepare<br/>pnpm b:check<br/>진행자에게서 OKRW 1,000"]
+  subgraph LIVE["[Live Testnet] Maroo 테스트넷"]
+    S1["1단계 구조와 연결, 10분<br/>확인: chain ID 450815<br/>정책 조회"]
+    S2["2단계 KYB 관문 금고, 15분<br/>확인: 5·6b·7c 거부<br/>6d 성공"]
+    S4["4단계 결과 분류, 15분<br/>확인: 네 분류를<br/>근거와 함께 설명"]
+  end
+  subgraph LOCAL["[Local] Clairveil 로컬 체인"]
+    S3["3단계 차폐 정산, 25분<br/>확인: verified=true<br/>인출 code 0"]
+  end
+  S5["5단계 정리, 10분<br/>세션 기록<br/>두 환경의 경계"]
+  PREP --> S1 --> S2 --> S3 --> S4 --> S5
+```
+
 ## 마치면 할 수 있는 것
 
 1. Maroo 테스트넷에 연결하고, 내 지갑의 잔액과 Privacy·전역 정책 상태를 확인합니다.
@@ -120,8 +137,30 @@ pnpm b:step 5
 
 로컬에서 만든 증명과 tx는 Maroo 테스트넷 호환성의 증거가 아닙니다. 발표나 보고에서 "Maroo에서 차폐 정산이 성공했다"고 합치지 않습니다.
 
+## 테스트넷 Privacy까지 남은 것
+
+`pnpm b:step 5`도 아래 두 목록을 한 줄씩 보여 줍니다. 앞의 것은 Maroo가 공개해야 풀리고, 뒤의 것은 재료를 받은 뒤에도 기관과 Maroo가 풀어야 합니다. 기준은 [기관 연동 가이드](../track-a-explain/integration-guide.md) 6절과 8절입니다.
+
+| Maroo에서 받아야 할 재료 | 지금 상태 |
+| --- | --- |
+| 현재 테스트넷 verifier와 맞는 회로 버전과 proving 산출물 | 공개되지 않음. 예치 요청이 `SDKInvalidRequest()`에서 멈춤 `[Live Testnet]` |
+| 차폐 상태 조회 경로(Merkle 경로, nullifier 사용 여부, 암호화 노트) | 공개되지 않음. 공식 SDK(ClairveilJS)는 필수 조회 12개를 요구하고 회로 설정 조회에서 멈춤 `[코드 대조]` |
+| 성공한 예치와 지급의 예시 입력 | 공개되지 않음 |
+| prover 엔드포인트 | 공개되지 않음 |
+
+| 프로덕션 전에 남은 것 | 지금 상태 |
+| --- | --- |
+| 차폐 금액 상한 | 노트 하나에 약 18.45 OKRW `[Docs Only]` |
+| 참조 구현의 성숙도 | Clairveil은 실험 단계이고 외부 감사와 공식 trusted setup이 범위 밖 `[Docs Only]` |
+| 규제기관 열람 | 관찰자 노드 열람이 체인에 없음 `[Docs Only]` |
+| 기관 KYB | Privacy 정책은 개인 본인 인증 스키마만 요구 `[Live Testnet]` |
+| 기관 쪽 운영 | 키 보관, 지급 원장과 대사, prover 배치, 금고 회수 권한(청구 기간이나 타임락) 권고 |
+
 ## 끝난 뒤
 
 - 정리: `pnpm b:reset`으로 로컬 노드와 실행 폴더를 지웁니다. 지갑과 기록은 남습니다.
 - 더 볼 것: [기관 연동 가이드](../track-a-explain/integration-guide.md)(구조와 신뢰 경계), [실행 레시피](../track-a-explain/runnable-recipe.md)(명령별 입력과 오류), [기관 FAQ](../track-a-explain/faq.md)
 - 자기 조직의 흐름으로 바꿔 보기: 2단계 금고의 KYB 스키마를 자기 조직이 쓰는 자격으로 바꾸고, 3단계의 금액과 협력사 수를 실제 정산 주기에 맞춰 봅니다.
+- 협력사 수가 많으면 Clairveil v0.4.0의 16x32 일괄 지급으로 지급 건수까지 가려 봅니다(`pnpm a:local --extras`, 메시지 1개에 출력 32개). 대리 인출도 같은 명령에 들어 있습니다 `[Local]`.
+- 정책 코드는 Maroo 공식 TypeScript SDK(`@maroo-chain/viem`)로 씁니다. 2단계 금고의 프록시 배포와 정책 바인딩도 이 SDK를 씁니다([`shared/lib/kyb-gate.ts`](../shared/lib/kyb-gate.ts)).
+- 팀에 가져갈 것: 위 "테스트넷 Privacy까지 남은 것"의 두 목록과 5단계 세션 기록(`track-b-enable/evidence/session-<시각>.md`). Maroo에 요청할 재료와 기관이 설계할 일이 나뉘어 있습니다.

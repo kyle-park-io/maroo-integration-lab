@@ -17,6 +17,8 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 | 해커톤을 설계하는 팀(Track C) | [트랙 포트폴리오](track-c-activate/portfolio.md), [트랙 2의 16절](track-c-activate/tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet) | 15분 | `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부. 자동 판정 R1~R4 통과([판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json)) | 세 트랙 구성, 트랙별 최소 연동 요건, 심사 자동 판정(`pnpm c:judge`)을 행사에 쓸지 |
 | Maroo 문서·제품 팀 | [SUBMISSION_NOTES의 차이와 DX 피드백](SUBMISSION_NOTES.md#발견한-차이), [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) | 30분 | `[Live Testnet]` 문서대로 `TransferLimit`을 숫자 문자열로 쓰면 한도 안 결제까지 `AgentTransferLimitMetadataInvalid`로 막힘([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)) | 재현 명령과 owner가 붙은 문서 차이 18건, DX 피드백 13건의 처리 순서 |
 
+제출물을 네 질문으로 보면 이렇습니다. 무엇을 확인했나: 위 표의 기록과 [증거 라벨](#증거-라벨). 무엇이 달랐나: [발견한 차이](SUBMISSION_NOTES.md#발견한-차이) 18건. 어디까지 검증했나: [직접 검증한 것과 문서로만 확인한 것](SUBMISSION_NOTES.md#직접-검증한-것과-문서로만-확인한-것). 다음에 무엇을 확인하나: [다음에 확인할 것](SUBMISSION_NOTES.md#다음에-확인할-것).
+
 ## 트랙
 
 | 트랙 | 폴더 | 독자 | 먼저 볼 것 | 명령 | 증거 | 영상 |

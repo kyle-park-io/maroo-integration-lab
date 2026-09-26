@@ -114,6 +114,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 | 규제기관 열람 | 관찰자 노드 열람 기능이 체인에 아직 없습니다 | `[Docs Only]` 2번 답 |
 | 테스트넷 Privacy 실행 | 외부 개발자가 유효한 증명을 만들 회로 산출물과 상태 조회 경로가 공개되지 않았습니다. deposit 요청은 요청 검증 단계(`SDKInvalidRequest`)에서 처음 막히고, 카카오 본인 인증 증명이 있는 지갑도 같습니다. 공식 SDK(ClairveilJS)의 예치 경로는 증명을 만들기 전에 회로 설정과 자산 등록 조회에서 멈춥니다 | `[Live Testnet]` [최초 실패 계층 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
 | 기관 KYB | 테스트넷에 기관용 KYB 스키마와 발급자가 없습니다 | `[Live Testnet]` 5번 답 |
+| 금고 회수 권한 | 이 레포의 금고는 협력사가 청구하기 전이면 구매 기업이 언제든 `recall`로 몫을 되돌릴 수 있습니다. 프로덕션에서는 청구 기간이나 타임락을 둡니다 | `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) 8단계, 권고 |
 | 출시 전 관문 | Clairveil 운영 가이드의 최소 메인넷 관문(10개)과 위협 모델의 다운스트림 보안 관문(9개)이 남아 있습니다 | `[Docs Only]` [운영 가이드 11절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-operations-guide.md), [위협 모델 8절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md) |
 
 - 권고: 4~8주 PoC는 소액 흐름 검증, prover 배치 결정, 감사 키 보관 설계, KYB 발급 경로, 체인 밖 지급 원장과 대사까지로 잡고, 금액 상한과 규제기관 열람은 Maroo의 로드맵 확인 항목으로 둡니다.

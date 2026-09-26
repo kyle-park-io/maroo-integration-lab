@@ -157,6 +157,12 @@ async function step4() {
   console.log(`\n  기록: ${rel(file)}`);
 }
 
+// 5단계에 두 줄로 보이는 목록. 참가자 가이드의 "테스트넷 Privacy까지 남은 것"과 A 가이드 6절, 8절이 기준이다.
+const NEXT = [
+  ["Maroo에서 받아야 할 재료", "현재 verifier와 맞는 회로 버전과 proving 산출물, 차폐 상태 조회 경로, 성공한 예치·지급 예시 입력, prover 엔드포인트(A 가이드 6절)"],
+  ["프로덕션 전에 남은 것", "차폐 금액 상한, 참조 구현의 외부 감사와 trusted setup, 규제기관 열람, 기관 KYB 경로, 키 보관과 지급 원장 대사, 금고 회수 권한(A 가이드 8절)"],
+] as const;
+
 async function step5() {
   announce("5단계", { title: "정리", expect: "이번 세션의 기록 파일과 라벨, 토론 질문", success: "참가자가 두 환경의 경계와 다음에 필요한 것을 말할 수 있음" });
   const files = [
@@ -179,6 +185,9 @@ async function step5() {
     ? "  - Clairveil 로컬: 예치, 지급, 스캔, 해독, 인출을 끝까지 실행했습니다. Maroo 테스트넷 호환성의 증거는 아닙니다."
     : "  - Clairveil 로컬: 3단계 기록이 없습니다.");
   console.log("  - Maroo 테스트넷 Privacy: 요청 검증(SDKInvalidRequest)까지 진단했습니다. 회로 산출물과 상태 조회 경로가 있어야 다음 층으로 갑니다.");
+  console.log("\n  Privacy 정상 경로까지 남은 것");
+  for (const [k, v] of NEXT) console.log(`  - ${k}: ${v}`);
+  lines.push("", "## Privacy 정상 경로까지 남은 것", "", ...NEXT.map(([k, v]) => `- ${k}: ${v}`));
   console.log("\n  토론 질문");
   DISCUSSION.forEach((q, i) => console.log(`  ${i + 1}. ${q}`));
   lines.push("", "## 토론 질문", "", ...DISCUSSION.map((q, i) => `${i + 1}. ${q}`), "");

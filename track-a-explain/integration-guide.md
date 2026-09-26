@@ -255,6 +255,7 @@ stateDiagram-v2
 | 결과 불명 | 응답 시간 초과, receipt 없음 | 기존 tx 해시를 확인한 뒤 | 같은 노트로 새 tx를 만들기 전에 대사 |
 
 - 협력사 자격을 갱신할 때는 새 증명을 발급한 뒤 색인까지 해야 합니다. 폐기한 옛 증명이 색인돼 있으면, 새 증명을 색인하기 전의 청구는 `EasAttestationRevoked`로 거부됩니다. `[Live Testnet]` [두 번째 금고 실행 기록](../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json)
+- 증명이 폐기돼 청구할 수 없게 된 몫은 구매 기업이 `recall(supplier)`로 돌려받습니다. 2026-09-26 실행에서 폐기된 협력사 A 몫과 청구되지 않은 협력사 B 몫을 회수해 두 몫이 0이 됐습니다. `recall`은 협력사가 청구하기 전이면 언제든 부를 수 있으므로, 프로덕션에서는 8절처럼 청구 기간이나 타임락을 둡니다. `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) 8단계, 권고
 - 보내기 전 검사는 `eth_estimateGas`로 합니다. 같은 OKRW 전송을 불렀을 때 `eth_call`은 통과했고 `eth_estimateGas`는 `AnyOfRejected(ExceededPeriodicVolume(...), EasNoAttestationReceived(...))`로 거부했습니다. 전역 정책이 `eth_call`에서 평가되지 않기 때문입니다. `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json)
 - Clairveil v0.4.0 로컬 체인에서는 인출을 단독으로 보낸 tx가 `merkle root snapshot re-registration is inconsistent`로 실패했고, 같은 블록에 잎을 더하는 tx(0 노트 예치)를 함께 넣으면 성공했습니다. 다시 보내기만 하면 같은 오류가 납니다. Maroo 테스트넷에서도 같은 조건이 생기는지는 확인하지 못했습니다. `[Local]` [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) 4절
 
@@ -297,7 +298,8 @@ PoC를 시작하기 전에 Maroo에 확인할 항목은 6절의 증명 재료 �
 | 외부 개발자용 증명 재료 | 회로 산출물, 상태 조회 경로, 예시 입력이 공개되지 않음 | 기관이 테스트넷에서 차폐 흐름을 직접 검증할 수 없음 | Maroo | `[Live Testnet]` 6절 |
 | 기관 KYB | 테스트넷 Privacy 정책은 개인 본인 인증 스키마만 요구하고, 기관용 스키마와 발급자는 없음 | 법인 계정이 Privacy를 부를 자격 경로가 없음 | Maroo, 발급 기관 | `[Live Testnet]` 조회 기록 |
 | 회로 교체 | Clairveil v0.5.0은 호환되지 않는 genesis에서 올라오는 체인을 새 genesis로 초기화하고 노트와 스캔 결과를 버리라고 적음. 제자리 이전 경로 없음 | 회로가 바뀌면 차폐 잔액을 옮기는 계획이 필요 | Maroo, 기관 | `[Docs Only]` [CHANGELOG v0.5.0](https://github.com/DELIGHT-LABS/clairveil/blob/v0.5.1/CHANGELOG.md) |
-| SDK 변화 | `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 템플릿 작성 함수 두 개를 지움 | 버전을 고정하지 않으면 빌드가 깨짐 | 기관 | npm 패키지 두 판 비교 |
+| SDK 변화 | `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 템플릿 작성 함수 두 개를 지움 | 버전을 고정하지 않으면 빌드가 깨짐. 이 레포는 0.4.0을 고정해 씀 | 기관 | npm 패키지 두 판 비교 |
+| 금고 회수 권한 | 이 레포의 금고는 협력사가 청구하기 전이면 구매 기업이 언제든 `recall`로 몫을 되돌릴 수 있음 | 협력사에게 입금된 몫이 확정된 대금이 되지 않고, 구매 기업 키가 새면 청구되지 않은 몫이 모두 회수될 수 있음 | 기관 | `[Live Testnet]` 금고 흐름 8단계. 권고: 입금 뒤 청구 기간이 지나야 회수되게 하거나, 회수 요청과 실행 사이에 타임락과 협력사 통지를 둠 |
 | 기관 쪽 운영 | 키 보관(HSM, 멀티시그), 지급 원장과 대사, 망 분리 환경의 RPC 접근, 사고 대응 | PoC에서 설계하고 프로덕션에서 구축 | 기관 | 권고 |
 
 ## 부록 A. 용어

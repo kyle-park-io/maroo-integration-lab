@@ -26,6 +26,7 @@ import path from "node:path";
 import {
   encodeFunctionData, formatEther, getAddress, numberToHex, parseEther, toFunctionSelector, toHex, type Abi, type Address, type Hex,
 } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { Abis, identityRegistryAbi, marooPublicActions, marooWalletActions, pclProxyKinds, policy } from "@maroo-chain/viem";
 import { ROOT } from "../../shared/lib/paths.ts";
@@ -111,6 +112,26 @@ if (getAddress(current) === agent) {
   });
   const r = await confirm("1) setAgentWallet(에이전트 지갑 서명, 소유자 전송)", await buyerSdk.identity.setAgentWallet({ args: [agentId, agent, deadline, signature] }));
   setWalletTx = r.transactionHash;
+}
+// 마감 제한 확인: 버리는 새 지갑의 서명으로 시뮬레이션만 한다(tx 없음)
+{
+  const [, name, version, chainId, verifyingContract] = await pub.identity.eip712Domain();
+  const probe = privateKeyToAccount(generatePrivateKey());
+  const results: Record<string, string> = {};
+  for (const extra of [299n, 301n]) {
+    const deadline = (await pub.getBlock()).timestamp + extra;
+    const signature = await probe.signTypedData({
+      domain: { name, version, chainId, verifyingContract }, primaryType: "AgentWalletSet",
+      types: { AgentWalletSet: [
+        { name: "agentId", type: "uint256" }, { name: "newWallet", type: "address" }, { name: "owner", type: "address" }, { name: "deadline", type: "uint256" },
+      ] },
+      message: { agentId, newWallet: probe.address, owner: buyer, deadline },
+    });
+    results[`블록 시각 +${extra}초`] = await pub.simulateContract({
+      account: buyer, address: registry, abi: identityRegistryAbi, functionName: "setAgentWallet", args: [agentId, probe.address, deadline, signature],
+    }).then(() => "통과").catch((e) => revertReason(e));
+  }
+  log("1) setAgentWallet 마감 제한(시뮬레이션)", { ...results, reason: Object.entries(results).map(([k, v]) => `${k} ${v}`).join(", ") });
 }
 const walletAfter = await pub.identity.getAgentWallet({ args: [agentId] });
 const idsForAgent = await agentIdsOf(agent);
