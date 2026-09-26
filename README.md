@@ -80,7 +80,7 @@ track-c-activate/  포트폴리오, tracks/ 세 트랙, grounding/*.ts, evidence
 
 | 코드 | 쓰는 방식 | 라이선스 |
 | --- | --- | --- |
-| [Clairveil](https://github.com/DELIGHT-LABS/clairveil), [ClairveilJS](https://github.com/DELIGHT-LABS/clairveiljs), [clairveil-samples](https://github.com/DELIGHT-LABS/clairveil-samples) | `pnpm setup:clairveil`이 고정 커밋을 `vendor/`에 받습니다(레포에는 넣지 않음). 수정하지 않았습니다. 로컬 정산 실행기의 흐름은 Clairveil `scripts/privacy-e2e-smoke.sh`를 따르고 역할과 금액만 바꿨습니다 | Apache-2.0 |
+| [Clairveil](https://github.com/DELIGHT-LABS/clairveil), [ClairveilJS](https://github.com/DELIGHT-LABS/clairveiljs), [clairveil-samples](https://github.com/DELIGHT-LABS/clairveil-samples) | `pnpm setup:clairveil`이 고정 커밋을 `vendor/`에 받습니다(레포에는 넣지 않음). 코드는 수정하지 않았습니다. Clairveil은 바이너리와 회로 산출물을 빌드해 로컬 체인과 CLI로 쓰고, 로컬 정산 실행기의 흐름은 `scripts/privacy-e2e-smoke.sh`를 따르되 역할과 금액만 바꿨습니다. ClairveilJS는 의존성을 설치해 자체 검사(`pnpm sdk:check`)를 돌리고, 정식 EVM 계약 fixture를 Maroo ABI 대조(`pnpm a:abi-compare`)에 씁니다. clairveil-samples는 조합을 맞추는 기준과 EVM 설정 예시로 씁니다 | Apache-2.0 |
 | [@maroo-chain/contracts](https://www.npmjs.com/package/@maroo-chain/contracts) 0.0.9 | 프리컴파일 ABI | MIT |
 | [viem](https://viem.sh) 2.56.8 | 체인 호출 | MIT |
 | [OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts) 5.6.1 | 금고의 `Initializable` | MIT |

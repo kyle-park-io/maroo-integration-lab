@@ -78,6 +78,8 @@
 
 | 명령 | 시각(UTC) | 결과 | 기록 |
 | --- | --- | --- | --- |
+| `pnpm a:abi-compare` | 2026-09-26 04:03 | Maroo `IPrivacy` 함수 9, 이벤트 5가 ClairveilJS 정식 EVM 계약 v0.3.1과 정규화 sha256까지 같음 | [JSON](track-a-explain/evidence/code/abi-compare-20260926T040350Z.json) |
+| `pnpm sdk:check` | 2026-09-26 04:09 | ClairveilJS conformance 113/113, 단위 503/575(71 건너뜀, 1 실패는 Node 24의 `navigator.locks` 때문에 전제가 맞지 않는 테스트) | [JSON](track-a-explain/evidence/code/clairveiljs-tests-20260926T040910Z.json) |
 | `pnpm a:inspect` | 2026-09-25 19:27 | Privacy 정책, 요구 스키마, 구매 기업 증명 0개, 예치 `SDKInvalidRequest()`, 필드 대응 | [JSON](track-a-explain/evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | `pnpm a:probe` | 2026-09-25 19:33 | 빈 요청과 모양을 갖춘 요청이 두 방법 모두 `SDKInvalidRequest()`. 전역 정책은 통과 | [JSON](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json) |
 | `pnpm a:probe-global` | 2026-09-25 19:08 | `eth_call` 통과, `eth_estimateGas` 거부(faucet 계정의 전역 한도) | [JSON](track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json) |

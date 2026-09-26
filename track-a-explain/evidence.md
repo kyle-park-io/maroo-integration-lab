@@ -39,6 +39,7 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 | 기록 | 명령 | 대조한 것 | 결과 |
 | --- | --- | --- | --- |
 | [abi-compare-20260926T040350Z.json](evidence/code/abi-compare-20260926T040350Z.json) | `pnpm a:abi-compare` | `@maroo-chain/contracts` 0.0.9의 `IPrivacy` ABI와 ClairveilJS `fixtures/evm-privacy-precompile-v0.3.1.json`(함수 선택자, 이벤트 서명, 정규화한 ABI sha256). 정규화 규칙은 ClairveilJS `tools/verify-evm-contract.js`와 같음 | 함수 9개, 이벤트 5개 모두 같고 sha256도 같음(`ee29aa6a…cb31b`). Maroo ABI의 오류 50개는 대조 범위 밖 |
+| [clairveiljs-tests-20260926T040910Z.json](evidence/code/clairveiljs-tests-20260926T040910Z.json) | `pnpm sdk:check` | ClairveilJS `faf220d5`의 자체 검사: EVM 계약 검증, 단위 테스트, Go fixture conformance 테스트(Node 24.19) | EVM 계약 v0.3.1 검증 통과. conformance 113/113 통과. 단위 575개 중 503 통과, 71 건너뜀(fixture가 필요한 것, SDK 설정), 1 실패: Web Locks API가 없을 때의 오류를 기대하는 테스트인데 Node 24에는 `navigator.locks`가 있어 전제가 맞지 않음. SDK가 Clairveil fixture와 맞는다는 근거이고 Maroo 호환 근거는 아님 |
 
 ## 2. Clairveil 로컬 `[Local]`
 

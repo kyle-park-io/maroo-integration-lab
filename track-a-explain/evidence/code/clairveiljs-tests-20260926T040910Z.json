@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-09-26T04:09:10.670Z",
+  "label": "코드 대조(체인 호출 없음). SDK 가 Clairveil fixture 와 맞는지. Maroo 호환 근거 아님",
+  "clairveiljs": {
+    "commit": "faf220d5b2fa1a186c30893ca74d765474015aee",
+    "describe": "0.2.0-50-gfaf220d",
+    "vendorClean": true
+  },
+  "node": "v24.19.0",
+  "install": {
+    "exitCode": 0,
+    "seconds": 6
+  },
+  "results": [
+    {
+      "label": "verify:evm-contract",
+      "command": "npm run -s verify:evm-contract",
+      "exitCode": 0,
+      "seconds": 0,
+      "tests": null,
+      "pass": null,
+      "fail": null,
+      "skipped": null,
+      "failedTests": [],
+      "lastLine": "verified Clairveil EVM contract 0.3.1 (ee29aa6ab3e0ddca3c43e6457a51d05b15f405bbf192a6076d01894aecfcb31b)"
+    },
+    {
+      "label": "test:unit",
+      "command": "npm run -s test:unit",
+      "exitCode": 1,
+      "seconds": 45,
+      "tests": 575,
+      "pass": 503,
+      "fail": 1,
+      "skipped": 71,
+      "failedTests": [
+        "indexeddb reservation store requires web locks unless explicitly scoped to single-tab"
+      ],
+      "lastLine": "  }"
+    },
+    {
+      "label": "test:conformance:required",
+      "command": "npm run -s test:conformance:required",
+      "exitCode": 0,
+      "seconds": 41,
+      "tests": 113,
+      "pass": 113,
+      "fail": 0,
+      "skipped": 0,
+      "failedTests": [],
+      "lastLine": "ℹ duration_ms 40860.79954"
+    }
+  ]
+}
