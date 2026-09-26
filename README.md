@@ -86,6 +86,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 
 - 역할 지갑 파일 형식은 [testnet.env.example](testnet.env.example)에 있습니다. 실제 키는 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에만 두고 레포에 올리지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
 - 문서의 Mermaid 다이어그램은 `pnpm diagrams:check`로 밝은 테마와 어두운 테마에서 렌더링을 확인합니다.
+- GitHub Actions([ci.yml](.github/workflows/ci.yml))가 푸시마다 타입 검사, 금고 서식과 테스트, 단위 테스트를 돌립니다. 테스트넷은 부르지 않습니다.
 
 ## 증거 라벨
 

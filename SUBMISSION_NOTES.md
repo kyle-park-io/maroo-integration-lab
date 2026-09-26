@@ -78,6 +78,7 @@
 | `pnpm test:contracts` | 금고 테스트 6개 통과 |
 | `pnpm typecheck` | 오류 없음 |
 | `pnpm test:unit` | 24개 통과(체인 호출 없음). 정책 해석이 테스트넷 정책 원문에서 SDK 도입 전 해석기의 기록과 같음, 심사 판정 규칙(트랙 1~3), 워크샵 4단계 분류, revert 사유 해석, 금고 흐름이 `@maroo-chain/viem`으로 만드는 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
+| GitHub Actions `ci` | 2026-09-26 05:01 UTC 첫 실행 35초, 타입 검사, `forge fmt --check`, 금고 테스트 6개, 단위 테스트 24개 모두 통과. 테스트넷 호출 없음 |
 | `pnpm diagrams:check` | Mermaid 다섯 개를 두 테마로 10번 렌더링, 실패 0. 그림을 열어 선이 상자를 가로지르는 곳을 찾아 한 번 고침 |
 | 커밋 전 훅 | 타입 검사, `forge fmt`, `forge test`, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어를 커밋마다 검사 |
 
