@@ -34,6 +34,12 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 - Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지. 본인 인증 증명이 있는 지갑과 없는 지갑 모두 요청 검증에서 먼저 막혀 정책 층에 닿지 못했습니다.
 - 금고 흐름 이외의 경로에서 PCL 거부를 tx로 남기는 것. 이 레포의 상태 변경 tx는 금고 흐름 18건입니다.
 
+## 1-1. 코드 대조 `[코드 대조]`
+
+| 기록 | 명령 | 대조한 것 | 결과 |
+| --- | --- | --- | --- |
+| [abi-compare-20260926T040350Z.json](evidence/code/abi-compare-20260926T040350Z.json) | `pnpm a:abi-compare` | `@maroo-chain/contracts` 0.0.9의 `IPrivacy` ABI와 ClairveilJS `fixtures/evm-privacy-precompile-v0.3.1.json`(함수 선택자, 이벤트 서명, 정규화한 ABI sha256). 정규화 규칙은 ClairveilJS `tools/verify-evm-contract.js`와 같음 | 함수 9개, 이벤트 5개 모두 같고 sha256도 같음(`ee29aa6a…cb31b`). Maroo ABI의 오류 50개는 대조 범위 밖 |
+
 ## 2. Clairveil 로컬 `[Local]`
 
 | 기록 | 명령 | 환경 | 실행 시각 | 결과 |

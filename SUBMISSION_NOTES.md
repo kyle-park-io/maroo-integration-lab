@@ -48,7 +48,7 @@
 | 9 | Maroo Docs ERC-8004 | `register(...) returns (bytes32 agentId)`, `attest`, `revoke` | 배포된 `PreinstallIdentityRegistry`는 `uint256 agentId`, `register(string)`, `setMetadata`, `setAgentWallet`. `attest`, `revoke` 없음 | 탐색기 검증 소스, `pnpm c:grounding` | C 트랙 2 |
 | 10 | Maroo Docs ERC-8004 | Reputation은 V1에 없음 | `IAgent.getParams`가 ReputationRegistry `0x8004…0002`를 돌려주고 코드가 있음 | `pnpm c:grounding` | C evidence 3절 |
 | 11 | Maroo Docs 전역 정책 | 건당 한도를 체인 설정으로 적지 않음 | 전역 정책에 KYC 증명이 없는 계정의 건당 200만 OKRW 한도(`VOLUME_POLICY`) | `pnpm c:grounding` | C 포트폴리오, 트랙 3 |
-| 12 | Maroo Docs와 Clairveil | 서로를 언급하지 않음 | 연결 고리는 전송 요청 필드 대응과 clairveil-samples의 Privacy 주소 예시 | `pnpm a:inspect` | A 가이드 1절 |
+| 12 | Maroo Docs와 Clairveil | 서로를 언급하지 않음 | Maroo `IPrivacy` ABI(함수 9, 이벤트 5)가 ClairveilJS의 정식 EVM Privacy 계약 v0.3.1과 정규화 해시까지 같음. 전송 요청 필드도 Clairveil v0.4.0 `MsgTransfer`와 대응 | `pnpm a:abi-compare`, `pnpm a:inspect` | A 가이드 1절 |
 | 13 | faucet | 요청하면 5,000 tOKRW | 2026-09-25 16:41 UTC부터 실패. faucet 계정이 전역 24시간 한도를 다 썼고 KYC 증명이 없음. `resetAt`(2026-09-26 00:00 UTC) 뒤 22초에 요청해 받음 | `pnpm a:probe-global` | DX 3, B 증거 |
 | 14 | Maroo Docs EAS 연동 | 증명 발급 뒤 색인이 필요하다는 순서와 재발급 때의 동작을 적지 않음 | 새 증명을 색인하기 전에는 PCL이 색인된 옛 증명을 봐서, 폐기된 옛 증명이 있으면 `EasAttestationRevoked`로 거부 | `pnpm a:kyb-gate`를 같은 지갑으로 두 번 | A FAQ 5, B T8 |
 

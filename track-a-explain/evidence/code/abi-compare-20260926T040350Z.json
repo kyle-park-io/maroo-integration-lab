@@ -1,0 +1,118 @@
+{
+  "checkedAt": "2026-09-26T04:03:50.559Z",
+  "label": "코드 대조(체인 호출 없음). 기준은 Maroo @maroo-chain/contracts IPrivacy ABI",
+  "maroo": {
+    "package": "@maroo-chain/contracts@0.0.9",
+    "functions": 9,
+    "events": 5,
+    "errors": 50,
+    "canonicalAbiSha256": "ee29aa6ab3e0ddca3c43e6457a51d05b15f405bbf192a6076d01894aecfcb31b"
+  },
+  "clairveil": {
+    "source": "vendor/clairveiljs/fixtures/evm-privacy-precompile-v0.3.1.json",
+    "contractVersion": "0.3.1",
+    "canonicalAbiSha256": "ee29aa6ab3e0ddca3c43e6457a51d05b15f405bbf192a6076d01894aecfcb31b"
+  },
+  "sameCanonicalAbi": true,
+  "selectors": [
+    {
+      "name": "batchTransfer",
+      "maroo": "9750e2e0",
+      "clairveil": "9750e2e0",
+      "same": true,
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "batchTransferWithAuthorization",
+      "maroo": "1252f954",
+      "clairveil": "1252f954",
+      "same": true,
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "deposit",
+      "maroo": "e6eb7771",
+      "clairveil": "e6eb7771",
+      "same": true,
+      "stateMutability": "payable"
+    },
+    {
+      "name": "singleProofBatchTransfer",
+      "maroo": "3bbb329b",
+      "clairveil": "3bbb329b",
+      "same": true,
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "singleProofBatchTransferWithAuthorization",
+      "maroo": "0272cf35",
+      "clairveil": "0272cf35",
+      "same": true,
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "transfer",
+      "maroo": "43fd6967",
+      "clairveil": "43fd6967",
+      "same": true,
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "transferWithAuthorization",
+      "maroo": "8ad7ab1c",
+      "clairveil": "8ad7ab1c",
+      "same": true,
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "withdraw",
+      "maroo": "ce4f349c",
+      "clairveil": "ce4f349c",
+      "same": true,
+      "stateMutability": "nonpayable"
+    },
+    {
+      "name": "withdrawWithAuthorization",
+      "maroo": "b680b59a",
+      "clairveil": "b680b59a",
+      "same": true,
+      "stateMutability": "nonpayable"
+    }
+  ],
+  "events": [
+    {
+      "name": "PrivacyBatchTransferItem",
+      "maroo": "PrivacyBatchTransferItem(address,address,bytes32,uint64,bytes32,bytes)",
+      "clairveil": "PrivacyBatchTransferItem(address,address,bytes32,uint64,bytes32,bytes)",
+      "same": true
+    },
+    {
+      "name": "PrivacyDeposit",
+      "maroo": "PrivacyDeposit(address,address,string,bytes)",
+      "clairveil": "PrivacyDeposit(address,address,string,bytes)",
+      "same": true
+    },
+    {
+      "name": "PrivacySingleProofBatchTransfer",
+      "maroo": "PrivacySingleProofBatchTransfer(address,address,bytes32,bytes,uint8,uint8)",
+      "clairveil": "PrivacySingleProofBatchTransfer(address,address,bytes32,bytes,uint8,uint8)",
+      "same": true
+    },
+    {
+      "name": "PrivacyTransfer",
+      "maroo": "PrivacyTransfer(address,address,bytes)",
+      "clairveil": "PrivacyTransfer(address,address,bytes)",
+      "same": true
+    },
+    {
+      "name": "PrivacyWithdraw",
+      "maroo": "PrivacyWithdraw(address,address,address,string)",
+      "clairveil": "PrivacyWithdraw(address,address,address,string)",
+      "same": true
+    }
+  ],
+  "onlyInClairveil": {
+    "functions": [],
+    "events": []
+  }
+}

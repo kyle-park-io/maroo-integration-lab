@@ -1,7 +1,7 @@
 # 기관 연동 가이드: Maroo에서 협력사 대금을 비공개로 정산하기
 
 - 기준: Maroo Docs(2026-09-25 확인), Maroo 테스트넷(chain ID 450815, 2026-09-26 확인), Clairveil v0.4.0 [`ca85b027`](https://github.com/DELIGHT-LABS/clairveil/tree/ca85b02708fdd75259d4d2ee2d671c21198cec69), `@maroo-chain/contracts` 0.0.9
-- 표시: 문서에서 확인한 사실은 `[Docs Only]`, 직접 실행해 확인한 사실은 `[Live Testnet]`(Maroo 테스트넷)과 `[Local]`(Clairveil 로컬 체인)로 적습니다. 이 레포가 제안하는 설계와 절차는 "권고"로 따로 적습니다.
+- 표시: 문서에서 확인한 사실은 `[Docs Only]`, 직접 실행해 확인한 사실은 `[Live Testnet]`(Maroo 테스트넷)과 `[Local]`(Clairveil 로컬 체인)로, 코드와 패키지를 직접 대조한 결과는 `[코드 대조]`로 적습니다. 이 레포가 제안하는 설계와 절차는 "권고"로 따로 적습니다.
 - 함께 보는 문서: [실행 레시피](runnable-recipe.md), [기관 FAQ](faq.md), [문서 개선 노트](documentation-improvement-notes.md)
 
 ## 0. 이 문서를 읽는 사람
@@ -96,13 +96,14 @@ Maroo Docs에는 현재 테스트넷 verifier와 맞는 회로 버전과 proving
 
 ### Clairveil과 Maroo `x/privacy`의 관계
 
-Clairveil은 Cosmos SDK 체인에 차폐 풀을 넣는 공개 참조 구현이고, Maroo 측 안내에 따르면 Maroo `x/privacy`의 기반으로 쓰입니다. 공개 자료만으로는 이 관계를 확인하기 어렵습니다. Maroo Docs에는 Clairveil이 나오지 않고, Clairveil 레포에도 Maroo가 나오지 않습니다. `[Docs Only]` 이 레포가 직접 대조한 연결 고리는 세 가지입니다.
+Clairveil은 Cosmos SDK 체인에 차폐 풀을 넣는 공개 참조 구현이고, Maroo 측 안내에 따르면 Maroo `x/privacy`의 기반으로 쓰입니다. 공개 자료만으로는 이 관계를 확인하기 어렵습니다. Maroo Docs에는 Clairveil이 나오지 않고, Clairveil 레포에도 Maroo가 나오지 않습니다. `[Docs Only]` 이 레포가 직접 대조한 연결 고리는 네 가지입니다.
 
-1. Maroo `IPrivacy`의 전송 요청 필드 17개는 Clairveil v0.4.0 `MsgTransfer`의 18개에서 `creator` 하나를 뺀 것과 같습니다. EVM에서는 `msg.sender`가 `creator` 자리를 대신합니다. `[Live Testnet]` ABI 대조, [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
-2. clairveil-samples의 EVM 설정 예시가 쓰는 Privacy 프리컴파일 주소 `0x1000…000b`가 Maroo 테스트넷 주소와 같습니다. `[Docs Only]` [`.env.evm.example`](https://github.com/DELIGHT-LABS/clairveil-samples/blob/8321dedc231372679cfbea4314d080ecaea2e3f5/.env.evm.example)
-3. Clairveil v0.5.x의 전송 메시지(`privacy/v2`)는 출력마다 `outputs` 항목을 두고 감사 정보를 `audit` 하나로 묶는 모양으로 바뀌었습니다. Maroo 테스트넷 ABI는 v0.4.0 모양과 맞습니다. `[Docs Only]` [v0.5.1 `tx.proto`](https://github.com/DELIGHT-LABS/clairveil/blob/v0.5.1/proto/clairveil/privacy/v2/tx.proto), `[Live Testnet]` ABI 대조
+1. Maroo `IPrivacy` ABI의 함수 9개와 이벤트 5개는 ClairveilJS가 들고 있는 정식 EVM Privacy 계약 v0.3.1과 함수 선택자, 이벤트 서명, 정규화한 ABI의 sha256(`ee29aa6a…cb31b`)까지 같습니다. ClairveilJS의 EVM 전송 모듈은 이 계약을 가진 체인을 대상으로 만들어졌습니다. `[코드 대조]` [대조 기록](evidence/code/abi-compare-20260926T040350Z.json), 재현: `pnpm a:abi-compare`
+2. Maroo `IPrivacy`의 전송 요청 필드 17개는 Clairveil v0.4.0 `MsgTransfer`의 18개에서 `creator` 하나를 뺀 것과 같습니다. EVM에서는 `msg.sender`가 `creator` 자리를 대신합니다. `[Live Testnet]` ABI 대조, [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
+3. clairveil-samples의 EVM 설정 예시가 쓰는 Privacy 프리컴파일 주소 `0x1000…000b`가 Maroo 테스트넷 주소와 같습니다. `[Docs Only]` [`.env.evm.example`](https://github.com/DELIGHT-LABS/clairveil-samples/blob/8321dedc231372679cfbea4314d080ecaea2e3f5/.env.evm.example)
+4. Clairveil v0.5.x의 전송 메시지(`privacy/v2`)는 출력마다 `outputs` 항목을 두고 감사 정보를 `audit` 하나로 묶는 모양으로 바뀌었습니다. Maroo 테스트넷 ABI는 v0.4.0 모양과 맞습니다. `[Docs Only]` [v0.5.1 `tx.proto`](https://github.com/DELIGHT-LABS/clairveil/blob/v0.5.1/proto/clairveil/privacy/v2/tx.proto), `[Live Testnet]` ABI 대조
 
-모양이 같다는 사실이 회로와 검증 키가 같다는 증거는 되지 못합니다. 그래서 이 레포는 Clairveil을 구조와 흐름을 배우고 로컬에서 재현하는 자료로 쓰고, Maroo 테스트넷의 주소와 ABI와 호출 방식은 Maroo Docs를 기준으로 삼습니다.
+인터페이스가 같다는 사실이 회로와 검증 키가 같다는 증거는 되지 못합니다. 그래서 이 레포는 Clairveil을 구조와 흐름을 배우고 로컬에서 재현하는 자료로 쓰고, Maroo 테스트넷의 주소와 ABI와 호출 방식은 Maroo Docs를 기준으로 삼습니다.
 
 ### 투명 경로: KYB 관문을 건 정산 금고
 

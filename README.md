@@ -51,6 +51,7 @@ pnpm setup:clairveil && pnpm a:local          # [Local] 차폐 정산 전체, �
 | --- | --- |
 | `[Live Testnet]` | Maroo 테스트넷(chain ID 450815)에서 직접 실행하거나 조회한 결과. tx 해시, 탐색기 링크, 기록 파일이 있음 |
 | `[Local]` | Clairveil v0.4.0 로컬 체인에서 실행한 결과. Maroo 테스트넷 호환성의 증거가 아님 |
+| `[코드 대조]` | 공개 코드와 패키지(ABI, fixture)를 스크립트로 직접 대조한 결과. 체인을 부르지 않음 |
 | `[Docs Only]` | 문서로만 확인한 내용 |
 | 권고 | 이 레포가 제안하는 설계와 절차 |
 
