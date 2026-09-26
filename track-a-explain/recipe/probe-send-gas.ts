@@ -5,7 +5,8 @@
 // Maroo Docs eth_estimateGas 쪽은 단순 전송이 0x5208(21,000)을 돌려준다고 적는다.
 // ClairveilJS 도 EVM 네이티브 이체의 가스 한도 기본값을 0x5208 로 둔다(evmSendGasLimit).
 // 확인하는 것
-//   1. 같은 이체의 eth_estimateGas 값(금액 1 OKRW, 100 OKRW)
+//   1. 같은 이체의 eth_estimateGas 값(금액 1 OKRW, 100 OKRW). 에이전트 지갑(AGENT)이 연결돼 있으면 그 지갑이 보낼 때의 값도
+//      본다. 전역 정책이 에이전트 지갑의 전송을 소유자 기준으로 한 번 더 평가해 가스가 더 든다
 //   2. 가스 21,000 으로 eth_call: 전역 정책을 평가하지 않는 경로라 통과하는지
 //   3. 가스 21,000 으로 실제 전송: 결과와 쓴 가스
 //   4. eth_estimateGas 값으로 실제 전송: 결과와 쓴 가스
@@ -17,7 +18,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { formatEther, parseEther, toHex } from "viem";
 import { ROOT } from "../../shared/lib/paths.ts";
-import { EXPLORER, RPC, addressOf, publicClient as pub, walletFor, writeEvidence } from "../../shared/lib/maroo.ts";
+import { EXPLORER, RPC, addressOf, labValue, publicClient as pub, walletFor, writeEvidence } from "../../shared/lib/maroo.ts";
+import { marooPublicActions } from "@maroo-chain/viem";
 
 const DOC_CLAIM = { url: "https://docs.maroo.io/apis/rpc/estimate-gas/", text: "단순 전송은 0x5208 = 21,000" };
 const from = addressOf("BUYER");
@@ -39,6 +41,18 @@ const sdkDefault = fs.existsSync(sdkFile) ? fs.readFileSync(sdkFile, "utf8").mat
 const estimate1 = BigInt((await rpc("eth_estimateGas", [{ from, to, value: toHex(value) }])).result!);
 const estimate100 = BigInt((await rpc("eth_estimateGas", [{ from, to, value: toHex(parseEther("100")) }])).result!);
 console.log(`1) eth_estimateGas: 1 OKRW ${estimate1}, 100 OKRW ${estimate100}. 문서 예시 21000`);
+
+// 보내는 쪽이 에이전트 지갑이면(getAgentIds 가 비어 있지 않으면) 값이 다르다
+const agentIdsOf = async (wallet: `0x${string}`) =>
+  (await pub.extend(marooPublicActions()).agent.getAgentIds({ args: [wallet, { key: "0x", offset: 0n, limit: 10n, countTotal: false, reverse: false }] }))[0];
+const buyerIsAgentWallet = (await agentIdsOf(from)).length > 0;
+const agentAddr = labValue("AGENT_ADDRESS") as `0x${string}` | undefined;
+let agentEstimate: string = "AGENT 지갑 없음";
+if (agentAddr && (await agentIdsOf(agentAddr)).length > 0) {
+  const r = await rpc("eth_estimateGas", [{ from: agentAddr, to, value: toHex(value) }]);
+  agentEstimate = r.result ? BigInt(r.result).toString() : `거부: ${r.error?.message}`;
+}
+console.log(`   보내는 구매 기업이 에이전트 지갑인가: ${buyerIsAgentWallet ? "예" : "아니요"}. 에이전트 지갑이 보낼 때: ${agentEstimate}`);
 
 const call21k = await rpc("eth_call", [{ from, to, value: toHex(value), gas: toHex(21000n) }, "latest"]);
 const callResult = call21k.error ? `거부: ${call21k.error.message}` : `통과(${call21k.result})`;
@@ -65,7 +79,7 @@ const file = writeEvidence(path.join(ROOT, "track-a-explain/evidence/live"), "pr
   checkedAt: new Date().toISOString(),
   label: "[Live Testnet] BUYER 에서 자기 SUPPLIER_A 로 1 OKRW 단순 이체",
   docClaim: DOC_CLAIM, clairveiljsDefaultSendGasLimit: sdkDefault ?? "vendor/clairveiljs 없음",
-  from, to, estimateGas: { "1 OKRW": estimate1.toString(), "100 OKRW": estimate100.toString() },
+  from, to, buyerIsAgentWallet, estimateGas: { "1 OKRW": estimate1.toString(), "100 OKRW": estimate100.toString(), "에이전트 지갑이 1 OKRW": agentEstimate },
   ethCallWithGas21000: callResult, sentWithGas21000: sent21k, sentWithEstimate: sentEstimated, sentWithEstimatePlus25: sentPadded,
 });
 console.log(`기록: ${path.relative(ROOT, file)}`);

@@ -13,7 +13,7 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 | 이 제출물을 처음 보는 리뷰어 | [기관 연동 가이드](track-a-explain/integration-guide.md) 0절, [Track A 증거](track-a-explain/evidence.md), 아래 트랙 표 | 5분 | `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막힘([진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)) | 어느 트랙부터 깊이 볼지 |
 | 도입을 검토하는 기관 시니어 엔지니어(Track A 독자) | [기관 연동 가이드](track-a-explain/integration-guide.md) | 0절 5분, 전체 50분 | `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 `EasNoAttestationReceived`로 거부되고, 증명을 색인한 뒤의 청구는 통과([금고 흐름 기록](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json)) | 4~8주 PoC에서 테스트넷으로 할 부분(OKRW, PCL, KYB 관문)과 로컬로 할 부분(차폐 정산), Maroo에 먼저 요청할 재료 |
 | 기관의 사업·컴플라이언스 담당(개발자가 아닌 평가자 포함) | 같은 가이드 0절의 네 질문 표, [FAQ 9](track-a-explain/faq.md#9-지금-이-구조로-실제-협력사-대금을-처리할-수-있나요) | 10분 | `[Local]` 협력사 B에게 보낸 15는 협력사 B, 구매 기업, 감사인이 각자 키로 풀었고, 제3자가 읽는 지급 tx에는 금액 필드가 없음([로컬 기록](track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md)) | 내부 보안·컴플라이언스 검토에 올릴 범위와 아직 체인에 없는 것(규제기관 열람, 테스트넷 Privacy 상태 변경) |
-| 워크샵을 여는 DevRel·진행자(Track B) | [Track B README](track-b-enable/README.md), [진행자 가이드](track-b-enable/facilitator-guide.md) | 15분 | `[Live Testnet]` `[Local]` `pnpm b:smoke` 한 번에 1~5단계와 성공 기준이 91초 만에 통과([세션 기록](track-b-enable/evidence/session-20260926T000329Z.md)) | 75분 워크샵 일정과 사전 준비(바이너리 빌드 108초, 참가자당 OKRW 1,000과 이체 수수료 약 2.6 OKRW) |
+| 워크샵을 여는 DevRel·진행자(Track B) | [Track B README](track-b-enable/README.md), [진행자 가이드](track-b-enable/facilitator-guide.md) | 15분 | `[Live Testnet]` `[Local]` `pnpm b:smoke` 한 번에 1~5단계와 성공 기준이 91초 만에 통과([세션 기록](track-b-enable/evidence/session-20260926T000329Z.md)) | 75분 워크샵 일정과 사전 준비(바이너리 빌드 108초, 참가자당 OKRW 1,000과 이체 수수료 약 0.94 OKRW) |
 | 해커톤을 설계하는 팀(Track C) | [트랙 포트폴리오](track-c-activate/portfolio.md), [트랙 2의 16절](track-c-activate/tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet) | 15분 | `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부. 자동 판정 R1~R4 통과([판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json)) | 세 트랙 구성, 트랙별 최소 연동 요건, 심사 자동 판정(`pnpm c:judge`)을 행사에 쓸지 |
 | Maroo 문서·제품 팀 | [SUBMISSION_NOTES의 차이와 DX 피드백](SUBMISSION_NOTES.md#발견한-차이), [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) | 30분 | `[Live Testnet]` 문서대로 `TransferLimit`을 숫자 문자열로 쓰면 한도 안 결제까지 `AgentTransferLimitMetadataInvalid`로 막힘([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)) | 재현 명령과 owner가 붙은 문서 차이 18건, DX 피드백 13건의 처리 순서 |
 
@@ -80,7 +80,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 | --- | --- | --- | --- | --- |
 | A | `pnpm a:kyb-gate` | 37초 | `[예상대로 거부] 5) 협력사 B claim, 증명 없음 : EasNoAttestationReceived(…)`, `[성공] 6d) 협력사 A claim, 증명과 색인 뒤` | 구매 기업 250(가스 보충 120, 협력사 A가 받는 100 포함), 발급자 8 |
 | A | `pnpm a:local` | 1분(2단계 뒤) | `기록: track-a-explain/evidence/local/vendor-settlement-<시각>.md` | 없음(로컬) |
-| A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 8(자기 협력사 지갑에 1씩 세 번 포함) |
+| A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 4(자기 협력사 지갑으로 옮기는 2 포함) |
 | B | `pnpm b:smoke` | 91초 | `모두 통과. 91초` | 2단계가 약 260 |
 | B | `pnpm b:step 1` ~ `pnpm b:step 5` | 워크샵 75분 | 단계마다 예상 결과와 성공 기준을 먼저 보이고, 실패하면 트러블슈팅 번호를 안내 | 2단계가 약 260 |
 | C | `pnpm c:agent-limit` | 20초 안팎 | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 30(처음 한 번은 에이전트 지갑에 가스용 30을 더 보냄) |

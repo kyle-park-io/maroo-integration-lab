@@ -46,7 +46,7 @@ State-changing testnet flows (`pnpm a:kyb-gate`, `pnpm b:step 2`, `pnpm c:agent-
 - `[Live Testnet]` A Privacy deposit passes the global policy and first fails at request validation (`SDKInvalidRequest()`). The circuit artifacts and shielded-state query path needed for a valid proof are not public, so the full shielded flow runs locally.
 - `[Local]` A supplier payment of 15 was decrypted by the supplier, the buyer and the auditor with their own keys; the transfer message that a third party reads carries no amount field.
 - `[Live Testnet]` An agent wallet with a 5 OKRW `TransferLimit` pays 3 OKRW successfully and is rejected at 8 OKRW with `ExceededAgentTransferLimit`. Writing the limit as the numeric string that Maroo Docs describes blocks every payment with `AgentTransferLimitMetadataInvalid`; only a 32-byte uint256 works.
-- `[Live Testnet]` A plain OKRW transfer uses 283,524 gas, while the docs example says 21,000. A transfer sent with a 21,000 gas limit is included, reverts, and still pays a fee.
+- `[Live Testnet]` A plain OKRW transfer uses about 104,000 gas from a regular account and about 284,000 from an agent wallet, while the docs example says 21,000. A transfer sent with a 21,000 gas limit is included, reverts, and still pays a fee.
 
 All discrepancies (18) and DX feedback items (13) with reproduction commands and owners are in [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md).
 

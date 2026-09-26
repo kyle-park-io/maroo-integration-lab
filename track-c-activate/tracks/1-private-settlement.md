@@ -112,7 +112,7 @@ R3와 R4는 R1과 다른 컨트랙트여도 됩니다. 예를 들어 인출한 �
 - 일괄 지급의 메시지 수가 지급 건수를 드러냅니다 `[Local]`.
 - 노트 하나의 금액 상한은 약 18.45 OKRW입니다. 시연 금액은 이 안에서 정합니다 `[Docs Only]`.
 - Clairveil 레퍼런스 지갑은 노트 키를 평문 파일로 둡니다. 레포에 올리지 않습니다 `[Docs Only]`.
-- 테스트넷에서 네이티브 OKRW 이체의 가스 한도를 21,000으로 고정하면 되돌려지고 수수료만 냅니다. 단순 이체도 가스 283,524를 씁니다. ClairveilJS의 `evmSendGasLimit` 기본값이 21,000이므로 Maroo 테스트넷 프로필에서는 `eth_estimateGas` 값으로 바꿉니다 `[Live Testnet]` ([기록](../../track-a-explain/evidence/live/probe-send-gas-20260926T043013Z.json)).
+- 테스트넷에서 네이티브 OKRW 이체의 가스 한도를 21,000으로 고정하면 되돌려지고 수수료만 냅니다. 단순 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 씁니다. ClairveilJS의 `evmSendGasLimit` 기본값이 21,000이므로 Maroo 테스트넷 프로필에서는 `eth_estimateGas` 값으로 바꿉니다 `[Live Testnet]` ([기록](../../track-a-explain/evidence/live/probe-send-gas-20260926T052147Z.json)).
 - 테스트넷 Privacy 호출에는 개인 본인 인증 증명이 필요합니다. 실제 개인정보를 제출물이나 로그에 남기지 않습니다 `[Live Testnet]`.
 - Clairveil은 외부 감사를 받지 않은 실험 단계 구현입니다. 제출물을 프로덕션 준비 상태로 소개하지 않습니다 `[Docs Only]`.
 

@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-09-26T05:21:47.483Z",
+  "label": "[Live Testnet] BUYER 에서 자기 SUPPLIER_A 로 1 OKRW 단순 이체",
+  "docClaim": {
+    "url": "https://docs.maroo.io/apis/rpc/estimate-gas/",
+    "text": "단순 전송은 0x5208 = 21,000"
+  },
+  "clairveiljsDefaultSendGasLimit": "0x5208",
+  "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+  "to": "0x77172C4999b59967a35A7efd079B7B92fA8E5c0A",
+  "buyerIsAgentWallet": false,
+  "estimateGas": {
+    "1 OKRW": "104017",
+    "100 OKRW": "104017",
+    "에이전트 지갑이 1 OKRW": "283560"
+  },
+  "ethCallWithGas21000": "통과(0x)",
+  "sentWithGas21000": {
+    "gasLimit": "21000",
+    "tx": "0x94d3b9c4405421842358708f92670228387c84b6ef91e552af821d2bc9575e8c",
+    "block": "19130514",
+    "status": "reverted",
+    "gasUsed": "21000",
+    "fee": "0.189",
+    "effectiveGasPrice": "9000000000000"
+  },
+  "sentWithEstimate": {
+    "gasLimit": "104017",
+    "tx": "0x7a605dc46c16c5a6eb68f1f60f32afe898aec5dd44fb4d6dd5d78c8b0cb8817c",
+    "block": "19130516",
+    "status": "success",
+    "gasUsed": "104017",
+    "fee": "0.936153",
+    "effectiveGasPrice": "9000000000000"
+  },
+  "sentWithEstimatePlus25": {
+    "gasLimit": "130021",
+    "tx": "0x92e75f1a1ec5735b256615aea59439b393dd8d3a1ea8ea0da188fd9baeb72eb3",
+    "block": "19130518",
+    "status": "success",
+    "gasUsed": "104017",
+    "fee": "0.936153",
+    "effectiveGasPrice": "9000000000000"
+  }
+}

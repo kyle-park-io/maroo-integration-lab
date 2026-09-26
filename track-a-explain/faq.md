@@ -80,7 +80,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 - 테스트넷 전역 정책은 KYC 증명이 없는 계정에 두 한도를 둡니다. 24시간 누적 1,000만 OKRW와 건당 200만 OKRW이고, KYC 증명이 있으면 둘 다 면제됩니다. 에이전트 지갑이 보내면 24시간 한도는 소유자 모두를 기준으로 봅니다. `[Live Testnet]` [전역 정책 조회 기록](../track-c-activate/evidence/live/grounding-20260925T194211Z.json), 재현: `pnpm c:grounding`
 - 위 계정(faucet)은 24시간 한도를 다 썼고 증명이 없어 거부됐고, 한도 창은 `resetAt`(2026-09-26 00:00 UTC)에 풀립니다. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json), 재현: `pnpm a:probe-global`
 - 사유 코드와 인자는 [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)에 정의돼 있습니다. `[Docs Only]`
-- 가스 한도도 `eth_estimateGas` 값으로 정합니다. 단순 OKRW 이체도 가스 283,524를 쓰고, Ethereum처럼 21,000으로 보내면 블록에 들어가 되돌려지며 수수료 0.189 OKRW를 냅니다. 가스 21,000으로 부른 `eth_call`은 통과해 이 경우도 잡지 못합니다. 추정값의 125%로 보내도 쓴 가스는 같았습니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T043013Z.json), 재현: `pnpm a:probe-send-gas`
+- 가스 한도도 `eth_estimateGas` 값으로 정합니다. 단순 OKRW 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 쓰고, Ethereum처럼 21,000으로 보내면 블록에 들어가 되돌려지며 수수료 0.189 OKRW를 냅니다. 가스 21,000으로 부른 `eth_call`은 통과해 이 경우도 잡지 못합니다. 추정값의 125%로 보내도 쓴 가스는 같았습니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json), 재현: `pnpm a:probe-send-gas`
 - 권고: 사전 검사는 `eth_estimateGas`로 하고, `AnyOfRejected` 안의 자식 사유까지 풀어 사용자에게 보여 줍니다.
 
 ## 7. 지급이 실패하면 다시 보내도 되나요? 두 번 지급될 위험은 없나요?
