@@ -1,0 +1,81 @@
+{
+  "project": "Track C 트랙 2 요건을 이 레포에서 직접 채운 예시 제출물",
+  "track": 2,
+  "sources": [
+    "track-c-activate/evidence/live/agent-limit-20260926T044056Z.json"
+  ],
+  "items": [
+    {
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "requirement": "R1",
+      "target": "0x8004000000000000000000000000000000000001",
+      "call": "register(string)",
+      "input": "소유자: 구매 기업",
+      "txHash": "0x2c5a0170a44f6f09016ac70e584fb1f1998f7b1efd580afea0673a30624cbfad",
+      "expected": "성공",
+      "actual": "agentId 79"
+    },
+    {
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "requirement": "R1",
+      "target": "0x8004000000000000000000000000000000000001",
+      "call": "setAgentWallet",
+      "input": "에이전트 지갑 EIP-712 서명",
+      "txHash": "0x7eb9967c2fcf3bd0211bc50b69a88892753eee80ee15cd593eec95e6478571bd",
+      "expected": "성공",
+      "actual": "getAgentWallet = 0x92e7eA9012881bF1e3AbDefB5A8942DA88be68B2"
+    },
+    {
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "requirement": "R2",
+      "target": "0x8004000000000000000000000000000000000001",
+      "call": "setMetadata(TransferLimit)",
+      "input": "5 OKRW, SDK 주석: 32바이트 big-endian uint256",
+      "txHash": "0x2ea920e9d892552a2e677dd120d6b0d0a2425d5f72b6dc17b1d52f1bb09573e3",
+      "expected": "성공",
+      "actual": "getMetadata 로 확인"
+    },
+    {
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "requirement": "R2",
+      "target": "0x1000000000000000000000000000000000000005",
+      "call": "changeContractPolicies",
+      "input": "금고 0x5855C53f6b6359BDEB0306d9362488c54E6db7c1, fund() 선택자",
+      "txHash": "0xac021a9f55e633f5eeaf3548871eee1faa14ec3b3f02fed6f2781de0be1f5f44",
+      "expected": "성공",
+      "actual": "AGENT_OKRW_TRANSFER_LIMIT_POLICY"
+    },
+    {
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "requirement": "R3",
+      "target": "0x5855C53f6b6359BDEB0306d9362488c54E6db7c1",
+      "call": "fund(address)",
+      "input": "에이전트 지갑, 3 OKRW",
+      "txHash": "0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787",
+      "expected": "성공",
+      "actual": "협력사 A 몫 3 OKRW"
+    },
+    {
+      "label": "[Live Testnet]",
+      "network": "maroo-testnet",
+      "chainId": 450815,
+      "requirement": "R4",
+      "target": "0x5855C53f6b6359BDEB0306d9362488c54E6db7c1",
+      "call": "fund(address)",
+      "input": "에이전트 지갑, 8 OKRW",
+      "txHash": "0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9",
+      "expected": "PCL 거부",
+      "actual": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)"
+    }
+  ]
+}

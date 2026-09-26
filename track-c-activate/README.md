@@ -24,6 +24,7 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 | 심사 기준과 배점, 프로젝트 예시, 참고 자료 | 11~13절 | 11~13절 | 11~13절 |
 | 무효 연동 사례, 보안·프라이버시·프로덕션 주의 사항 | 14~15절 | 14~15절 | 14~15절 |
 | Flagship 추가 항목 | 16~26절 | 해당 없음 | 해당 없음 |
+| 이 레포가 직접 채운 예시 | 24절(`pnpm c:judge-example`) | 16절(`pnpm c:agent-limit`) | 없음 |
 
 ## 실행
 
@@ -34,6 +35,7 @@ pnpm c:grounding            # [Live Testnet] 조회와 시뮬레이션. tx 없�
 pnpm c:grounding --write    # 구매 기업 지갑으로 에이전트 등록 tx 한 건(테스트넷 OKRW 필요)
 pnpm c:judge evidence.json --track 1   # 제출물 증거 판정. tx 없음
 pnpm c:judge-example                   # Track A 기록으로 만든 예시 제출물을 판정
+pnpm c:agent-limit                     # [Live Testnet] 트랙 2 요건 R1~R4 실증. 약 30 OKRW
 ```
 
 Flagship의 15분 첫 성공 경로는 [트랙 1의 21절](tracks/1-private-settlement.md#21-15분-첫-성공-경로-local)에 있고, 기준 구현은 Track A의 `pnpm a:local`입니다.

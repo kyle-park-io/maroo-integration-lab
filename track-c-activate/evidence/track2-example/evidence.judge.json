@@ -1,0 +1,100 @@
+{
+  "checkedAt": "2026-09-26T04:41:36.833Z",
+  "track": 2,
+  "chainId": 450815,
+  "summary": [
+    {
+      "id": "R1",
+      "need": "에이전트 등록",
+      "ok": true
+    },
+    {
+      "id": "R2",
+      "need": "한도 메타데이터와 에이전트 한도 정책",
+      "ok": true
+    },
+    {
+      "id": "R3",
+      "need": "한도 안의 OKRW 결제",
+      "ok": true
+    },
+    {
+      "id": "R4",
+      "need": "ExceededAgentTransferLimit 거부",
+      "ok": true
+    }
+  ],
+  "items": [
+    {
+      "requirement": "R1",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 success, 블록 19111740, value 0"
+      ],
+      "value": "0",
+      "policies": "정책 없음",
+      "txHash": "0x2c5a0170a44f6f09016ac70e584fb1f1998f7b1efd580afea0673a30624cbfad"
+    },
+    {
+      "requirement": "R1",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 success, 블록 19127931, value 0"
+      ],
+      "value": "0",
+      "policies": "정책 없음",
+      "txHash": "0x7eb9967c2fcf3bd0211bc50b69a88892753eee80ee15cd593eec95e6478571bd"
+    },
+    {
+      "requirement": "R2",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 success, 블록 19128100, value 0",
+        "✓ TransferLimit 5000000000000000000 (32바이트 uint256)"
+      ],
+      "value": "0",
+      "policies": "정책 없음",
+      "txHash": "0x2ea920e9d892552a2e677dd120d6b0d0a2425d5f72b6dc17b1d52f1bb09573e3"
+    },
+    {
+      "requirement": "R2",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 success, 블록 19128093, value 0"
+      ],
+      "value": "0",
+      "policies": "정책 없음",
+      "txHash": "0xac021a9f55e633f5eeaf3548871eee1faa14ec3b3f02fed6f2781de0be1f5f44"
+    },
+    {
+      "requirement": "R3",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 success, 블록 19128102, value 3000000000000000000",
+        "✓ 정책 AGENT_OKRW_TRANSFER_LIMIT_POLICY@0x23024408"
+      ],
+      "value": "3000000000000000000",
+      "policies": "AGENT_OKRW_TRANSFER_LIMIT_POLICY@0x23024408",
+      "txHash": "0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787"
+    },
+    {
+      "requirement": "R4",
+      "label": "[Live Testnet]",
+      "ok": true,
+      "checks": [
+        "✓ 영수증 reverted, 블록 19128104, value 8000000000000000000",
+        "✓ 거부 사유 ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+        "✓ 정책 AGENT_OKRW_TRANSFER_LIMIT_POLICY@0x23024408"
+      ],
+      "value": "8000000000000000000",
+      "reason": "ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+      "policies": "AGENT_OKRW_TRANSFER_LIMIT_POLICY@0x23024408",
+      "txHash": "0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9"
+    }
+  ]
+}

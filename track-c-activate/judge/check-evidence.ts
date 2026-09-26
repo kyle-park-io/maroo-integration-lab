@@ -10,11 +10,13 @@
 //   - 예상이 "통과"나 "성공"이면 영수증이 success 인지
 //   - target 에 PCL 정책이 묶여 있고, 정책의 선택자가 비었거나 호출한 함수와 같은지
 //   - OKRW value
+//   - setMetadata("TransferLimit") 이면 값이 32바이트 uint256 인지(Maroo Docs 의 숫자 문자열은 정책이 거부한다)
 // 로컬 항목([Local])은 건너뛰고 "재현 확인"으로 표시한다. 심사위원이 README 명령으로 재현한다.
 // 결과는 콘솔 표와 같은 폴더의 <파일 이름>.judge.json 이다. 트랜잭션은 보내지 않는다.
 
 import fs from "node:fs";
-import { getAddress, type Address, type Hex } from "viem";
+import { decodeFunctionData, getAddress, size, type Address, type Hex } from "viem";
+import { identityRegistryAbi } from "@maroo-chain/viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { iPrivacyAbi } from "@maroo-chain/contracts/abi/precompiles/privacy/IPrivacy";
 import { PCL, RPC, decodeRaw, publicClient as pub } from "../../shared/lib/maroo.ts";
@@ -76,6 +78,14 @@ for (const item of items) {
         else pass(`거부 사유 ${reason}`);
       } else if (/통과|성공/.test(item.expected ?? "")) {
         if (receipt.status !== "success") fail("통과를 예상했는데 되돌려진 tx");
+      }
+      if (tx.input.startsWith("0x") && tx.to && getAddress(tx.to) === getAddress("0x8004000000000000000000000000000000000001")) {
+        const call = (() => { try { return decodeFunctionData({ abi: identityRegistryAbi, data: tx.input }); } catch { return undefined; } })();
+        if (call?.functionName === "setMetadata" && call.args[1] === "TransferLimit") {
+          const bytes = call.args[2] as Hex;
+          if (size(bytes) === 32) pass(`TransferLimit ${BigInt(bytes)} (32바이트 uint256)`);
+          else fail(`TransferLimit 값이 ${size(bytes)}바이트. 정책은 32바이트 uint256 만 받고 그 밖에는 AgentTransferLimitMetadataInvalid 로 모든 결제를 거부`);
+        }
       }
       if (item.target) {
         const cfg = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "contractPolicies", args: [getAddress(item.target)] })

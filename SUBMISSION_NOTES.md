@@ -53,6 +53,8 @@
 | 14 | Maroo Docs EAS 연동 | 증명 발급 뒤 색인이 필요하다는 순서와 재발급 때의 동작을 적지 않음 | 새 증명을 색인하기 전에는 PCL이 색인된 옛 증명을 봐서, 폐기된 옛 증명이 있으면 `EasAttestationRevoked`로 거부 | `pnpm a:kyb-gate`를 같은 지갑으로 두 번 | A FAQ 5, B T8 |
 | 15 | Maroo Docs 개발자 도구 | 코드 예시가 `@maroo-chain/contracts` ABI로 직접 인코딩함(2026-09-26 판 63쪽). `@maroo-chain/viem`은 한 쪽에도 나오지 않음 | npm의 `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 작성과 해석, 프록시 배포, 프록시 호출 시뮬레이션, PCL 거부 해석, ERC-8004 레지스트리 액션을 제공. 금고 흐름에 써 보니 직접 인코딩과 calldata가 같음 | `pnpm test:unit`, npm 패키지 | A 가이드 1절, DX 10 |
 | 16 | Maroo Docs `eth_estimateGas` | 단순 전송은 `0x5208`(21,000)을 돌려줌 | 1 OKRW 이체의 추정치 283,524. 21,000으로 보내면 블록에 들어가 되돌려지고 수수료 0.189 OKRW. 가스 21,000 `eth_call`은 통과. ClairveilJS 기본 `evmSendGasLimit`도 21,000 | `pnpm a:probe-send-gas` | A 문서 개선 노트 7, FAQ 6, C 트랙 1 15절 |
+| 17 | Maroo Docs `AGENT_OKRW_TRANSFER_LIMIT_POLICY` | `TransferLimit`은 aokrw 숫자 문자열이고, 메타데이터가 없거나 잘못되면 해석할 수 없는 문자열 사유로 되돌림 | 숫자 문자열은 `AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)`로 한도 안 결제까지 거부. 32바이트 uint256만 동작. 오류는 해석 가능한 `AgentTransferLimitMetadataInvalid(string)` | `pnpm c:agent-limit` | C 트랙 2 R2, 15절, 16절, 판정 스크립트 |
+| 18 | Maroo Docs `IAgent.getAgentIds` | "지갑에 등록된 agent ID" | 연결된 에이전트 지갑 기준. `setAgentWallet` 뒤 소유자 주소로는 빈 목록, 에이전트 지갑으로 `[79]` | `pnpm c:agent-limit` | C 트랙 2 R1 |
 
 ## Validation
 
@@ -74,7 +76,7 @@
 | `pnpm test:contracts` | 금고 테스트 6개 통과 |
 | `pnpm typecheck` | 오류 없음 |
 | `pnpm test:unit` | 2개 통과. 금고 흐름이 `@maroo-chain/viem`으로 만드는 프록시 배포와 정책 바인딩 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
-| `pnpm diagrams:check` | Mermaid 네 개를 두 테마로 8번 렌더링, 실패 0. 그림을 열어 선이 상자를 가로지르는 곳을 찾아 한 번 고침 |
+| `pnpm diagrams:check` | Mermaid 다섯 개를 두 테마로 10번 렌더링, 실패 0. 그림을 열어 선이 상자를 가로지르는 곳을 찾아 한 번 고침 |
 | 커밋 전 훅 | 타입 검사, `forge fmt`, `forge test`, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어를 커밋마다 검사 |
 
 ### A
@@ -109,6 +111,8 @@
 | `pnpm c:grounding` | 2026-09-25 19:42 | 템플릿 9개 등록, 전역 정책 트리, Privacy 정책, 레지스트리 등록 시뮬레이션(다음 agentId 79), 레지스트리 마지막 tx 2026-09-06 | [JSON](track-c-activate/evidence/live/grounding-20260925T194211Z.json) |
 | `pnpm c:grounding --write` | 2026-09-26 00:04 | 에이전트 등록 tx 성공(agentId 79, 블록 19111740). 등록한 지갑의 `getAgentIds`가 바로 `[79]` | [JSON](track-c-activate/evidence/live/grounding-20260926T000418Z.json) |
 | `pnpm c:judge-example` | 2026-09-26 00:03 | Track A 기록으로 만든 트랙 1 예시 제출물이 R1~R5 모두 통과. 거부 tx 둘의 사유를 직전 블록 재시뮬레이션으로 재현 | [판정 결과](track-c-activate/evidence/judge-example/evidence.judge.json) |
+| `pnpm c:agent-limit` | 2026-09-26 04:40 | 트랙 2 R1~R4 실증. 에이전트 지갑 연결, `TransferLimit` 5 OKRW, 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`. 빈 값과 문서 형식 메타데이터는 `AgentTransferLimitMetadataInvalid`. 약 30 OKRW | [JSON](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json) |
+| `pnpm c:judge <트랙 2 예시> --track 2` | 2026-09-26 04:45 | R1~R4 모두 통과. 거부 tx 사유를 직전 블록 재시뮬레이션으로 재현, `TransferLimit` 32바이트 확인 | [판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json) |
 
 ### 직접 검증한 것과 문서로만 확인한 것
 
@@ -165,6 +169,8 @@
 | 9 | A | 인출 금액 예시의 단위가 `aokrw`인데 테스트넷은 `atokrw` | `pnpm a:doc-claims` | 인출을 구현하는 개발자 | 중간. 예시를 복사하면 `PrivacyNativeDenomMismatch` | 예시를 `getParams().mintDenom`으로 읽게 바꿈 | Maroo Docs |
 | 10 | A, C | 공식 TypeScript SDK `@maroo-chain/viem`이 Maroo Docs에 없음 | npm 0.4.0(2026-09-17), Maroo Docs 검색 | TypeScript로 PCL 정책과 에이전트를 다루는 개발자 | 중간. 문서만 보면 정책 바이트, 프록시 초기화 데이터, 거부 사유 해석을 직접 짜게 됨. 이 레포도 처음에는 직접 짰음 | PCL, 에이전트, 개발자 도구 쪽에 SDK 설치와 사용 예를 둠 | Maroo Docs |
 | 11 | A, C | 단순 이체 가스 예시와 ClairveilJS 기본 가스 한도가 21,000인데 테스트넷 단순 이체는 283,524를 씀 | `pnpm a:probe-send-gas` | 네이티브 OKRW를 보내는 지갑 개발자, ClairveilJS 사용자, 해커톤 참가자 | 높음. `eth_call` 사전 검사는 통과하고 tx는 사유 없이 되돌려지며 수수료를 냄 | 문서 예시를 테스트넷 값으로 바꾸고 고정 한도 대신 추정값을 쓰라고 적음. ClairveilJS EVM 프로필은 추정값을 씀 | Maroo Docs, ClairveilJS |
+| 12 | C | 에이전트 한도 문서가 `TransferLimit`을 숫자 문자열로 안내하는데 체인은 32바이트 uint256만 받음 | `pnpm c:agent-limit` | 에이전트 결제를 만드는 개발자, 트랙 2 참가자 | 높음. 문서대로 쓰면 한도 안 결제까지 모든 결제가 막히고, 문서가 해석할 수 없다고 한 오류라 사유를 읽으려 하지 않게 됨 | 형식을 `abi.encode(uint256)`로 고치고 `AgentTransferLimitMetadataInvalid(string)` 예시를 둠. SDK 주석은 이미 맞음 | Maroo Docs |
+| 13 | C | `getAgentIds`의 기준 지갑이 문서에 없음 | `pnpm c:agent-limit` | 지갑에서 에이전트를 찾는 화면, 백엔드 | 중간. 에이전트 지갑을 연결하면 소유자 주소로 찾던 화면이 빈 목록을 보여 줌 | "연결된 에이전트 지갑 기준, 연결 전에는 소유자"를 적고 소유자 기준 조회는 `ownerOf`나 이벤트로 안내 | Maroo Docs |
 
 ### A
 
@@ -176,7 +182,7 @@
 
 ### C
 
-2, 4, 6, 7, 8, 10, 11번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
+2, 4, 6, 7, 8, 10, 11, 12, 13번. 모두 해커톤 참가자가 트랙 요건을 채우는 데 쓰는 기능이라, 트랙 문서의 주의 사항과 멘토 답변에 넣었습니다.
 
 ## Known Limitations
 
@@ -195,7 +201,7 @@
 
 - 스타터 키트는 명세만 있습니다. Flagship 첫 성공 경로의 기준 구현은 이 레포의 `pnpm a:local`이고, 심사 자동 판정은 `pnpm c:judge`로 구현했습니다.
 - 트랙별 배점과 멘토 답변은 제안입니다. 실제 행사에서 조정이 필요합니다.
-- 에이전트 한도(`TransferLimit`)와 그 거부는 테스트넷 tx로 확인하지 않았습니다. 등록 tx까지 보냈고, 한도 거부는 트랙 2 참가자 요건으로 남겼습니다.
+- 트랙 2 실증은 컨트랙트 범위에서 에이전트 지갑이 직접 보낸 결제만 확인했습니다. 전역 범위에서 다른 컨트랙트가 에이전트의 호출을 옮길 때의 귀속과 R5(에이전트의 거부 해석), 기기 갈래는 참가자 요건으로 남겼습니다.
 
 ### 프로덕션 전에 필요한 것
 

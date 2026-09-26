@@ -19,7 +19,7 @@ export const PCL = "0x1000000000000000000000000000000000000005" as const;
 export const EAS_PARAMS = "0x1000000000000000000000000000000000000009" as const;
 export const PRIVACY = "0x100000000000000000000000000000000000000b" as const;
 
-export type Role = "BUYER" | "ISSUER" | "SUPPLIER_A" | "SUPPLIER_B" | "UPGRADE_OWNER";
+export type Role = "BUYER" | "ISSUER" | "SUPPLIER_A" | "SUPPLIER_B" | "UPGRADE_OWNER" | "AGENT";
 
 // 키와 주소는 레포 밖 파일에서 읽는다. 기본 경로는 ~/.config/maroo-integration-lab/testnet.env 다.
 const envFile = process.env.MAROO_LAB_ENV ?? path.join(os.homedir(), ".config/maroo-integration-lab/testnet.env");

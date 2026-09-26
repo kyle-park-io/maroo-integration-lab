@@ -1,8 +1,9 @@
-// 테스트넷 전용 지갑 다섯 개를 만들어 레포 밖 파일에 저장한다.
+// 테스트넷 전용 역할 지갑을 만들어 레포 밖 파일에 저장한다.
 //
 //   pnpm setup:wallets
 //
-// 파일 위치는 MAROO_LAB_ENV, 없으면 ~/.config/maroo-integration-lab/testnet.env 다. 이미 있으면 덮어쓰지 않는다.
+// 파일 위치는 MAROO_LAB_ENV, 없으면 ~/.config/maroo-integration-lab/testnet.env 다.
+// 이미 있으면 있는 키는 그대로 두고, 빠진 역할만 더한다.
 // 개인키는 파일에만 쓰고 화면에는 주소와 faucet 요청 명령만 출력한다.
 
 import fs from "node:fs";
@@ -16,19 +17,24 @@ const ROLES = [
   ["SUPPLIER_A", "증명을 받는 협력사"],
   ["SUPPLIER_B", "증명이 없는 협력사"],
   ["UPGRADE_OWNER", "금고 프록시의 업그레이드 권한. 서명하지 않는다"],
+  ["AGENT", "에이전트 지갑(Track C 트랙 2). 구매 기업이 소유한 에이전트에 연결된다"],
 ] as const;
 
 const file = process.env.MAROO_LAB_ENV ?? path.join(os.homedir(), ".config/maroo-integration-lab/testnet.env");
-if (fs.existsSync(file)) {
-  console.log(`${file} 이 이미 있어 그대로 둡니다.`);
-} else {
+const existing = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+const missing = ROLES.filter(([role]) => !new RegExp(`^${role}_PRIVATE_KEY=`, "m").test(existing));
+if (missing.length) {
   fs.mkdirSync(path.dirname(file), { recursive: true, mode: 0o700 });
-  const lines = ROLES.flatMap(([role]) => {
+  const lines = missing.flatMap(([role]) => {
     const key = generatePrivateKey();
     return [`${role}_PRIVATE_KEY=${key}`, `${role}_ADDRESS=${privateKeyToAccount(key).address}`];
   });
-  fs.writeFileSync(file, lines.join("\n") + "\n", { mode: 0o600 });
-  console.log(`${file} 을 만들었습니다(권한 600).`);
+  const sep = existing && !existing.endsWith("\n") ? "\n" : "";
+  fs.writeFileSync(file, existing + sep + lines.join("\n") + "\n", { mode: 0o600 });
+  fs.chmodSync(file, 0o600);
+  console.log(`${file} 에 ${missing.map(([r]) => r).join(", ")} 를 더했습니다(권한 600).`);
+} else {
+  console.log(`${file} 에 모든 역할이 있어 그대로 둡니다.`);
 }
 
 const env = Object.fromEntries(
