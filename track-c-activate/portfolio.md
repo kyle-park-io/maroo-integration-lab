@@ -56,7 +56,7 @@
 
 ### 증거 라벨
 
-제출물은 실행 결과마다 `[Live Testnet]`, `[Local]`, `[Simulation]`, `[Docs Only]`를 붙입니다. Clairveil 로컬에서 만든 증명과 tx는 Maroo 테스트넷 호환성의 증거가 되지 못하므로, 두 환경의 결과를 한 흐름의 성공으로 합쳐 적으면 해당 요건을 채우지 못한 것으로 봅니다.
+제출물은 실행 결과마다 `[Live Testnet]`, `[Local]`, `[Simulation]`, `[Docs Only]`를 붙입니다. `[Simulation]`은 테스트넷에 tx를 보내지 않고 `eth_call`이나 `eth_estimateGas`만 부른 결과입니다. 코드나 ABI를 스크립트로 대조한 결과는 `[코드 대조]`로 적어도 됩니다. 이 레포는 시뮬레이션을 `[Live Testnet]` 옆에 호출 방법을 함께 적는 방식으로 표시했고, 자동 판정(`pnpm c:judge`)은 두 방식을 모두 읽습니다. Clairveil 로컬에서 만든 증명과 tx는 Maroo 테스트넷 호환성의 증거가 되지 못하므로, 두 환경의 결과를 한 흐름의 성공으로 합쳐 적으면 해당 요건을 채우지 못한 것으로 봅니다.
 
 ### 공통 제출 자료
 

@@ -1,7 +1,7 @@
 # SUBMISSION_NOTES
 
 - 기준: Maroo Docs(2026-09-25 확인), Maroo 테스트넷(chain ID 450815), Clairveil v0.4.0 `ca85b02708fdd75259d4d2ee2d671c21198cec69`
-- 표시: `[Live Testnet]`, `[Local]`, `[Docs Only]`, 권고. 뜻은 [README](README.md#증거-라벨)에 있습니다.
+- 표시: `[Live Testnet]`, `[Local]`, `[코드 대조]`, `[Docs Only]`, 권고. 테스트넷 시뮬레이션은 `[Live Testnet]` 옆에 호출 방법(`eth_call`, `eth_estimateGas`)을 함께 적었습니다. 뜻은 [README](README.md#증거-라벨)에 있습니다.
 
 ## Assumptions / Discrepancies
 

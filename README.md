@@ -78,7 +78,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 
 | 트랙 | 명령 | 걸린 시간 | 성공하면 보이는 줄 | 쓰는 테스트넷 OKRW |
 | --- | --- | --- | --- | --- |
-| A | `pnpm a:kyb-gate` | 37초 | `[예상대로 거부] 5) 협력사 B claim, 증명 없음 : EasNoAttestationReceived(…)`, `[성공] 6d) 협력사 A claim, 증명과 색인 뒤` | 약 260(가스 보충 120, 협력사 A가 받는 100 포함) |
+| A | `pnpm a:kyb-gate` | 37초 | `[예상대로 거부] 5) 협력사 B claim, 증명 없음 : EasNoAttestationReceived(…)`, `[성공] 6d) 협력사 A claim, 증명과 색인 뒤` | 구매 기업 250(가스 보충 120, 협력사 A가 받는 100 포함), 발급자 8 |
 | A | `pnpm a:local` | 1분(2단계 뒤) | `기록: track-a-explain/evidence/local/vendor-settlement-<시각>.md` | 없음(로컬) |
 | A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 8(자기 협력사 지갑에 1씩 세 번 포함) |
 | B | `pnpm b:smoke` | 91초 | `모두 통과. 91초` | 2단계가 약 260 |
@@ -95,10 +95,11 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 | 라벨 | 뜻 |
 | --- | --- |
 | `[Live Testnet]` | Maroo 테스트넷(chain ID 450815)에서 직접 실행하거나 조회한 결과. tx 해시, 탐색기 링크, 기록 파일이 있음 |
+| 시뮬레이션 | 테스트넷 상태로 `eth_call`이나 `eth_estimateGas`만 부르고 tx는 보내지 않은 결과. `[Live Testnet]` 옆에 호출 방법을 함께 적었고, 유효한 증명이 없는 Privacy 호출은 거부 경로 증거로만 씀 |
 | `[Local]` | Clairveil v0.4.0 로컬 체인에서 실행한 결과. Maroo 테스트넷 호환성의 증거가 아님 |
 | `[코드 대조]` | 공개 코드와 패키지(ABI, fixture)를 스크립트로 직접 대조한 결과. 체인을 부르지 않음 |
 | `[Docs Only]` | 문서로만 확인한 내용 |
-| 권고 | 이 레포가 제안하는 설계와 절차 |
+| 권고 | 이 레포가 제안하는 설계와 절차. 실행으로 검증하지 않음 |
 
 Maroo 테스트넷에서는 OKRW, PCL, EAS 경로를 실행하고 Privacy는 처음 막히는 층(요청 검증, `SDKInvalidRequest`)까지 진단합니다. 외부 개발자가 유효한 Privacy 증명을 만들 회로 산출물과 차폐 상태 조회 경로가 공개되지 않아, 차폐 흐름 전체는 Clairveil 로컬에서 실행합니다. 두 환경의 결과를 한 흐름의 성공으로 합치지 않습니다.
 
