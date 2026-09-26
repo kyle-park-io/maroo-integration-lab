@@ -1,0 +1,17 @@
+{
+  "rpc": "https://rpc-testnet.maroo.io",
+  "checkedAt": "2026-09-26T00:02:00.857Z",
+  "chainId": 450815,
+  "balances": {
+    "BUYER": "4749.938524",
+    "ISSUER": "4991.903807",
+    "SUPPLIER_A": "154.542445",
+    "SUPPLIER_B": "58.65",
+    "UPGRADE_OWNER": "0"
+  },
+  "buyerReady": true,
+  "privacyPolicy": "And(EAS_POLICY(schema 0x3e448d…527d), DENYLIST_POLICY(0개 주소))",
+  "privacyAdmin": "0x58eC1E718ff15e5f34591747D47ADf5BccDA804F",
+  "globalPolicy": "And(ForEach(Every, AgentOwners, Or(PERIODIC_VOLUME_POLICY(atokrw ≤ 10000000 / 86400s), EAS_POLICY(schema 0x3e448d…527d))), Or(VOLUME_POLICY(atokrw 0~2000000), EAS_POLICY(schema 0x3e448d…527d), ForEach(Any, AgentOwners, EAS_POLICY(schema 0x3e448d…527d))))",
+  "buyerKycAttestations": "0"
+}

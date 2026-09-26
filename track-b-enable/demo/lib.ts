@@ -18,7 +18,7 @@ export const TROUBLE: Record<string, string> = {
   T5: "테스트넷 RPC에 닿지 않거나 chain ID가 다름",
   T6: "역할 지갑 파일이 없음",
   T7: "테스트넷 OKRW 잔액 부족, faucet 실패",
-  T8: "증명을 발급했는데 청구가 EasNoAttestationReceived로 거부됨",
+  T8: "증명을 발급했는데 청구가 EasNoAttestationReceived나 EasAttestationRevoked로 거부됨",
   T9: "금고 컴파일 결과가 없거나 deployPclProxy가 되돌려짐",
   T10: "로컬 인출이 merkle root snapshot 오류로 실패",
 };
@@ -56,7 +56,7 @@ export const STEP2: Record<string, Stage> = {
   "3": { title: "금고 배포와 정책 바인딩", expect: "구현 배포, deployPclProxy(Transparent), claim() 에 EAS_POLICY", success: "금고 주소와 권한 줄에 policyAdmin(구매 기업)과 upgradeOwner(업그레이드 권한)가 서로 다름" },
   "4": { title: "협력사 몫 입금", expect: "협력사 A, B 몫 100 OKRW씩", success: "[성공] 두 줄. fund() 는 정책 대상이 아님" },
   "5": { title: "증명 없는 협력사 B의 청구", expect: "PCL이 거부", success: "[예상대로 거부] EasNoAttestationReceived(협력사 B 주소)" },
-  "6": { title: "협력사 A 증명 발급, 색인 전 청구, 색인, 색인 뒤 청구", expect: "색인 전 거부, 색인 뒤 통과", success: "6b [예상대로 거부], 6d [성공]과 협력사 A 잔액 100 증가" },
+  "6": { title: "협력사 A 증명 발급, 색인 전 청구, 색인, 색인 뒤 청구", expect: "색인 전 거부, 색인 뒤 통과. 6b 사유는 처음이면 EasNoAttestationReceived, 같은 협력사 지갑으로 다시 실행하면 이전 실행의 폐기된 증명 때문에 EasAttestationRevoked", success: "6b [예상대로 거부], 6d [성공]과 협력사 A 잔액 100 증가" },
   "7": { title: "증명 폐기 뒤 청구", expect: "PCL이 거부", success: "[예상대로 거부] EasAttestationRevoked" },
   "8": { title: "남은 몫 회수", expect: "구매 기업이 협력사 A, B 몫을 돌려받음", success: "owedA 0, owedB 0" },
 };

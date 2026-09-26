@@ -75,14 +75,14 @@
 | 해결 | 진행자에게 구매 기업 주소를 보내고 `pnpm b:fund`로 받습니다. 진행자 지갑도 KYC 증명이 없으면 24시간 1,000만 OKRW, 건당 200만 OKRW 한도를 받습니다 |
 
 <a id="t8"></a>
-## T8. 증명을 발급했는데 청구가 EasNoAttestationReceived로 거부됨
+## T8. 증명을 발급했는데 청구가 EasNoAttestationReceived나 EasAttestationRevoked로 거부됨
 
 | 항목 | 내용 |
 | --- | --- |
-| 증상 | 2단계 6d(색인 뒤 청구)에서 `EasNoAttestationReceived(협력사 A 주소)`로 실패합니다 |
-| 원인 | PCL의 `EAS_POLICY`는 Indexer에 색인된 증명만 봅니다. 6c(`indexAttestation`)가 실패했거나 다른 스키마로 발급했습니다 |
+| 증상 | 2단계 6d(색인 뒤 청구)가 `EasNoAttestationReceived(협력사 A 주소)`나 `EasAttestationRevoked(협력사 A 주소)`로 실패합니다. 6b(색인 전 청구)의 `EasAttestationRevoked`는 다시 실행할 때 나오는 예상된 결과입니다 |
+| 원인 | PCL의 `EAS_POLICY`는 Indexer에 색인된 증명만 봅니다. 6c(`indexAttestation`)가 실패했거나 다른 스키마로 발급했습니다. 같은 지갑으로 다시 실행하면, 새 증명을 색인하기 전에는 이전 실행에서 폐기한 증명이 보여 `EasAttestationRevoked`가 나옵니다(2026-09-26 두 번째 실행에서 확인) |
 | 확인 | 2단계 출력에서 6c 줄이 `[성공]`인지, 기록 파일의 `schema.uid`와 금고 정책의 스키마가 같은지 |
-| 해결 | `pnpm b:step 2`를 처음부터 다시 실행합니다. 금고와 증명을 새로 만듭니다 |
+| 해결 | 6d가 실패했으면 `pnpm b:step 2`를 처음부터 다시 실행합니다. 금고와 증명을 새로 만듭니다 |
 
 <a id="t9"></a>
 ## T9. 금고 컴파일 결과가 없거나 deployPclProxy가 되돌려짐

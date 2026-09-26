@@ -62,7 +62,7 @@ pnpm b:step 2
 | 1 일반 OKRW 이체 | 탐색기 링크에서 보낸 주소, 받는 주소, 금액이 모두 보임 |
 | 3 금고 배포와 정책 | 정책 관리자(구매 기업)와 업그레이드 권한이 서로 다른 주소 |
 | 5 협력사 B 청구 | `[예상대로 거부] … EasNoAttestationReceived` |
-| 6b 색인 전 청구 | `[예상대로 거부]` |
+| 6b 색인 전 청구 | `[예상대로 거부]`. 처음 실행하면 `EasNoAttestationReceived`, 같은 지갑으로 다시 실행하면 `EasAttestationRevoked` |
 | 6d 색인 뒤 청구 | `[성공]`, 협력사 A 잔액 100 증가 |
 | 7c 폐기 뒤 청구 | `[예상대로 거부] … EasAttestationRevoked` |
 | 8 회수 | `owedA 0`, `owedB 0` |
