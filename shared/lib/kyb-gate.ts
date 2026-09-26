@@ -45,7 +45,7 @@ const IMPLEMENTATION_SLOT = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a92
 const ADMIN_SLOT = "0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103";
 export const MIN_BUYER_BALANCE = parseEther("1000");
 
-// beforeStage 는 "0"~"8" 단계 번호를 받는다. 워크숍 실행기는 여기서 예상 결과를 먼저 보여 준다.
+// beforeStage 는 "0"~"8" 단계 번호를 받는다. 워크샵 실행기는 여기서 예상 결과를 먼저 보여 준다.
 export async function runKybGate(opts: { evidenceDir: string; beforeStage?: (stage: string) => Promise<void> }) {
   const artifact = JSON.parse(fs.readFileSync(path.join(ROOT, "out/SettlementVault.sol/SettlementVault.json"), "utf8"));
   const vaultAbi = artifact.abi as Abi;

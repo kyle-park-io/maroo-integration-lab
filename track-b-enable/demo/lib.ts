@@ -1,4 +1,4 @@
-// 워크숍 실행기(b:check, b:prepare, b:fund, b:step, b:reset, b:smoke)가 함께 쓰는 안내 문구와 도구.
+// 워크샵 실행기(b:check, b:prepare, b:fund, b:step, b:reset, b:smoke)가 함께 쓰는 안내 문구와 도구.
 
 import fs from "node:fs";
 import path from "node:path";

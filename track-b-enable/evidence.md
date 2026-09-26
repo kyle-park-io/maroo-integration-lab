@@ -1,6 +1,6 @@
 # Track B 증거 목록
 
-워크숍 경로를 실제로 실행한 기록입니다. 시각은 UTC입니다. 실행 환경: Linux(WSL2), Node.js 24.19, pnpm 11.25, Go 1.27.1, Foundry 1.8.1.
+워크샵 경로를 실제로 실행한 기록입니다. 시각은 UTC입니다. 실행 환경: Linux(WSL2), Node.js 24.19, pnpm 11.25, Go 1.27.1, Foundry 1.8.1.
 
 ## 1. Maroo 테스트넷 `[Live Testnet]`
 

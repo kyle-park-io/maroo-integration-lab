@@ -1,6 +1,6 @@
-# Track B: 실습 워크숍과 데모
+# Track B: 실습 워크샵과 데모
 
-기관의 실무 엔지니어가 75분 동안 협력사 대금 정산을 두 환경에서 직접 실행하는 워크숍입니다. Maroo 테스트넷에서는 OKRW 이체와 PCL·EAS 정책이 걸린 정산 금고를 실제 트랜잭션으로 돌리고, 차폐 정산(예치, 지급, 스캔, 해독, 인출)은 Clairveil 로컬 체인에서 돌린 뒤, 두 환경의 경계와 Maroo 테스트넷 Privacy가 멈추는 층을 진단합니다.
+기관의 실무 엔지니어가 75분 동안 협력사 대금 정산을 두 환경에서 직접 실행하는 워크샵입니다. Maroo 테스트넷에서는 OKRW 이체와 PCL·EAS 정책이 걸린 정산 금고를 실제 트랜잭션으로 돌리고, 차폐 정산(예치, 지급, 스캔, 해독, 인출)은 Clairveil 로컬 체인에서 돌린 뒤, 두 환경의 경계와 Maroo 테스트넷 Privacy가 멈추는 층을 진단합니다.
 
 ## 결과물
 
@@ -8,7 +8,7 @@
 | --- | --- | --- |
 | 실행 데모 | [demo/](demo/) | `pnpm b:check`, `b:prepare`, `b:fund`, `b:step 1~5`, `b:reset`, `b:smoke`. 단계마다 예상 결과와 성공 기준을 먼저 출력하고, 실패하면 트러블슈팅 번호를 안내. 공용 흐름은 `shared/lib/`(Track A와 같은 코드) |
 | 테스트넷 증거 | [evidence.md](evidence.md) | 1단계 조회, 2단계 상태 변경 tx, 4단계 분류, 3단계 로컬 기록 |
-| 워크숍 패키지 | [participant-guide.md](participant-guide.md), [facilitator-guide.md](facilitator-guide.md) | 학습 목표 여섯 개, 사전 준비와 확인 방법, 75분 시간표, 단계별 성공 기준, 토론 질문과 답변 방향, 끝난 뒤 다음 단계. Clairveil 빌드는 사전 준비로 뺌 |
+| 워크샵 패키지 | [participant-guide.md](participant-guide.md), [facilitator-guide.md](facilitator-guide.md) | 학습 목표 여섯 개, 사전 준비와 확인 방법, 75분 시간표, 단계별 성공 기준, 토론 질문과 답변 방향, 끝난 뒤 다음 단계. Clairveil 빌드는 사전 준비로 뺌 |
 | 트러블슈팅 | [troubleshooting.md](troubleshooting.md) | 오류 10개(증상, 원인, 확인, 해결)와 라이브 서비스가 멈췄을 때의 대체 진행 |
 | 검증 | [facilitator-guide.md의 검증과 초기화](facilitator-guide.md#검증과-초기화) | 스모크 테스트(`pnpm b:smoke`), 깨끗한 환경에서 시작하는 순서, 초기화(`pnpm b:reset`) |
 | 워크스루 영상 | 녹화 대기(2026-09-27) | 참가자가 무엇을 만들고 어느 순간에 성공을 확인하는지, 5~8분 |

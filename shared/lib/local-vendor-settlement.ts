@@ -26,7 +26,7 @@ const execFileP = promisify(execFile);
 
 const CORE = path.join(ROOT, "vendor/clairveil");
 
-// 바이너리 두 개를 빌드하고 회로 산출물을 만든다. 워크숍 사전 준비(pnpm b:prepare)는 한 번 만들어 두고 재사용한다.
+// 바이너리 두 개를 빌드하고 회로 산출물을 만든다. 워크샵 사전 준비(pnpm b:prepare)는 한 번 만들어 두고 재사용한다.
 export function buildClairveil(dir: string, log: string) {
   if (!fs.existsSync(path.join(CORE, ".git"))) {
     throw new Error("vendor/clairveil 이 없습니다. 먼저 pnpm setup:clairveil 을 실행하십시오.");
@@ -41,7 +41,7 @@ export function buildClairveil(dir: string, log: string) {
 }
 
 // prebuiltDir 에 buildClairveil 결과가 있고 vendor/clairveil 과 같은 커밋이면 빌드를 건너뛴다.
-// beforeStage 는 1~10 단계 번호를 받는다. 워크숍 실행기는 여기서 예상 결과를 먼저 보여 주고 진행을 멈춘다.
+// beforeStage 는 1~10 단계 번호를 받는다. 워크샵 실행기는 여기서 예상 결과를 먼저 보여 주고 진행을 멈춘다.
 export async function runLocalVendorSettlement(opts: {
   evidenceDir: string; command: string; prebuiltDir?: string; beforeStage?: (stage: number) => Promise<void>;
 }): Promise<string> {

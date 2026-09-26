@@ -2,12 +2,12 @@
 
 Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출합니다.
 
-구매 기업이 협력사 대금을 Maroo에서 치르면서 협력사별 금액과 거래 관계를 공개 체인에서 숨기는 정산을 하나의 사례로 잡고, 세 독자에게 맞춰 나눴습니다. A는 도입을 검토하는 기관의 시니어 엔지니어가 구조와 신뢰 경계를 이해하고 첫 연동을 시작하도록 쓴 가이드와 실행 레시피입니다. B는 같은 흐름을 기관 실무 엔지니어가 75분 동안 직접 실행하는 워크숍과 데모입니다. C는 이 흐름을 Maroo 해커톤의 Flagship 트랙으로 넓히고, 에이전트 결제와 자격 기반 원화 결제 트랙을 더한 설계입니다.
+구매 기업이 협력사 대금을 Maroo에서 치르면서 협력사별 금액과 거래 관계를 공개 체인에서 숨기는 정산을 하나의 사례로 잡고, 세 독자에게 맞춰 나눴습니다. A는 도입을 검토하는 기관의 시니어 엔지니어가 구조와 신뢰 경계를 이해하고 첫 연동을 시작하도록 쓴 가이드와 실행 레시피입니다. B는 같은 흐름을 기관 실무 엔지니어가 75분 동안 직접 실행하는 워크샵과 데모입니다. C는 이 흐름을 Maroo 해커톤의 Flagship 트랙으로 넓히고, 에이전트 결제와 자격 기반 원화 결제 트랙을 더한 설계입니다.
 
 | 트랙 | 폴더 | 독자 | 먼저 볼 것 | 명령 | 증거 | 영상 |
 | --- | --- | --- | --- | --- | --- | --- |
 | A Explain (Primary) | [track-a-explain/](track-a-explain/) | 도입을 검토하는 기관 테크니컬 리드 | [기관 연동 가이드](track-a-explain/integration-guide.md) 0절 | `pnpm a:inspect`, `a:probe`, `a:kyb-gate`, `a:local` | [evidence.md](track-a-explain/evidence.md) | 녹화 대기(2026-09-27) |
-| B Enable | [track-b-enable/](track-b-enable/) | 워크숍에서 구현하는 기관 실무 엔지니어 | [참가자 가이드](track-b-enable/participant-guide.md) | `pnpm b:prepare`, `b:check`, `b:step 1~5`, `b:smoke` | [evidence.md](track-b-enable/evidence.md) | 녹화 대기(2026-09-27) |
+| B Enable | [track-b-enable/](track-b-enable/) | 워크샵에서 구현하는 기관 실무 엔지니어 | [참가자 가이드](track-b-enable/participant-guide.md) | `pnpm b:prepare`, `b:check`, `b:step 1~5`, `b:smoke` | [evidence.md](track-b-enable/evidence.md) | 녹화 대기(2026-09-27) |
 | C Activate | [track-c-activate/](track-c-activate/) | Maroo 해커톤에 참가할 빌더 | [트랙 포트폴리오](track-c-activate/portfolio.md) | `pnpm c:grounding` | [evidence.md](track-c-activate/evidence.md) | 녹화 대기(2026-09-27) |
 
 - 권장 구조와의 대응: `docs/`는 `track-a-explain/`, `demo/`와 `workshop/`은 `track-b-enable/`, `hackathon/`은 `track-c-activate/`, `video-link.md`는 위 표의 영상 칸입니다. 세 트랙이 같은 코드(`shared/`)를 쓰므로 트랙별 폴더로 나눴습니다.
@@ -72,7 +72,7 @@ track-c-activate/  포트폴리오, tracks/ 세 트랙, grounding/*.ts, evidence
 
 - Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 필요한 재료가 공개되지 않았고, 비공개 구성 요소는 추측하지 않았습니다.
 - 테스트넷 faucet이 전역 정책 한도에 걸려 있던 2026-09-25 16:41 UTC부터 09-26 00:00 UTC까지는 상태 변경 tx를 보내지 못했습니다. 한도가 풀린 뒤 KYB 금고 흐름(`a:kyb-gate`, `b:step 2`)과 에이전트 등록(`c:grounding --write`)을 실행해 각 트랙 evidence.md에 넣었습니다.
-- 코드는 PoC와 레퍼런스 수준입니다. 프로덕션 키 관리, 지갑, 프런트엔드는 범위 밖입니다.
+- 코드는 PoC와 레퍼런스 수준입니다. 프로덕션 키 관리, 지갑, 프론트엔드는 범위 밖입니다.
 - 자세한 목록은 [SUBMISSION_NOTES.md의 Known Limitations](SUBMISSION_NOTES.md#known-limitations)에 있습니다.
 
 ## 외부 코드와 라이선스

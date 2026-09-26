@@ -7,7 +7,7 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 | 결과물 | 파일 | 담은 것 |
 | --- | --- | --- |
 | 트랙 포트폴리오 | [portfolio.md](portfolio.md) | 세 트랙의 주제와 대상, primitive 범위, 트랙을 나눈 기준, 공통 규칙(라벨, 제출 자료, 무효 사례, 심사 흐름), 참가 전 확인할 테스트넷 조건 |
-| 트랙 1. 기밀 정산(Flagship) | [tracks/1-private-settlement.md](tracks/1-private-settlement.md) | 필수 15항목과 Flagship 11항목: 레퍼런스 아키텍처, 개발자 여정, 구성 요소, 스타터 키트 명세, 디렉터리 구조, 15분 첫 성공 경로, 승인 체크리스트, 증거 요건, 심사 예시, 워크숍 개요, 멘토 질문 |
+| 트랙 1. 기밀 정산(Flagship) | [tracks/1-private-settlement.md](tracks/1-private-settlement.md) | 필수 15항목과 Flagship 11항목: 레퍼런스 아키텍처, 개발자 여정, 구성 요소, 스타터 키트 명세, 디렉터리 구조, 15분 첫 성공 경로, 승인 체크리스트, 증거 요건, 심사 예시, 워크샵 개요, 멘토 질문 |
 | 트랙 2. 규칙 안의 에이전트 결제 | [tracks/2-agent-payments.md](tracks/2-agent-payments.md) | 필수 15항목. 기기가 결제하는 갈래 포함 |
 | 트랙 3. 자격으로 여는 원화 결제 | [tracks/3-credentialed-krw-payments.md](tracks/3-credentialed-krw-payments.md) | 필수 15항목 |
 | 기술 근거 | [grounding/check-track-requirements.ts](grounding/check-track-requirements.ts), [evidence.md](evidence.md) | 세 트랙 요건이 기대는 기능을 테스트넷에서 조회하고 시뮬레이션한 기록 |

@@ -1,4 +1,4 @@
-// 워크숍 단계 실행기.
+// 워크샵 단계 실행기.
 //
 //   pnpm b:step 1    구조와 연결 확인           [Live Testnet] 조회
 //   pnpm b:step 2    KYB 관문 금고              [Live Testnet] 상태 변경 tx
@@ -173,7 +173,7 @@ async function step5() {
     ["3단계 차폐 정산", newest(LOCAL_DIR, "vendor-settlement-"), "[Local]"],
     ["4단계 분류", newest(LIVE_DIR, "step4-diagnose-"), "[Live Testnet] 조회와 시뮬레이션"],
   ] as const;
-  const lines = ["# 워크숍 세션 기록", "", `- 작성 시각: ${new Date().toISOString()}`, "", "| 단계 | 라벨 | 기록 |", "| --- | --- | --- |"];
+  const lines = ["# 워크샵 세션 기록", "", `- 작성 시각: ${new Date().toISOString()}`, "", "| 단계 | 라벨 | 기록 |", "| --- | --- | --- |"];
   for (const [name, f, label] of files) {
     console.log(`  ${ok(!!f)} ${name.padEnd(10)} ${label.padEnd(26)} ${f ? rel(f) : "없음"}`);
     lines.push(`| ${name} | \`${label}\` | ${f ? `\`${rel(f)}\`` : "없음"} |`);
