@@ -73,6 +73,8 @@
 
 | 명령 | 결과 |
 | --- | --- |
+| `pnpm bootstrap`(새 클론, 새 지갑) | 109초. Clairveil 고정 커밋 세 개, 금고 컴파일, 바이너리와 회로 산출물(101초), 역할 지갑 여섯 |
+| `pnpm review`(새 클론, 잔액 0) | 19초에 8단계 모두 통과(타입 검사, 금고 테스트, 단위 테스트, 테스트넷 조회 넷, 워크샵 사전 점검). `--local`은 79초에 9단계 모두 통과. 추적 중인 파일은 바뀌지 않음 |
 | `pnpm test:contracts` | 금고 테스트 6개 통과 |
 | `pnpm typecheck` | 오류 없음 |
 | `pnpm test:unit` | 2개 통과. 금고 흐름이 `@maroo-chain/viem`으로 만드는 프록시 배포와 정책 바인딩 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
