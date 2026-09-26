@@ -6,6 +6,8 @@
     "node": ">=24"
   },
   "scripts": {
+    "bootstrap": "node shared/bootstrap.ts",
+    "review": "node shared/review.ts",
     "setup:wallets": "node shared/setup-wallets.ts",
     "setup:clairveil": "node shared/setup-clairveil.ts",
     "build:contracts": "forge build",

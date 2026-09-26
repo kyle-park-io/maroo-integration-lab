@@ -3,11 +3,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline/promises";
-import { ROOT } from "../../shared/lib/paths.ts";
+import { PREBUILT_DIR, ROOT } from "../../shared/lib/paths.ts";
 
 export const LIVE_DIR = path.join(ROOT, "track-b-enable/evidence/live");
 export const LOCAL_DIR = path.join(ROOT, "track-b-enable/evidence/local");
-export const PREBUILT_DIR = path.join(ROOT, ".work/prebuilt");
+export { PREBUILT_DIR };
 
 // 트러블슈팅 번호. 본문은 track-b-enable/troubleshooting.md 에 같은 번호로 있다.
 export const TROUBLE: Record<string, string> = {

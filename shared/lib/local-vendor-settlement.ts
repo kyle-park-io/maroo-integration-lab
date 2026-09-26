@@ -19,7 +19,7 @@ import net from "node:net";
 import path from "node:path";
 import { promisify } from "node:util";
 import { writeReport } from "./local-report.ts";
-import { ROOT } from "./paths.ts";
+import { ROOT, outPath } from "./paths.ts";
 
 type Json = Record<string, any>;
 const execFileP = promisify(execFile);
@@ -283,7 +283,7 @@ export async function runLocalVendorSettlement(opts: {
 
   await stage(10);
   console.log("10) 기록 정리");
-  const report = path.join(opts.evidenceDir, `vendor-settlement-${stamp}.md`);
+  const report = path.join(outPath(opts.evidenceDir), `vendor-settlement-${stamp}.md`);
   fs.mkdirSync(path.dirname(report), { recursive: true });
   writeReport({
     out, report, chainId, stamp, command: opts.command,

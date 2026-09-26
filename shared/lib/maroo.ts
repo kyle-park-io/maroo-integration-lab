@@ -9,6 +9,7 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { marooTestnet } from "viem/chains";
+import { outPath } from "./paths.ts";
 
 export const RPC = process.env.MAROO_RPC_URL ?? "https://rpc-testnet.maroo.io";
 export const EXPLORER = "https://explorer-testnet.maroo.io";
@@ -123,6 +124,7 @@ export const indexerAbi = [
 export const stampNow = () => new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
 
 export function writeEvidence(dir: string, name: string, data: unknown): string {
+  dir = outPath(dir);
   fs.mkdirSync(dir, { recursive: true });
   const file = path.join(dir, `${name}-${stampNow()}.json`);
   fs.writeFileSync(file, JSON.stringify(data, (_, v) => (typeof v === "bigint" ? v.toString() : v), 2) + "\n");

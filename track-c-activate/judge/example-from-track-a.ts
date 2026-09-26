@@ -11,7 +11,7 @@
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT } from "../../shared/lib/paths.ts";
+import { ROOT, outPath } from "../../shared/lib/paths.ts";
 import { EXPLORER } from "../../shared/lib/maroo.ts";
 
 const newest = (dir: string, prefix: string) => {
@@ -61,7 +61,7 @@ if (empty) {
   } as never);
 }
 
-const outDir = path.join(ROOT, "track-c-activate/evidence/judge-example");
+const outDir = outPath(path.join(ROOT, "track-c-activate/evidence/judge-example"));
 fs.mkdirSync(outDir, { recursive: true });
 const out = path.join(outDir, "evidence.json");
 fs.writeFileSync(out, JSON.stringify({ project: "Track A 기록으로 만든 예시 제출물", track: 1, sources: [gateFile, probeFile, localFile].map((f) => path.relative(ROOT, f)), items }, null, 2) + "\n");
