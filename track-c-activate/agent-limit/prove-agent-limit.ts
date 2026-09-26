@@ -29,7 +29,7 @@ import {
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { Abis, identityRegistryAbi, marooPublicActions, marooWalletActions, pclProxyKinds, policy } from "@maroo-chain/viem";
-import { ROOT } from "../../shared/lib/paths.ts";
+import { ROOT, outPath } from "../../shared/lib/paths.ts";
 import {
   EXPLORER, PCL, account, addressOf, decodeRaw, publicClient, rawEthCall, revertReason, walletFor, writeEvidence,
 } from "../../shared/lib/maroo.ts";
@@ -228,8 +228,10 @@ const file = writeEvidence(path.join(ROOT, "track-c-activate/evidence/live"), "a
   limit: formatEther(LIMIT), payOk: formatEther(PAY_OK), payOver: formatEther(PAY_OVER), setAgentWalletTx: setWalletTx ?? "이미 연결됨",
   metadataBefore: metaBefore, noMetadataCheck: noMeta, formatResults, workingFormat: working.name, steps,
 });
-const grounding = fs.readdirSync(path.join(ROOT, "track-c-activate/evidence/live")).filter((f) => f.startsWith("grounding-")).sort()
-  .map((f) => JSON.parse(fs.readFileSync(path.join(ROOT, "track-c-activate/evidence/live", f), "utf8")))
+// 등록 tx 는 c:grounding --write 기록에서 찾는다. MAROO_LAB_OUT 이 있으면 그 아래 기록도 본다.
+const liveDirs = [...new Set([outPath(path.join(ROOT, "track-c-activate/evidence/live")), path.join(ROOT, "track-c-activate/evidence/live")])].filter((d) => fs.existsSync(d));
+const grounding = liveDirs.flatMap((d) => fs.readdirSync(d).filter((f) => f.startsWith("grounding-")).map((f) => path.join(d, f))).sort((a, b) => path.basename(a).localeCompare(path.basename(b)))
+  .map((f) => JSON.parse(fs.readFileSync(f, "utf8")))
   .map((g) => g.track2?.registerTx).find((t) => t?.agentId !== undefined && BigInt(t.agentId) === agentId);
 const base = { label: "[Live Testnet]", network: "maroo-testnet", chainId: 450815 };
 const items = [
@@ -240,9 +242,9 @@ const items = [
   { ...base, requirement: "R3", target: vault, call: "fund(address)", input: `에이전트 지갑, ${formatEther(PAY_OK)} OKRW`, txHash: okRcpt.transactionHash, expected: "성공", actual: `협력사 A 몫 ${formatEther(owed)} OKRW` },
   { ...base, requirement: "R4", target: vault, call: "fund(address)", input: `에이전트 지갑, ${formatEther(PAY_OVER)} OKRW`, txHash: overHash, expected: "PCL 거부", actual: overCheck.ethCall },
 ];
-const exampleDir = path.join(ROOT, "track-c-activate/evidence/track2-example");
+const exampleDir = outPath(path.join(ROOT, "track-c-activate/evidence/track2-example"));
 fs.mkdirSync(exampleDir, { recursive: true });
 fs.writeFileSync(path.join(exampleDir, "evidence.json"), JSON.stringify({
   project: "Track C 트랙 2 요건을 이 레포에서 직접 채운 예시 제출물", track: 2, sources: [path.relative(ROOT, file)], items,
 }, null, 2) + "\n");
-console.log(`기록: ${path.relative(ROOT, file)}\n판정 입력: track-c-activate/evidence/track2-example/evidence.json (pnpm c:judge <파일> --track 2)`);
+console.log(`기록: ${path.relative(ROOT, file)}\n판정 입력: ${path.relative(ROOT, path.join(exampleDir, "evidence.json"))} (pnpm c:judge <파일> --track 2)`);

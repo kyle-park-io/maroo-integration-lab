@@ -3,7 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline/promises";
-import { PREBUILT_DIR, ROOT } from "../../shared/lib/paths.ts";
+import { PREBUILT_DIR, ROOT, outPath } from "../../shared/lib/paths.ts";
 
 export const LIVE_DIR = path.join(ROOT, "track-b-enable/evidence/live");
 export const LOCAL_DIR = path.join(ROOT, "track-b-enable/evidence/local");
@@ -42,7 +42,9 @@ export function announce(label: string, s: Stage) {
   console.log(`   성공 기준: ${s.success}`);
 }
 
+// MAROO_LAB_OUT 이 있으면 그 아래에 이번 세션이 남긴 기록만 본다(pnpm review, 녹화 실행).
 export function newest(dir: string, prefix: string): string | undefined {
+  dir = outPath(dir);
   if (!fs.existsSync(dir)) return undefined;
   const files = fs.readdirSync(dir).filter((f) => f.startsWith(prefix)).sort();
   return files.length ? path.join(dir, files[files.length - 1]) : undefined;

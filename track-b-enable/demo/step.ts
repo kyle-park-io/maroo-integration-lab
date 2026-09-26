@@ -14,7 +14,7 @@ import path from "node:path";
 import { encodeFunctionData, formatEther, getAddress, parseEther, type Address, type Hex } from "viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { iPrivacyAbi } from "@maroo-chain/contracts/abi/precompiles/privacy/IPrivacy";
-import { ROOT } from "../../shared/lib/paths.ts";
+import { ROOT, outPath } from "../../shared/lib/paths.ts";
 import { describePolicy, findEasSchema, type PolicySet } from "../../shared/lib/pcl-policy.ts";
 import {
   EAS_PARAMS, EXPLORER, PCL, PRIVACY, RPC, addressOf, decodeRaw, easParamsAbi, indexerAbi, publicClient as pub, rawEthCall,
@@ -191,8 +191,8 @@ async function step5() {
   console.log("\n  토론 질문");
   DISCUSSION.forEach((q, i) => console.log(`  ${i + 1}. ${q}`));
   lines.push("", "## 토론 질문", "", ...DISCUSSION.map((q, i) => `${i + 1}. ${q}`), "");
-  fs.mkdirSync(path.join(ROOT, "track-b-enable/evidence"), { recursive: true });
-  const out = path.join(ROOT, "track-b-enable/evidence", `session-${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}.md`);
+  fs.mkdirSync(outPath(path.join(ROOT, "track-b-enable/evidence")), { recursive: true });
+  const out = path.join(outPath(path.join(ROOT, "track-b-enable/evidence")), `session-${new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z")}.md`);
   fs.writeFileSync(out, lines.join("\n"));
   console.log(`\n  세션 기록: ${rel(out)}`);
 }
