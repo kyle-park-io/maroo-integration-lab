@@ -41,7 +41,7 @@ pnpm test:contracts   # 금고 규칙 테스트 6개
 pnpm setup:wallets
 ```
 
-- 역할 다섯 개(구매 기업, KYB 발급자, 협력사 A, 협력사 B, 업그레이드 권한)의 테스트넷 전용 지갑을 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에 만듭니다. 레포 안에는 키가 들어가지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
+- 역할 여섯 개(구매 기업, KYB 발급자, 협력사 A, 협력사 B, 업그레이드 권한, Track C의 에이전트 지갑)의 테스트넷 전용 지갑을 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에 만듭니다. 레포 안에는 키가 들어가지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
 - 화면에 나온 faucet 명령 두 줄로 구매 기업과 KYB 발급자가 각각 5,000 tOKRW를 받습니다. 정산 금고 흐름은 구매 기업 잔액이 1,000 tOKRW 이상일 때 시작합니다.
 - faucet이 `Transaction failed … reverted with the following signature:.`로 실패하면 faucet 계정이 테스트넷 전역 정책의 24시간 한도에 걸렸을 수 있습니다. `pnpm a:probe-global`로 사유와 `resetAt`(한도가 풀리는 시각, UTC 초)을 확인하고, 그 시각이 지난 뒤 다시 요청합니다(6절).
 

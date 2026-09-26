@@ -33,24 +33,58 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 
 | 도구 | 확인한 판 |
 | --- | --- |
-| Node.js | 24.19 (24 이상 필요, TypeScript를 바로 실행) |
+| Node.js | 24.19 (24 이상 필요, TypeScript를 바로 실행. `.nvmrc`에 24) |
 | pnpm | 11.25 |
 | Go | 1.27.1 (Clairveil `go.mod`는 1.25.12 이상) |
 | Foundry | 1.8.1 (solc 0.8.37 자동 설치) |
 | Git | 2.43 |
 
+아래 시간은 이 레포를 빈 폴더에 새로 받아 잔액 0인 새 지갑으로 잰 값입니다(Linux, WSL2).
+
+### 1. 설치 (3초)
+
 ```bash
 git clone https://github.com/kyle-park-io/maroo-integration-lab.git
 cd maroo-integration-lab
 pnpm install
-pnpm build:contracts && pnpm test:contracts   # 금고 규칙 테스트 6개
-pnpm setup:wallets                            # 테스트넷 전용 역할 지갑(레포 밖 파일)
-pnpm a:inspect                                # [Live Testnet] Privacy 정책, 요구 증명, 최초 실패 계층
-pnpm setup:clairveil && pnpm a:local          # [Local] 차폐 정산 전체, 약 4분
 ```
 
-- 역할 지갑 파일 형식은 [testnet.env.example](testnet.env.example)에 있습니다. 실제 키는 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에만 두고 레포에 올리지 않습니다.
-- 테스트넷 상태 변경 흐름(`pnpm a:kyb-gate`, `pnpm b:step 2`)은 구매 기업 지갑에 테스트넷 OKRW 1,000 이상이 필요합니다. 받는 방법은 [레시피 2절](track-a-explain/runnable-recipe.md#2-지갑과-테스트넷-okrw)에 있습니다.
+성공하면 `Done in 2.6s using pnpm v11.25.0` 같은 줄이 나옵니다.
+
+### 2. 준비 (2분 안팎, 한 번만)
+
+```bash
+pnpm bootstrap
+```
+
+Clairveil 고정 커밋 세 개를 `vendor/`에 받고, 금고를 컴파일하고, Clairveil 바이너리와 회로 산출물을 `.work/prebuilt/`에 빌드하고(101초), 역할 지갑 여섯 개를 레포 밖 파일에 만듭니다. 모두 109초 걸렸습니다. 성공하면 마지막 줄이 `준비를 마쳤습니다. 다음 명령은 pnpm review 입니다(키와 잔액 없이 실행됩니다).`입니다. 워크샵 참가자가 쓰는 `pnpm b:prepare`와 같은 코드입니다.
+
+### 3. 한 번에 확인 (20초, 키와 잔액 없이)
+
+```bash
+pnpm review            # 타입 검사, 금고 테스트, 단위 테스트, 테스트넷 조회 넷, 워크샵 사전 점검
+pnpm review --local    # 로컬 차폐 정산까지(1분 더)
+```
+
+성공하면 단계별 결과 표와 `8단계 가운데 8개 통과`가 나옵니다(`--local`이면 9단계). 테스트넷에는 조회만 하고 tx를 보내지 않습니다. 새 기록은 `.work/review/<시각>/`에 남고, 레포에 있는 증거 파일은 바뀌지 않습니다. 19초 걸렸고, `--local`은 이 머신에서 79초였습니다.
+
+### 4. 테스트넷 OKRW 받기 (상태를 바꾸는 흐름에 필요)
+
+2단계 출력 끝의 faucet 명령 두 줄로 구매 기업과 KYB 발급자가 5,000 tOKRW씩 받습니다. faucet이 실패하면 [레시피 2절](track-a-explain/runnable-recipe.md#2-지갑과-테스트넷-okrw)에 원인 확인 방법이 있고, 워크샵에서는 진행자가 `pnpm b:fund`로 나눠 줍니다. 받은 뒤 `pnpm b:check`에 `✓ 구매 기업 잔액 1,000 OKRW 이상(2단계)`이 나오면 됩니다.
+
+### 5. 트랙별 실행
+
+| 트랙 | 명령 | 걸린 시간 | 성공하면 보이는 줄 | 쓰는 테스트넷 OKRW |
+| --- | --- | --- | --- | --- |
+| A | `pnpm a:kyb-gate` | 37초 | `[예상대로 거부] 5) 협력사 B claim, 증명 없음 : EasNoAttestationReceived(…)`, `[성공] 6d) 협력사 A claim, 증명과 색인 뒤` | 약 260(가스 보충 120, 협력사 A가 받는 100 포함) |
+| A | `pnpm a:local` | 1분(2단계 뒤) | `기록: track-a-explain/evidence/local/vendor-settlement-<시각>.md` | 없음(로컬) |
+| A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 8(자기 협력사 지갑에 1씩 세 번 포함) |
+| B | `pnpm b:smoke` | 91초 | `모두 통과. 91초` | 2단계가 약 260 |
+| B | `pnpm b:step 1` ~ `pnpm b:step 5` | 워크샵 75분 | 단계마다 예상 결과와 성공 기준을 먼저 보이고, 실패하면 트러블슈팅 번호를 안내 | 2단계가 약 260 |
+| C | `pnpm c:agent-limit` | 20초 안팎 | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 30(처음 한 번은 에이전트 지갑에 가스용 30을 더 보냄) |
+| C | `pnpm c:judge <evidence.json> --track 2` | 5초 안 | `✓ R4 ExceededAgentTransferLimit 거부` | 없음(조회) |
+
+- 역할 지갑 파일 형식은 [testnet.env.example](testnet.env.example)에 있습니다. 실제 키는 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에만 두고 레포에 올리지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
 - 문서의 Mermaid 다이어그램은 `pnpm diagrams:check`로 밝은 테마와 어두운 테마에서 렌더링을 확인합니다.
 
 ## 증거 라벨
