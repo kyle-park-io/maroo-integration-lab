@@ -8,9 +8,9 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 
 | 트랙 | 독자 | 제출한 것 | 대표 명령 | 영상 |
 | --- | --- | --- | --- | --- |
-| A Explain (Primary) | 도입을 검토하는 기관 시니어 엔지니어 | [기관 연동 가이드](track-a-explain/integration-guide.md), [실행 레시피](track-a-explain/runnable-recipe.md), [기관 FAQ](track-a-explain/faq.md) 9개, [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) 8개 | `pnpm a:kyb-gate`, `pnpm a:local` | 녹화 대기(2026-09-27) |
-| B Enable | 워크샵에서 구현하는 기관 실무 엔지니어 | [75분 워크샵 패키지](track-b-enable/README.md)(참가자·진행자 가이드), [실행 데모](track-b-enable/demo/), [트러블슈팅](track-b-enable/troubleshooting.md) 10개 | `pnpm b:smoke` | 녹화 대기(2026-09-27) |
-| C Activate | Maroo 해커톤에 참가할 빌더 | [세 트랙 포트폴리오](track-c-activate/portfolio.md), [Flagship 트랙 1](track-c-activate/tracks/1-private-settlement.md), [심사 자동 판정](track-c-activate/evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | `pnpm c:agent-limit`, `pnpm c:judge` | 녹화 대기(2026-09-27) |
+| A Explain (Primary) | 도입을 검토하는 기관 시니어 엔지니어 | [기관 연동 가이드](track-a-explain/integration-guide.md), [실행 레시피](track-a-explain/runnable-recipe.md), [기관 FAQ](track-a-explain/faq.md) 9개, [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) 8개 | `pnpm a:kyb-gate`, `pnpm a:local` | [영상](https://youtu.be/WAof3FSU_Uw) |
+| B Enable | 워크샵에서 구현하는 기관 실무 엔지니어 | [75분 워크샵 패키지](track-b-enable/README.md)(참가자·진행자 가이드), [실행 데모](track-b-enable/demo/), [트러블슈팅](track-b-enable/troubleshooting.md) 10개 | `pnpm b:smoke` | [영상](https://youtu.be/izaYyAegKOA) |
+| C Activate | Maroo 해커톤에 참가할 빌더 | [세 트랙 포트폴리오](track-c-activate/portfolio.md), [Flagship 트랙 1](track-c-activate/tracks/1-private-settlement.md), [심사 자동 판정](track-c-activate/evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | `pnpm c:agent-limit`, `pnpm c:judge` | [영상](https://youtu.be/5-wrJeVAnDQ) |
 
 확인한 결과입니다. 탐색기 링크를 열면 tx의 성공·실패, 가스 사용량, 거부 사유(예: `EasNoAttestationReceived(address sender)`)가 보입니다. 새로 만든 금고 프록시는 탐색기가 그 주소를 한 번 열기 전까지 사유를 원문과 깨진 글자로만 보여 줍니다([DX 14](SUBMISSION_NOTES.md#dx-feedback)).
 

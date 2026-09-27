@@ -26,7 +26,7 @@
 | 실행 레시피 | [runnable-recipe.md](runnable-recipe.md), [recipe/](recipe/) | TypeScript 스크립트 여섯 개와 Solidity 금고. 준비, 입력값, 예상 결과, 확인 방법, 오류 처리. 테스트넷과 로컬의 검증 범위를 나눔 |
 | 기관 FAQ | [faq.md](faq.md) | 질문 9개. prover에 보이는 것, 감사, disclosure, 키 보관, KYB와 PCL, 사전 검사, 재시도와 이중 지급, 업그레이드, 프로덕션 준비도 |
 | 문서 개선 노트 | [documentation-improvement-notes.md](documentation-improvement-notes.md) | Maroo Docs 7개, Clairveil 1개. 항목마다 멈추는 사람과 단계, 잘못 믿게 되는 것, 확인 비용, 재현 명령, 고친 문구 제안 |
-| 기술 워크스루 영상 | 녹화 대기(2026-09-27) | 시니어 엔지니어 대상 아키텍처 리뷰와 실행 경로 시연, 12\~18분 |
+| 기술 워크스루 영상 | [영상](https://youtu.be/WAof3FSU_Uw) | 시니어 엔지니어 대상 아키텍처 리뷰와 실행 경로 시연, 12\~18분 |
 
 ## 바로 실행
 

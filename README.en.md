@@ -64,7 +64,7 @@ Building with an AI agent: opening the repo in Claude Code loads the [`.claude/s
 - No valid Privacy state change was executed on Maroo testnet; private components were not guessed.
 - The code is PoC and reference quality. Production key management, wallets and frontends are out of scope.
 - The hackathon starter kit exists as a specification; the reference path is `pnpm a:local`, and judging is automated with `pnpm c:judge`.
-- Walkthrough videos: recording is scheduled for 2026-09-27, and the links will be added to both READMEs.
+- Walkthrough videos (Korean): [Track A](https://youtu.be/WAof3FSU_Uw), [Track B](https://youtu.be/izaYyAegKOA), [Track C](https://youtu.be/5-wrJeVAnDQ).
 
 ## License
 

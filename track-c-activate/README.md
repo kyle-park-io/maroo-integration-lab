@@ -20,7 +20,7 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 | 트랙 3. 자격으로 여는 원화 결제 | [tracks/3-credentialed-krw-payments.md](tracks/3-credentialed-krw-payments.md) | 필수 15항목 |
 | 기술 근거 | [grounding/check-track-requirements.ts](grounding/check-track-requirements.ts), [evidence.md](evidence.md) | 세 트랙 요건이 기대는 기능을 테스트넷에서 조회하고 시뮬레이션한 기록 |
 | 심사 자동 판정 | [judge/check-evidence.ts](judge/check-evidence.ts), [예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | 참가자의 `evidence.json`을 테스트넷에서 다시 확인해 요건별로 판정. 적힌 거부 사유가 실제와 다르면 실패로 표시. Track A 기록으로 만든 예시에서 트랙 1 요건 R1\~R5 통과 |
-| 워크스루 영상 | 녹화 대기(2026-09-27) | 트랙을 나눈 이유, Flagship 최소 연동 요건과 심사 기준, 피상적 연동을 거르는 방법, 5\~8분 |
+| 워크스루 영상 | [영상](https://youtu.be/5-wrJeVAnDQ) | 트랙을 나눈 이유, Flagship 최소 연동 요건과 심사 기준, 피상적 연동을 거르는 방법, 5\~8분 |
 
 ## 필수 항목 대응
 

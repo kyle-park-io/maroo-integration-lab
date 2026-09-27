@@ -19,7 +19,7 @@
 | 워크샵 패키지 | [participant-guide.md](participant-guide.md), [facilitator-guide.md](facilitator-guide.md) | 학습 목표 여섯 개, 사전 준비와 확인 방법, 75분 시간표, 단계별 성공 기준, 토론 질문과 답변 방향, 끝난 뒤 다음 단계. Clairveil 빌드는 사전 준비로 뺌 |
 | 트러블슈팅 | [troubleshooting.md](troubleshooting.md) | 오류 10개(증상, 원인, 확인, 해결)와 라이브 서비스가 멈췄을 때의 대체 진행 |
 | 검증 | [facilitator-guide.md의 검증과 초기화](facilitator-guide.md#검증과-초기화) | 스모크 테스트(`pnpm b:smoke`), 깨끗한 환경에서 시작하는 순서, 초기화(`pnpm b:reset`) |
-| 워크스루 영상 | 녹화 대기(2026-09-27) | 참가자가 무엇을 만들고 어느 순간에 성공을 확인하는지, 5\~8분 |
+| 워크스루 영상 | [영상](https://youtu.be/izaYyAegKOA) | 참가자가 무엇을 만들고 어느 순간에 성공을 확인하는지, 5\~8분 |
 
 ## 명령
 
