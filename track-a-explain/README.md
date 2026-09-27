@@ -4,6 +4,13 @@
 
 - 세 트랙의 연결: 이 트랙이 설명한 흐름을 참가자가 직접 돌리는 워크샵은 [Track B](../track-b-enable/README.md), 같은 사례를 빌더에게 넓힌 해커톤 트랙은 [Track C](../track-c-activate/README.md)입니다. 이어지는 방식은 [README](../README.md#세-트랙이-이어지는-방식)에 있습니다.
 
+## 확인한 결과
+
+- `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 PCL 정책이 `EasNoAttestationReceived`로 거부했고, 증명을 색인한 뒤의 청구는 통과했습니다([금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)).
+- `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다([진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json)).
+- `[Local]` 협력사 B에게 보낸 15는 협력사 B, 구매 기업, 감사인이 각자 키로 풀었고, 제3자가 읽는 지급 tx에는 금액 필드가 없습니다([로컬 기록](evidence/local/vendor-settlement-20260926T041658Z.md)).
+- `[Live Testnet]` PCL 정책에 거부된 tx는 문서와 달리 블록에 남아 가스 한도의 절반을 냈습니다([영수증 기록](evidence/live/reject-gas-20260926T171442Z.json)).
+
 ## 읽는 순서
 
 1. [기관 연동 가이드](integration-guide.md) 0절에서 독자 상황, 네 질문의 답, 지금 되는 것과 남은 것을 봅니다.

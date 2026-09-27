@@ -8,10 +8,6 @@ One use case runs through all three tracks: a buyer company pays its suppliers i
 
 A 13-slide visual summary (Korean) is in [slides/](slides/) as PNGs and one PDF.
 
-## How the tracks connect
-
-The three tracks carry the same settlement case forward: Track A explains the architecture and trust boundaries, Track B has participants run the same flow and check success and failure themselves, and Track C extends it into hackathon tracks with automated judging. All three call the same code under `shared/`. Findings from Track A (reason codes, places where the docs and the chain differ) became Track B troubleshooting entries and Track C mentor answers. The diagram and mapping tables are in the Korean README, section "세 트랙이 이어지는 방식".
-
 ## Tracks
 
 | Track | Folder | Audience | Start here | Commands | Evidence |
@@ -21,6 +17,21 @@ The three tracks carry the same settlement case forward: Track A explains the ar
 | C Activate | [track-c-activate/](track-c-activate/) | Builders joining a Maroo hackathon | [Track portfolio](track-c-activate/portfolio.md) | `pnpm c:grounding`, `c:agent-limit`, `c:judge` | [evidence.md](track-c-activate/evidence.md) |
 
 Clairveil v0.4.0 [`ca85b02708fdd75259d4d2ee2d671c21198cec69`](https://github.com/DELIGHT-LABS/clairveil/tree/ca85b02708fdd75259d4d2ee2d671c21198cec69), with ClairveilJS `faf220d5` and clairveil-samples `8321ded`.
+
+## Results worth a first look
+
+- `[Live Testnet]` A PCL-proxied settlement vault rejects a supplier's `claim()` without a KYB attestation (`EasNoAttestationReceived`) and accepts it after the attestation is indexed. The policy admin and the upgrade owner are different addresses.
+- `[Live Testnet]` A Privacy deposit passes the global policy and first fails at request validation (`SDKInvalidRequest()`). The circuit artifacts and shielded-state query path needed for a valid proof are not public, so the full shielded flow runs locally.
+- `[Local]` A supplier payment of 15 was decrypted by the supplier, the buyer and the auditor with their own keys; the transfer message that a third party reads carries no amount field.
+- `[Live Testnet]` An agent wallet with a 5 OKRW `TransferLimit` pays 3 OKRW successfully and is rejected at 8 OKRW with `ExceededAgentTransferLimit`. Writing the limit as the numeric string that Maroo Docs describes blocks every payment with `AgentTransferLimitMetadataInvalid`; only a 32-byte uint256 works.
+- `[Live Testnet]` A transaction rejected by a contract-scope PCL policy (behind a PCL proxy) is still included in a block as reverted and pays half of its gas limit; all eight rejected transactions across two runs used exactly 50.0%. The docs say policy rejections are filtered at submission without gas. The Track A guide maps where each policy is evaluated inside the node (section 1).
+- `[Live Testnet]` A plain OKRW transfer uses about 104,000 gas from a regular account and about 284,000 from an agent wallet, while the docs example says 21,000. A transfer sent with a 21,000 gas limit is included, reverts, and still pays a fee.
+
+All discrepancies (19) and DX feedback items (14) with reproduction commands and owners are in [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md).
+
+## How the tracks connect
+
+The three tracks carry the same settlement case forward: Track A explains the architecture and trust boundaries, Track B has participants run the same flow and check success and failure themselves, and Track C extends it into hackathon tracks with automated judging. All three call the same code under `shared/`. Findings from Track A (reason codes, places where the docs and the chain differ) became Track B troubleshooting entries and Track C mentor answers. The diagram and mapping tables are in the Korean README, section "세 트랙이 이어지는 방식".
 
 ## Run
 
@@ -47,17 +58,6 @@ Building with an AI agent: opening the repo in Claude Code loads the [`.claude/s
 | `[코드 대조]` (code comparison) | Public code and packages compared by script, no chain calls |
 | `[Docs Only]` | Confirmed from documentation only |
 | 권고 (recommendation) | Design or procedure proposed by this repo |
-
-## Results worth a first look
-
-- `[Live Testnet]` A PCL-proxied settlement vault rejects a supplier's `claim()` without a KYB attestation (`EasNoAttestationReceived`) and accepts it after the attestation is indexed. The policy admin and the upgrade owner are different addresses.
-- `[Live Testnet]` A Privacy deposit passes the global policy and first fails at request validation (`SDKInvalidRequest()`). The circuit artifacts and shielded-state query path needed for a valid proof are not public, so the full shielded flow runs locally.
-- `[Local]` A supplier payment of 15 was decrypted by the supplier, the buyer and the auditor with their own keys; the transfer message that a third party reads carries no amount field.
-- `[Live Testnet]` An agent wallet with a 5 OKRW `TransferLimit` pays 3 OKRW successfully and is rejected at 8 OKRW with `ExceededAgentTransferLimit`. Writing the limit as the numeric string that Maroo Docs describes blocks every payment with `AgentTransferLimitMetadataInvalid`; only a 32-byte uint256 works.
-- `[Live Testnet]` A transaction rejected by a contract-scope PCL policy (behind a PCL proxy) is still included in a block as reverted and pays half of its gas limit; all eight rejected transactions across two runs used exactly 50.0%. The docs say policy rejections are filtered at submission without gas. The Track A guide maps where each policy is evaluated inside the node (section 1).
-- `[Live Testnet]` A plain OKRW transfer uses about 104,000 gas from a regular account and about 284,000 from an agent wallet, while the docs example says 21,000. A transfer sent with a 21,000 gas limit is included, reverts, and still pays a fee.
-
-All discrepancies (19) and DX feedback items (14) with reproduction commands and owners are in [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md).
 
 ## Known limitations
 

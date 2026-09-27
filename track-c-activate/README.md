@@ -4,6 +4,12 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 
 - 세 트랙의 연결: Flagship 트랙 1은 Track A와 B의 비공개 공급업체 정산 사례를 빌더에게 넓힌 것입니다. 첫 성공 경로의 기준 구현은 [Track A 레시피](../track-a-explain/runnable-recipe.md)이고, 멘토 답변 방향은 Track A에서 찾은 사유 코드와 Track B 트러블슈팅에서 옮겼습니다.
 
+## 확인한 결과
+
+- `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 트랙 2 요건 R1~R4를 통과시켰습니다([판정 결과](evidence/track2-example/evidence.judge.json)).
+- `[Live Testnet]` 자동 판정은 Track A 기록으로 트랙 1 요건 R1~R5를 통과시켰고, 거부 tx는 직전 블록 상태로 다시 시뮬레이션해 적힌 사유와 대조했습니다([예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회)).
+- `[Live Testnet]` 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 `AgentTransferLimitMetadataInvalid`로 막혔습니다([기록](evidence/live/agent-limit-20260926T044056Z.json)).
+
 ## 결과물
 
 | 결과물 | 파일 | 담은 것 |

@@ -4,6 +4,12 @@
 
 - 세 트랙의 연결: 워크샵이 돌리는 흐름의 구조와 신뢰 경계는 [Track A 가이드](../track-a-explain/integration-guide.md)가 설명하고, 워크샵 2, 3단계는 Track A 레시피와 같은 코드(`shared/`)를 부릅니다. 참가자가 막히는 곳은 Track A에서 찾은 사유 코드로 [트러블슈팅](troubleshooting.md)에 적었고, 같은 흐름을 제품으로 넓히는 해커톤 트랙은 [Track C](../track-c-activate/README.md)입니다.
 
+## 확인한 결과
+
+- `[Live Testnet]` `[Local]` `pnpm b:smoke` 한 번에 1~5단계와 단계별 성공 기준이 91초 만에 통과했습니다([세션 기록](evidence/session-20260926T000329Z.md)).
+- `[Live Testnet]` 2단계(`pnpm b:step 2`)가 KYB 관문 금고를 배포하고, 증명 없는 청구는 `EasNoAttestationReceived`로 거부되고 색인 뒤 청구는 성공하는 tx를 보냈습니다([2단계 기록](evidence/live/pcl-kyb-gate-20260926T000228Z.json)).
+- `[Local]` 3단계에서 차폐 정산 전체(예치, 지급, 스캔, 해독, 인출)를 Clairveil 로컬 체인에서 돌렸습니다([로컬 기록](evidence/local/vendor-settlement-20260926T000228Z.md)).
+
 ## 결과물
 
 | 결과물 | 파일 | 담은 것 |
