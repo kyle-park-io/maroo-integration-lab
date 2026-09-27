@@ -131,7 +131,7 @@
 
 ### 공통
 
-- 도구: Claude Code(모델 Claude Opus 5.5). 자료 조사, 코드 작성, 명령 실행, 문서 초안에 썼습니다.
+- 도구: Claude Code(모델 Claude Opus 5.5). 자료 조사, 코드 작성, 명령 실행, 문서 초안에 썼습니다. Codex(codex-cli 0.156.1, 모델 gpt-5.6-sol)는 에이전트 스킬 시험에 두 번째 도구로 썼고, 사람이 Codex에게 스킬 배치를 점검하게 한 대화에서 Codex가 frontmatter 검사 테스트(`shared/agent-skill.test.ts`)를 더했습니다. 그 변경은 검토한 뒤 머리 주석, 라이선스 표, 이 줄을 보태 커밋했습니다.
 - 속도를 크게 높인 사례
   1. 자료 대조: Maroo Docs 약 300쪽과 Clairveil 소스를 함께 읽혀, `IPrivacy` 전송 요청이 Clairveil v1 `MsgTransfer`와 필드 하나(`creator`)만 다르다는 것과 v0.4.0 인출 실패의 위치(`x/privacy/keeper/path_snapshot.go`의 `SetMerkleRootSnapshotV1`)를 찾았습니다. 두 가지 모두 스크립트로 다시 실행해 확인한 뒤 문서에 썼습니다.
   2. faucet 장애 진단: 같은 전송을 `eth_call`과 `eth_estimateGas`로 나눠 부르는 방법을 빠르게 시험해, faucet 실패가 전역 정책의 24시간 한도 때문이라는 것과 한도가 풀리는 시각을 찾았습니다.

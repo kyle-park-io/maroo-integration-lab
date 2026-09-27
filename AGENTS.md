@@ -26,4 +26,4 @@
 
 - 역할 지갑의 키는 레포 밖 `~/.config/maroo-integration-lab/*.env`에 있습니다. 파일 내용을 출력하거나 레포로 옮기지 않습니다.
 - `vendor/`에 받은 외부 코드는 고치지 않습니다.
-- 스킬을 고칠 때는 `.claude/skills/` 쪽을 고친 뒤 `.agents/skills/`로 복사합니다. 두 파일이 다르면 `pnpm test:unit`이 실패합니다.
+- 스킬을 고칠 때는 `.claude/skills/` 쪽을 고친 뒤 `.agents/skills/`로 복사합니다. 두 파일이 다르거나 frontmatter가 규약에 맞지 않으면 `pnpm test:unit`이 실패합니다.
