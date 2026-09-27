@@ -25,6 +25,7 @@
 | 2 | R2, R4 | 에이전트 한도 템플릿 | 템플릿이 등록돼 있음 | `AGENT_OKRW_TRANSFER_LIMIT_POLICY` 등록됨 |
 | 2 | R1 | 에이전트 지갑 연결(`pnpm c:agent-limit`) | 연결 뒤 에이전트 지갑으로 ID를 찾음 | `setAgentWallet` 성공. 연결 뒤 `getAgentIds(에이전트 지갑)` = `[79]`, `getAgentIds(소유자)` = `[]`, `ownerOf(79)`는 구매 기업 그대로 ([기록](evidence/live/agent-limit-20260926T044056Z.json)) |
 | 2 | R2~R4 | 한도, 정책, 결제, 거부(`pnpm c:agent-limit`) | 한도 안 결제 성공, 한도 초과 `ExceededAgentTransferLimit` | `TransferLimit` 5 OKRW(32바이트 uint256), 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW 결제 `ExceededAgentTransferLimit(5e18, 8e18)`로 되돌려짐 ([기록](evidence/live/agent-limit-20260926T044056Z.json), [트랙 2 16절](tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet)) |
+| 2 | R2~R4 | 가스 한도를 추정값의 125%로 바꾼 뒤 재실행(2026-09-27, [agent-limit-20260927T085643Z.json](evidence/live/agent-limit-20260927T085643Z.json)) | 같은 결과 | 세 형식 시험 결과 같음(빈 값과 숫자 문자열은 `AgentTransferLimitMetadataInvalid`, 32바이트만 동작), 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`, 거부 tx 가스 364,011 / 728,023(50.0%) |
 | 2 | 주의 사항 | 전역 정책의 에이전트 소유자 평가 | 에이전트 결제를 소유자 기준으로 평가 | `ForEach(Every, AgentOwners, Or(24시간 1,000만 OKRW, KYC 증명))`, `ForEach(Any, AgentOwners, KYC 증명)` |
 | 2 | 문제 정의 | 레지스트리 활동 | 등록과 메타데이터 활동이 있음 | 최근 50건(`register` 22, `setMetadata` 15, `setAgentURI` 11, 실패 2), 마지막 2026-09-06 18:15 |
 | 3 | R2, R4 | 정책 템플릿 | 문서가 적은 템플릿이 등록돼 있고, 지웠다는 두 템플릿은 없음 | `EAS_POLICY`, `VOLUME_POLICY`, `PERIODIC_VOLUME_POLICY`, `LOGICAL_POLICY`, `FOR_EACH_POLICY` 등록됨. 없는 ID는 되돌려짐 |

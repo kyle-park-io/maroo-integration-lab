@@ -1,0 +1,95 @@
+{
+  "rpc": "https://rpc-testnet.maroo.io",
+  "checkedAt": "2026-09-27T08:58:33.378Z",
+  "label": "조회와 시뮬레이션, 이전 단계 기록. 새 tx 없음",
+  "rows": [
+    {
+      "case": "2단계 5) 협력사 B claim, 증명 없음",
+      "label": "[Live Testnet] tx",
+      "method": "0xf21cdc42374bb4a9005b2a61bfef8cb8c3aaf460f7c4fa745cbe33a2cb5653f1",
+      "outcome": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+      "class": "정책 거부",
+      "next": "증명 발급, 색인, 폐기 여부 확인"
+    },
+    {
+      "case": "2단계 6b) 협력사 A claim, 증명은 있으나 색인 전",
+      "label": "[Live Testnet] tx",
+      "method": "0xfa9b82a7a70a6196add358e069288cd759ac710e599986ac628bf49dab58f559",
+      "outcome": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "class": "정책 거부",
+      "next": "증명 발급, 색인, 폐기 여부 확인"
+    },
+    {
+      "case": "2단계 6d) 협력사 A claim, 증명과 색인 뒤",
+      "label": "[Live Testnet] tx",
+      "method": "0x91f56d090b5941f1e4732eb5ec0ce875d2de2eb75f9e2ab6887fa43a424d7bfc",
+      "outcome": "통과",
+      "class": "성공",
+      "next": "기록 확인"
+    },
+    {
+      "case": "2단계 7c) 협력사 A claim, 증명 폐기 뒤",
+      "label": "[Live Testnet] tx",
+      "method": "0x3573a32780b937fa21d0d7f51363fec43a90593bc75efde20524d8b6bb2bf93e",
+      "outcome": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "class": "정책 거부",
+      "next": "증명 발급, 색인, 폐기 여부 확인"
+    },
+    {
+      "case": "협력사 B claim() 재시뮬레이션",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "outcome": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+      "class": "정책 거부",
+      "next": "KYB 증명 발급과 색인"
+    },
+    {
+      "case": "Privacy deposit, 빈 요청",
+      "label": "[Live Testnet] eth_call",
+      "method": "eth_call",
+      "outcome": "SDKInvalidRequest()",
+      "class": "증명·입력 거부",
+      "next": "회로 산출물과 차폐 상태 조회 경로가 필요. 차폐 흐름은 3단계(로컬)"
+    },
+    {
+      "case": "Privacy deposit, 빈 요청",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "outcome": "SDKInvalidRequest()",
+      "class": "증명·입력 거부",
+      "next": "회로 산출물과 차폐 상태 조회 경로가 필요. 차폐 흐름은 3단계(로컬)"
+    },
+    {
+      "case": "Privacy 정상 경로 재료",
+      "label": "[Docs Only]",
+      "method": "Maroo Docs",
+      "outcome": "회로 산출물, 차폐 상태 조회 경로, 예시 입력이 공개되지 않음",
+      "class": "인프라·자료 부재",
+      "next": "Maroo에 요청할 목록으로 정리"
+    },
+    {
+      "case": "잔액보다 1 OKRW 큰 예치(계정 준비 부족)",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "outcome": "rpc error: code = Unknown desc = insufficient balance for transfer",
+      "class": "인프라·자료 부재",
+      "next": "잔액 준비(b:fund)"
+    },
+    {
+      "case": "로컬 인출(같은 블록 우회)",
+      "label": "[Local] tx",
+      "method": "track-b-enable/evidence/local/vendor-settlement-20260927T085727Z.md",
+      "outcome": "통과",
+      "class": "성공",
+      "next": "Maroo 테스트넷 결과가 아님"
+    },
+    {
+      "case": "로컬 인출(단독)",
+      "label": "[Local] tx",
+      "method": "track-b-enable/evidence/local/vendor-settlement-20260927T085727Z.md",
+      "outcome": "merkle root snapshot re-registration is inconsistent",
+      "class": "참조 구현 문제",
+      "next": "같은 블록에 잎을 더하는 tx를 함께 넣음"
+    }
+  ]
+}
