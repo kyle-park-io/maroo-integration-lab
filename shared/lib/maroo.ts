@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {
-  BaseError, ContractFunctionRevertedError, createPublicClient, createWalletClient, decodeErrorResult, http,
+  BaseError, ContractFunctionRevertedError, createPublicClient, createWalletClient, custom, decodeErrorResult, http, toHex,
   type Abi, type Address, type Hex,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -50,7 +50,22 @@ export function account(role: Role) {
 }
 
 export const publicClient = createPublicClient({ chain: marooTestnet, transport: http(RPC) });
-export const walletFor = (role: Role) => createWalletClient({ account: account(role), chain: marooTestnet, transport: http(RPC) });
+// 지갑이 보내는 tx 의 가스 한도는 노드가 추정한 값의 125% 로 둔다. 쓰지 않은 가스는 돌려받는다([Live Testnet] pnpm a:probe-send-gas).
+// viem 2.56 은 가스를 eth_fillTransaction 으로 채우고, 이를 지원하지 않는 노드에서는 eth_estimateGas 를 쓴다. 두 응답 모두 늘린다.
+// SDK 호출(deployPclProxy 등)도 이 지갑으로 보내므로 함께 적용된다. 가스를 직접 준 호출(거부 tx 를 남기는 경우)은 추정하지 않아 그대로다.
+// 가스를 재는 스크립트는 이 지갑이 아니라 rawEthCall 로 추정하므로 측정값은 바뀌지 않는다.
+export const GAS_LIMIT_PERCENT = 125n;
+const pad = (gas: Hex) => toHex((BigInt(gas) * GAS_LIMIT_PERCENT) / 100n);
+const paddedTransport = custom({
+  async request({ method, params }) {
+    const result = await publicClient.request({ method, params } as never) as unknown;
+    if (method === "eth_estimateGas") return pad(result as Hex);
+    const filled = result as { tx?: { gas?: Hex } } | null;
+    if (method === "eth_fillTransaction" && filled?.tx?.gas) return { ...filled, tx: { ...filled.tx, gas: pad(filled.tx.gas) } };
+    return result;
+  },
+});
+export const walletFor = (role: Role) => createWalletClient({ account: account(role), chain: marooTestnet, transport: paddedTransport });
 
 // viem 오류에서 컨트랙트가 되돌린 사유를 꺼낸다. abi 에 든 오류는 이름과 인자로 해석된다.
 export function revertReason(err: unknown, abi?: Abi): string {

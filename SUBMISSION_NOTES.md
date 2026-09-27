@@ -89,7 +89,7 @@
 | 명령 | 시각(UTC) | 결과 | 기록 |
 | --- | --- | --- | --- |
 | `pnpm a:abi-compare` | 2026-09-26 04:03 | Maroo `IPrivacy` 함수 9, 이벤트 5가 ClairveilJS 정식 EVM 계약 v0.3.1과 정규화 sha256까지 같음 | [JSON](track-a-explain/evidence/code/abi-compare-20260926T040350Z.json) |
-| `pnpm sdk:check` | 2026-09-26 04:09 | ClairveilJS conformance 113/113, 단위 503/575(71 건너뜀, 1 실패는 Node 24의 `navigator.locks` 때문에 전제가 맞지 않는 테스트) | [JSON](track-a-explain/evidence/code/clairveiljs-tests-20260926T040910Z.json) |
+| `pnpm sdk:check` | 2026-09-26 04:09 | ClairveilJS conformance 113/113, 단위 503/575(71 건너뜀, 1 실패는 Node 24의 `navigator.locks` 때문에 전제가 맞지 않는 테스트). 2026-09-27부터 이 알려진 실패와 단독으로 다시 돌려 통과한 시간 민감 테스트를 빼고 남는 실패가 있으면 종료 코드 1(그 전에는 실패가 있어도 0) | [JSON](track-a-explain/evidence/code/clairveiljs-tests-20260926T040910Z.json) |
 | `pnpm a:probe-sdk` | 2026-09-26 04:12 | SDK EVM 예치 준비가 회로 설정과 자산 등록 조회에서 멈춤. prover 도달 없음, tx 없음 | [JSON](track-a-explain/evidence/code/probe-sdk-deposit-20260926T041213Z.json) |
 | `pnpm a:inspect` | 2026-09-25 19:27 | Privacy 정책, 요구 스키마, 구매 기업 증명 0개, 예치 `SDKInvalidRequest()`, 필드 대응 | [JSON](track-a-explain/evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | `pnpm a:probe` | 2026-09-25 19:33 | 빈 요청과 모양을 갖춘 요청이 두 방법 모두 `SDKInvalidRequest()`. 전역 정책은 통과 | [JSON](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json) |
@@ -161,6 +161,8 @@
 | A | 단순 이체 가스를 "283,524"로 일반화해 문서 여러 곳에 적었습니다. 잰 시각에 구매 기업 지갑이 에이전트 79의 지갑이었고, 일반 계정은 약 104,000을 씁니다 | 녹화용 지갑에 OKRW를 나눠 줄 때 사전 검사 가스가 104,011로 나옴. 지갑 연결 전후 블록으로 다시 추정해 원인 확인 | 스크립트가 일반 계정과 에이전트 지갑을 함께 재게 고치고 다시 실행해 숫자를 모두 바꿈. "21,000이면 되돌려진다"는 결론은 그대로 |
 | A | 배포 주소 페이지 주소를 `/resources/network/deployed-contracts/`로 틀리게 적었고, 문서 대조 스크립트가 그 404 페이지 본문으로 "Privacy 주소가 없다"고 판정했습니다. 결론은 맞았지만 근거가 없는 판정이었습니다 | 새 클론 뒤 문서 전체의 외부 링크 응답 코드를 검사 | 주소를 `/resources/contracts/deployed-contracts/`로 고치고, 스크립트가 200이 아닌 페이지에서는 멈추게 바꾼 뒤 다시 실행(다섯 항목 모두 같은 결론) |
 | A | 에이전트 스킬의 가스 줄에 "되돌려지면 한도의 절반을 낸다"고 넓게 적었고, 금고 흐름 비용을 기록과 맞지 않는 "약 260, 새 지갑 약 310"으로 적었습니다 | 새 클론에서 연 에이전트 세션 시험에서 에이전트가 두 문장을 그대로 옮겨 답해 드러났습니다. 가스 부족으로 되돌려진 21,000 이체는 한도를 모두 썼습니다([기록](track-a-explain/evidence/live/probe-send-gas-20260926T043013Z.json)) | 절반은 PCL 컨트랙트 정책 거부일 때로 좁히고, 비용은 코드의 가스 보충 조건대로 구매 기업 약 250(발급자까지 비어 있으면 약 310)으로 고쳤습니다 |
+| C | 심사 자동 판정이 `target`이 없거나 `expected`에 결과가 적히지 않은 항목의 받는 주소와 영수증 상태를 확인하지 않아, 되돌려진 tx나 관계없는 tx로 요건을 채울 수 있었습니다. 트랙 1의 R1·R2 규칙도 확인에 실패한 항목을 셌습니다 | 영역을 나눈 독립 코드 검토 | `target`과 결과가 적힌 `expected`를 필수로 하고 규칙을 고쳤습니다. 기존 예시 증거 두 개는 그대로 통과하고, 조작한 증거 두 개(되돌려진 8 OKRW tx, target 없는 남의 성공 tx)는 테스트넷 조회로 실패하는 것을 확인했습니다 |
+| A | 스킬과 문서는 가스 한도에 25% 여유를 권하면서 이 레포 스크립트는 추정값 그대로 보냈습니다. 고칠 때 `eth_estimateGas` 응답만 늘렸는데, viem 2.56은 가스를 `eth_fillTransaction`으로 채워 적용되지 않았습니다 | 탐색기에서 통과 tx가 한도의 100%를 쓴 것을 보고 찾았고, 고친 뒤 금고 흐름을 다시 돌려 영수증에서 여전히 100%인 것을 봤습니다. 지갑이 부르는 RPC 메서드를 찍어 원인을 확인했습니다 | 두 응답 모두 늘리고 다시 돌려, 통과 tx 12건이 모두 80.0%인 것을 기록했습니다([기록](track-a-explain/evidence/live/pcl-kyb-gate-20260927T083827Z.json)) |
 
 - 검증 방법: 문장마다 기록 파일이나 문서 링크를 붙이고, 커밋 전에 링크와 라벨을 대조했습니다. 코드는 명령을 다시 실행해 결과를 확인했습니다.
 

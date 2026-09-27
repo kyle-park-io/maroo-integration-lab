@@ -135,6 +135,7 @@ pnpm a:kyb-gate
 | 8 회수 | 협력사 A, B의 남은 몫 0 | [0xb4c0…2cdd](https://explorer-testnet.maroo.io/tx/0xb4c0dcdb7322ce14e60ede027323f28540bc885e5864952d84c0aee70be62cdd) |
 
 - 쓴 OKRW: 구매 기업 250.06(가스 보충 120, 협력사 A가 받은 100, 가스), 발급자 8.10(가스). 발급자는 이미 잔액이 있어 가스 보충을 건너뛰었습니다.
+- 스크립트의 지갑은 tx 가스 한도를 노드 추정값의 125%로 둡니다(`shared/lib/maroo.ts`의 `walletFor`, 2026-09-27부터). 위 표의 실행은 그 전이라 통과 tx가 추정값 그대로 보내져 한도의 100%를 썼습니다. 바꾼 뒤 실행([기록](evidence/live/pcl-kyb-gate-20260927T083827Z.json))에서는 통과 tx 12건이 모두 한도의 80.0%를 썼습니다.
 - 거부된 청구도 가스를 씁니다. 협력사 A는 60 OKRW를 받은 뒤 색인 전 청구 한 번으로 1.35 OKRW를 썼습니다(가스 한도 300,000으로 고정, 쓴 가스는 그 절반인 150,000). `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` 사전 검사를 `eth_estimateGas`로 하면 이 비용을 줄일 수 있습니다.
 
 ### 단순 이체의 가스

@@ -36,7 +36,7 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 | 상황 | 할 것 | 하지 말 것 | 근거 |
 | --- | --- | --- | --- |
 | 보내기 전 정책 검사 | `eth_estimateGas`로 확인한다. 전역 정책과 컨트랙트 정책을 함께 평가한다 | `eth_call`(viem `simulateContract`)만으로 통과를 판단한다. 전역 정책을 평가하지 않는다 | `[Live Testnet]` `pnpm a:probe-global` |
-| 가스 한도 | `eth_estimateGas` 값에 25% 안팎을 더한다. 쓰지 않은 가스는 돌려받는다 | 21,000으로 고정한다(단순 이체도 일반 계정 약 104,000, 에이전트 지갑 약 284,000. 한도 21,000인 이체는 블록에 들어가 가스 부족으로 되돌려지고 21,000을 모두 쓴다). 한도를 크게 잡는다(PCL 컨트랙트 정책에 거부되면 한도의 절반을 낸다) | `[Live Testnet]` `pnpm a:probe-send-gas` |
+| 가스 한도 | `eth_estimateGas` 값에 25% 안팎을 더한다. 쓰지 않은 가스는 돌려받는다. viem 2.56은 가스를 `eth_fillTransaction`으로 채우므로 `eth_estimateGas` 응답만 늘리면 여유가 붙지 않는다. `gas`를 직접 주거나 두 응답을 모두 늘린다(이 레포 `walletFor`) | 21,000으로 고정한다(단순 이체도 일반 계정 약 104,000, 에이전트 지갑 약 284,000. 한도 21,000인 이체는 블록에 들어가 가스 부족으로 되돌려지고 21,000을 모두 쓴다). 한도를 크게 잡는다(PCL 컨트랙트 정책에 거부되면 한도의 절반을 낸다) | `[Live Testnet]` `pnpm a:probe-send-gas`, `pnpm a:kyb-gate`(통과 tx가 한도의 80.0%) |
 | 정책 거부의 비용 | PCL 프록시의 컨트랙트 정책 거부는 블록에 들어가 되돌려지고 가스 한도의 절반을 낸다고 보고 사전 검사한다 | 문서대로 "제출 시점에 걸러져 가스를 내지 않는다"고 가정한다 | `[Live Testnet]` 거부 tx 여덟 건 모두 한도의 50.0%, `pnpm a:reject-gas` |
 | PCL 프록시 배포 | `walletClient.extend(marooWalletActions()).pcl.deployPclProxy({ kind: pclProxyKinds.Transparent, logic, initialOwner, initializer })`. 주소는 영수증에서 `deployPclProxy.extractEvent(receipt.logs).args.proxy`로 읽는다 | 초기화 데이터를 비운다(`0x`면 되돌려진다). 시뮬레이션 반환값을 주소로 쓴다 | `[Live Testnet]` `pnpm a:kyb-gate`, `pnpm a:doc-claims` |
 | 권한 확인 | 배포 뒤 ERC-1967 구현 슬롯과 관리자 슬롯을 직접 읽는다. 정책 관리자(배포자)와 업그레이드 권한(`initialOwner`)을 다른 주소로 둔다 | 탐색기 표시만 믿는다 | `[Live Testnet]` `pnpm a:kyb-gate` 3b |

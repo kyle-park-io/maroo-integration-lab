@@ -1,0 +1,165 @@
+{
+  "chainId": 450815,
+  "ranAt": "2026-09-27T08:38:27.291Z",
+  "roles": {
+    "buyer": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+    "upgradeOwner": "0x8Fe5cb53EB048645b27ab60A98A94f7d9E585D77",
+    "issuer": "0x87B68985d8c267B3e17B41A422d65768aEABd73B",
+    "supplierA": "0x77172C4999b59967a35A7efd079B7B92fA8E5c0A",
+    "supplierB": "0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb"
+  },
+  "schema": {
+    "uid": "0x1268f1d28d1b540b2646eaedfdf4f73b1950e9dca6cacb7a01fc32bdc594fbbc",
+    "definition": "bytes32 bizRegNoHash, bool kybVerified"
+  },
+  "vault": "0xFaD21b93F43b306A8e0cC9597fe836C820a9Ec14",
+  "claimSelector": "0x4e71d92d",
+  "attestationUid": "0x39ae3f30c4f61a8be0f1e317bea9ab9001cd95db87b77a821fb59b2c864849e6",
+  "steps": [
+    {
+      "step": "시작 잔액",
+      "buyer": "2219.819345",
+      "issuer": "4980.190325"
+    },
+    {
+      "step": "2) KYB 스키마가 이미 있어 재사용",
+      "schemaUid": "0x1268f1d28d1b540b2646eaedfdf4f73b1950e9dca6cacb7a01fc32bdc594fbbc"
+    },
+    {
+      "step": "3a) SettlementVault 구현 배포",
+      "tx": "0xd57f540f3dc29a0c40c9e188b161398aca79f3d38a375699b3e4363e3a36904c",
+      "address": "0x72a33687269dd8899f7e107a0c11a47cd984b938",
+      "result": "성공"
+    },
+    {
+      "step": "3b) PCL 프록시 배포(deployPclProxy, Transparent)",
+      "tx": "0x001930f355b2fb56491092c6468e96816af87744ca99e5db553ff022398ca1b8",
+      "block": "19227199",
+      "gasUsed": "1317644",
+      "result": "성공"
+    },
+    {
+      "step": "3b) 금고 프록시와 권한",
+      "vault": "0xFaD21b93F43b306A8e0cC9597fe836C820a9Ec14",
+      "implementation": "0x72A33687269dD8899f7e107a0c11A47Cd984B938",
+      "pclKind": 1,
+      "policyAdmin": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "proxyAdmin": "0xE7e3D08dcfD1F7690fC6A5bBa3F555922894ef9A",
+      "upgradeOwner": "0x8Fe5cb53EB048645b27ab60A98A94f7d9E585D77"
+    },
+    {
+      "step": "3c) claim() 에 EAS_POLICY(KYB) 바인딩",
+      "tx": "0xf3e0e3e58f6509d6399f342d672c90da640a49b426502422367048c803cc3be1",
+      "block": "19227201",
+      "gasUsed": "105089",
+      "result": "성공"
+    },
+    {
+      "step": "4) 협력사 A 몫 100 OKRW 넣기",
+      "tx": "0x635356e2eb75dd90dcb5611a5ccb1442a0d6eafd1f992e1a4d810f0051667663",
+      "block": "19227203",
+      "gasUsed": "259453",
+      "result": "성공"
+    },
+    {
+      "step": "4) 협력사 B 몫 100 OKRW 넣기",
+      "tx": "0x9406af634f79ff6cababdd1f69ace1646d8f410e89200f35dccd7a9f1d28f0c3",
+      "block": "19227204",
+      "gasUsed": "259453",
+      "result": "성공"
+    },
+    {
+      "step": "5) 협력사 B claim, 증명 없음",
+      "tx": "0xa7d4c9270a79d05b463aa4261dab70a442fce7e86891d928a98bd8d81cdaa44f",
+      "block": "19227205",
+      "gasLimit": "300000",
+      "gasUsed": "150000",
+      "reason": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+      "result": "예상대로 거부"
+    },
+    {
+      "step": "6a) 협력사 A KYB 증명 발급",
+      "tx": "0xd825eb4bed34d0588c9d332f5409f967f407e379b09fe80f12b61e4daa5a1473",
+      "block": "19227206",
+      "gasUsed": "285970",
+      "result": "성공"
+    },
+    {
+      "step": "6b) 협력사 A claim, 증명은 있으나 색인 전",
+      "tx": "0xae9158367c6f0e1c41b74e15d990f4771c1bf7e2b9dbe57ff1041e2ff708828a",
+      "block": "19227208",
+      "gasLimit": "300000",
+      "gasUsed": "150000",
+      "reason": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "result": "예상대로 거부"
+    },
+    {
+      "step": "6c) 증명 색인(indexAttestation)",
+      "tx": "0x35375dc8459a86d9f01fd4a230c9e446f956b3b21eaa558df64a86cc0b5cfd9b",
+      "block": "19227210",
+      "gasUsed": "239445",
+      "result": "성공"
+    },
+    {
+      "step": "6d) 협력사 A claim, 증명과 색인 뒤",
+      "tx": "0x09e528ab71f43f4dc401c99e55ccf3afb5f36e1393d26731dd257d3a2630f631",
+      "block": "19227212",
+      "gasUsed": "312855",
+      "result": "성공"
+    },
+    {
+      "step": "6d) 협력사 A 잔액",
+      "before": "367.219186",
+      "after": "464.403491"
+    },
+    {
+      "step": "7a) 협력사 A 몫 100 OKRW 다시 넣기",
+      "tx": "0x9502aaf3314a50c6c77588d2b68f4ce0d6ba57fe25fbdbfa58f10999f2465084",
+      "block": "19227215",
+      "gasUsed": "259453",
+      "result": "성공"
+    },
+    {
+      "step": "7b) 협력사 A 증명 폐기",
+      "tx": "0xe68005c82c600aa09ffeb933a0f7d339bc493298629c5905e99ba8027b5063db",
+      "block": "19227217",
+      "gasUsed": "125334",
+      "result": "성공"
+    },
+    {
+      "step": "7c) 협력사 A claim, 증명 폐기 뒤",
+      "tx": "0x2e6c5adec7dd591e361d03db04f55aa40cab907d761f034258590c6555260e73",
+      "block": "19227219",
+      "gasLimit": "300000",
+      "gasUsed": "150000",
+      "reason": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+      "result": "예상대로 거부"
+    },
+    {
+      "step": "8) 구매 기업이 협력사 A 몫 회수(증명 폐기)",
+      "tx": "0x9dedc851aa55f334221a1cf6242af3e527d79845660bc770bb4d3404a203f908",
+      "block": "19227222",
+      "gasUsed": "234561",
+      "result": "성공"
+    },
+    {
+      "step": "8) 구매 기업이 협력사 B 몫 회수(청구되지 않음)",
+      "tx": "0x258e1bb02371d69805409504a1f12befc6376758781951312d2f1e2459870595",
+      "block": "19227225",
+      "gasUsed": "234561",
+      "result": "성공"
+    },
+    {
+      "step": "8) 회수 뒤",
+      "buyerBefore": "1895.849843",
+      "buyerAfter": "2091.627745",
+      "owedA": "0",
+      "owedB": "0"
+    },
+    {
+      "step": "사용한 OKRW",
+      "buyer": "2219.819345 → 2091.627745",
+      "issuer": "4980.190325 → 4974.333584"
+    }
+  ]
+}
