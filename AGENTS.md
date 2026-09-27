@@ -9,7 +9,7 @@
 
 ## Maroo 연동 질문에 답하거나 코드를 쓸 때
 
-1. [`.claude/skills/maroo-integration/SKILL.md`](.claude/skills/maroo-integration/SKILL.md)를 먼저 읽습니다. 이 레포가 테스트넷에서 직접 확인한 규칙, Maroo Docs와 다르게 동작한 곳, 확인 명령이 표로 있습니다. 스킬 폴더를 자동으로 읽지 않는 도구도 이 파일을 지침으로 씁니다.
+1. 이 레포의 에이전트 스킬 `maroo-integration`을 먼저 읽습니다. 이 레포가 테스트넷에서 직접 확인한 규칙, Maroo Docs와 다르게 동작한 곳, 확인 명령이 표로 있습니다. 같은 파일이 [`.agents/skills/maroo-integration/SKILL.md`](.agents/skills/maroo-integration/SKILL.md)와 [`.claude/skills/maroo-integration/SKILL.md`](.claude/skills/maroo-integration/SKILL.md) 두 자리에 있고, 에이전트 도구는 자기가 찾는 자리에서 스스로 읽습니다(Codex는 `.agents/skills/`). 스킬 폴더를 스스로 찾지 않는 도구는 둘 중 하나를 지침으로 읽습니다.
 2. 그 표에 없는 ABI, 주소, 엔드포인트, 동작은 짐작하지 않습니다. 표의 확인 명령을 안내하거나, 이 레포에서 확인하지 않았다고 답합니다.
 3. 답에 증거 라벨(`[Live Testnet]`, `[Local]`, `[코드 대조]`, `[Docs Only]`, 권고)을 붙입니다. 뜻은 README의 "증거 라벨" 절에 있습니다.
 4. Clairveil 로컬 체인의 결과를 Maroo 테스트넷의 성공으로 적지 않습니다. 테스트넷에서 유효한 Privacy 상태 변경은 아직 외부에서 실행할 수 없습니다.
@@ -26,3 +26,4 @@
 
 - 역할 지갑의 키는 레포 밖 `~/.config/maroo-integration-lab/*.env`에 있습니다. 파일 내용을 출력하거나 레포로 옮기지 않습니다.
 - `vendor/`에 받은 외부 코드는 고치지 않습니다.
+- 스킬을 고칠 때는 `.claude/skills/` 쪽을 고친 뒤 `.agents/skills/`로 복사합니다. 두 파일이 다르면 `pnpm test:unit`이 실패합니다.

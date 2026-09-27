@@ -32,7 +32,7 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 | 기관의 사업·컴플라이언스 담당(개발자가 아닌 평가자 포함) | [요약 장표 13장](slides/maroo-integration-lab-summary.pdf), 같은 가이드 0절의 네 질문 표, [FAQ 9](track-a-explain/faq.md#9-지금-이-구조로-실제-협력사-대금을-처리할-수-있나요) | 10분 | 내부 보안·컴플라이언스 검토에 올릴 범위와 아직 체인에 없는 것(규제기관 열람, 테스트넷 Privacy 상태 변경) |
 | 워크샵을 여는 DevRel·진행자(Track B) | [Track B README](track-b-enable/README.md), [진행자 가이드](track-b-enable/facilitator-guide.md) | 15분 | 75분 워크샵 일정과 사전 준비(바이너리 빌드 108초, 참가자당 OKRW 1,000과 이체 수수료 약 0.94 OKRW) |
 | 해커톤을 설계하는 팀(Track C) | [트랙 포트폴리오](track-c-activate/portfolio.md), [트랙 2의 16절](track-c-activate/tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet) | 15분 | 세 트랙 구성, 트랙별 최소 연동 요건, 심사 자동 판정(`pnpm c:judge`)을 행사에 쓸지 |
-| AI 에이전트로 Maroo를 연동하는 개발자 | [에이전트 스킬](.claude/skills/maroo-integration/SKILL.md), [AGENTS.md](AGENTS.md), [시험 기록](track-a-explain/evidence/code/skill-check-20260927.md)(Claude Code 세션과 AGENTS.md를 둔 Codex 세션이 이 스킬을 읽고 답함) | 5분 | 자기 에이전트나 사내 개발 도구에 이 규칙을 넣을지 |
+| AI 에이전트로 Maroo를 연동하는 개발자 | 에이전트 스킬([Claude Code용](.claude/skills/maroo-integration/SKILL.md), [Codex용](.agents/skills/maroo-integration/SKILL.md), 같은 파일), [AGENTS.md](AGENTS.md), [시험 기록](track-a-explain/evidence/code/skill-check-20260927.md)(두 도구 모두 새 클론에서 스스로 스킬을 열고 답함) | 5분 | 자기 에이전트나 사내 개발 도구에 이 규칙을 넣을지 |
 | Maroo 문서·제품 팀 | [SUBMISSION_NOTES의 차이와 DX 피드백](SUBMISSION_NOTES.md#발견한-차이), [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) | 30분 | 재현 명령과 owner가 붙은 문서 차이 19건, DX 피드백 14건의 처리 순서 |
 
 제출물을 네 질문으로 보면 이렇습니다. 무엇을 확인했나: 위 결과 목록의 기록과 [증거 라벨](#증거-라벨). 무엇이 달랐나: [발견한 차이](SUBMISSION_NOTES.md#발견한-차이) 19건. 어디까지 검증했나: [직접 검증한 것과 문서로만 확인한 것](SUBMISSION_NOTES.md#직접-검증한-것과-문서로만-확인한-것). 다음에 무엇을 확인하나: [다음에 확인할 것](SUBMISSION_NOTES.md#다음에-확인할-것).
@@ -140,7 +140,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 - 역할 지갑 파일 형식은 [testnet.env.example](testnet.env.example)에 있습니다. 실제 키는 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에만 두고 레포에 올리지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
 - 문서의 Mermaid 다이어그램은 `pnpm diagrams:check`로 밝은 테마와 어두운 테마에서 렌더링을 확인합니다.
 - GitHub Actions([ci.yml](.github/workflows/ci.yml))가 푸시마다 타입 검사, 금고 서식과 테스트, 단위 테스트를 돌립니다. 테스트넷은 부르지 않습니다.
-- AI 에이전트로 Maroo를 연동한다면: 이 레포를 Claude Code로 열면 [`.claude/skills/maroo-integration`](.claude/skills/maroo-integration/SKILL.md) 스킬이 함께 읽힙니다. 이 레포가 테스트넷에서 확인한 규칙(사전 검사, 가스 한도, 프록시 배포, 증명 색인 순서, 에이전트 한도 형식)과 문서와 다른 곳, 확인 명령을 담았고, 표에 없는 ABI나 동작은 짐작하지 말고 명령으로 확인하게 했습니다. 스킬 폴더를 자동으로 읽지 않는 도구(Codex 등)는 루트 [AGENTS.md](AGENTS.md)가 이 스킬로 안내합니다. Codex에 같은 질문 여섯 개를 물었을 때 AGENTS.md가 없으면 스킬을 한 번도 읽지 않고 가스 질문에서 문서의 틀린 수치를 되풀이했고, 있으면 여섯 번 모두 스킬을 읽고 맞게 답했습니다([시험 기록](track-a-explain/evidence/code/skill-check-20260927.md#3차-시험-스킬-폴더를-자동으로-읽지-않는-도구와-agentsmd-2026-09-27-15시대-kst)).
+- AI 에이전트로 Maroo를 연동한다면: 이 레포를 Claude Code로 열면 [`.claude/skills/maroo-integration`](.claude/skills/maroo-integration/SKILL.md) 스킬이, Codex로 열면 같은 파일인 [`.agents/skills/maroo-integration`](.agents/skills/maroo-integration/SKILL.md) 스킬이 함께 읽힙니다. 이 레포가 테스트넷에서 확인한 규칙(사전 검사, 가스 한도, 프록시 배포, 증명 색인 순서, 에이전트 한도 형식)과 문서와 다른 곳, 확인 명령을 담았고, 표에 없는 ABI나 동작은 짐작하지 말고 명령으로 확인하게 했습니다. 스킬 폴더를 스스로 찾지 않는 도구는 루트 [AGENTS.md](AGENTS.md)가 이 스킬로 안내합니다. Codex에 같은 질문 여섯 개를 물었을 때, 스킬 자리와 AGENTS.md가 모두 없으면 스킬을 한 번도 읽지 않고 가스 질문에서 문서의 틀린 수치를 되풀이했습니다. `.agents/skills/`에 스킬을 두거나 AGENTS.md를 두면 여섯 번 모두 스킬을 열고 맞게 답했습니다([시험 기록](track-a-explain/evidence/code/skill-check-20260927.md#4차-시험-codex가-스스로-찾는-자리에-둔-스킬-2026-09-27-15시대-kst)). 두 스킬 파일이 다르면 `pnpm test:unit`이 실패합니다.
 
 ## 증거 라벨
 
@@ -159,6 +159,8 @@ Maroo 테스트넷에서는 OKRW, PCL, EAS 경로를 실행하고 Privacy는 처
 
 ```text
 AGENTS.md          코딩 에이전트가 먼저 읽는 안내(스킬로 연결)
+.claude/skills/    에이전트 스킬 원본(Claude Code가 스스로 찾는 자리)
+.agents/skills/    같은 스킬(Codex가 스스로 찾는 자리, 원본과 같은지 단위 테스트가 확인)
 shared/            세 트랙이 함께 쓰는 코드
   contracts/       SettlementVault.sol (PCL 프록시 뒤에 두는 정산 금고)
   test/            금고 Foundry 테스트
