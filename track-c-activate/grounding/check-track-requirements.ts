@@ -84,13 +84,23 @@ for (const method of ["eth_call", "eth_estimateGas"] as const) {
   depositProbe[method] = !r.error ? "거부되지 않음" : r.error.data && r.error.data !== "0x" ? decodeRaw(r.error.data, iPrivacyAbi) : r.error.message;
 }
 // 심사자가 참가자의 Privacy tx 를 확인하는 경로. 첫 페이지의 상태 분포와 가장 최근 시각만 남기고 주소와 입력은 남기지 않는다.
+// 탐색기 API 가 막히거나 JSON 이 아닌 응답을 주어도 나머지 조회와 기록은 이어간다.
+async function explorerPage<T>(url: string): Promise<{ items?: T[]; error?: string }> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return { error: `HTTP ${res.status}` };
+    return (await res.json()) as { items?: T[] };
+  } catch (err) {
+    return { error: (err as Error).message };
+  }
+}
 const explorerUrl = `${EXPLORER}/blockscout/api/v2/addresses/${PRIVACY}/transactions?filter=to`;
-const page = await (await fetch(explorerUrl)).json() as { items?: { status: string; result: string; timestamp: string }[] };
+const page = await explorerPage<{ status: string; result: string; timestamp: string }>(explorerUrl);
 const statuses: Record<string, number> = {};
 for (const it of page.items ?? []) statuses[`${it.status}/${it.result}`] = (statuses[`${it.status}/${it.result}`] ?? 0) + 1;
 const track1 = {
   privacyPolicy, privacyPolicyAdmin: privacyCfg.admin, privacyFunctions: privacyFns, depositProbe,
-  explorer: { url: explorerUrl, firstPageCount: page.items?.length ?? 0, statuses, latest: page.items?.[0]?.timestamp ?? null },
+  explorer: { url: explorerUrl, firstPageCount: page.items?.length ?? 0, statuses, latest: page.items?.[0]?.timestamp ?? null, ...(page.error ? { error: page.error } : {}) },
 };
 report.track1 = track1;
 show("  Privacy 정책", `${privacyPolicy}, 관리자 ${privacyCfg.admin}`);
@@ -113,7 +123,7 @@ const registerSim = await pub.simulateContract({ address: IDENTITY_REGISTRY, abi
   .catch((err: Error) => `거부: ${err.message.split("\n")[0]}`);
 // 레지스트리로 간 최근 tx 첫 페이지. 함수 이름별 개수와 가장 최근 시각만 남긴다.
 const registryUrl = `${EXPLORER}/blockscout/api/v2/addresses/${IDENTITY_REGISTRY}/transactions?filter=to`;
-const registryPage = await (await fetch(registryUrl)).json() as { items?: { status: string; method: string | null; timestamp: string }[] };
+const registryPage = await explorerPage<{ status: string; method: string | null; timestamp: string }>(registryUrl);
 const registryMethods: Record<string, number> = {};
 for (const it of registryPage.items ?? []) registryMethods[`${it.status}/${it.method ?? "?"}`] = (registryMethods[`${it.status}/${it.method ?? "?"}`] ?? 0) + 1;
 const codeSize = async (address: Address) => { const c = await pub.getCode({ address }); return c ? (c.length - 2) / 2 : 0; };
@@ -121,7 +131,7 @@ const track2: Record<string, unknown> = {
   agentParams, reputationRegistryCodeBytes: await codeSize(agentParams.reputationRegistry),
   identityRegistry: { address: IDENTITY_REGISTRY, name: regName, symbol: regSymbol, version: regVersion },
   buyerAgentIds: buyerAgents, registerSimulation: registerSim,
-  explorer: { url: registryUrl, firstPageCount: registryPage.items?.length ?? 0, methods: registryMethods, latest: registryPage.items?.[0]?.timestamp ?? null },
+  explorer: { url: registryUrl, firstPageCount: registryPage.items?.length ?? 0, methods: registryMethods, latest: registryPage.items?.[0]?.timestamp ?? null, ...(registryPage.error ? { error: registryPage.error } : {}) },
   agentLimitTemplate: templates.AGENT_OKRW_TRANSFER_LIMIT_POLICY,
   globalPolicyUsesAgentOwners: globalPolicy.includes("AgentOwners"),
 };

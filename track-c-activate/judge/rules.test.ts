@@ -22,6 +22,11 @@ test("트랙 1 R4는 value 가 있는 성공 tx, R5는 로컬 재현 확인도 �
   assert.deepEqual(okIds(1, [v("R5", { ok: false })]), []);
 });
 
+test("트랙 1 R1·R2는 로컬 재현 확인은 받고, 확인에 실패한 항목은 세지 않는다", () => {
+  assert.deepEqual(okIds(1, [v("R1", { ok: "재현 확인" }), v("R2", { ok: "재현 확인" })]), ["R1", "R2"]);
+  assert.deepEqual(okIds(1, [v("R1", { ok: false }), v("R2", { ok: false })]), []);
+});
+
 test("트랙 2 R4는 ExceededAgentTransferLimit 사유만 인정한다", () => {
   assert.deepEqual(okIds(2, [v("R4", { reason: "EasNoAttestationReceived(0x1)" })]), []);
   assert.deepEqual(okIds(2, [v("R4", { reason: "AgentTransferLimitMetadataInvalid(empty metadata value)" })]), []);

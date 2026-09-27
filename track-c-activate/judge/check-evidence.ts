@@ -5,9 +5,9 @@
 // 항목 형식은 track-c-activate/tracks/1-private-settlement.md 23절에 있다.
 // 테스트넷 항목마다 확인하는 것
 //   - tx 영수증이 있고 chain ID 가 450815 인지
-//   - tx 의 받는 주소가 항목의 target 과 같은지
+//   - tx 항목에 target 이 있고, tx 의 받는 주소가 그 target 과 같은지(target 이 없으면 실패)
 //   - 예상이 "거부"면 영수증이 reverted 인지, 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 거부 사유가 actual 과 맞는지
-//   - 예상이 "통과"나 "성공"이면 영수증이 success 인지
+//   - 예상이 "통과"나 "성공"이면 영수증이 success 인지. 예상에 셋 중 어느 말도 없으면 실패
 //   - target 에 PCL 정책이 묶여 있고, 정책의 선택자가 비었거나 호출한 함수와 같은지
 //   - OKRW value
 //   - setMetadata("TransferLimit") 이면 값이 32바이트 uint256 인지(Maroo Docs 의 숫자 문자열은 정책이 거부한다)
@@ -70,7 +70,8 @@ for (const item of items) {
       const tx = await pub.getTransaction({ hash: item.txHash });
       value = tx.value;
       pass(`영수증 ${receipt.status}, 블록 ${receipt.blockNumber}, value ${tx.value}`);
-      if (item.target && tx.to && getAddress(tx.to) !== getAddress(item.target)) fail(`받는 주소 ${tx.to} 가 target 과 다름`);
+      if (!item.target) fail("target 이 없어 받는 주소와 정책 바인딩을 확인할 수 없음");
+      else if (tx.to && getAddress(tx.to) !== getAddress(item.target)) fail(`받는 주소 ${tx.to} 가 target 과 다름`);
       if (/거부/.test(item.expected ?? "")) {
         if (receipt.status !== "reverted") fail("거부를 예상했는데 성공한 tx");
         reason = await replayReason(tx, receipt.blockNumber);
@@ -78,6 +79,8 @@ for (const item of items) {
         else pass(`거부 사유 ${reason}`);
       } else if (/통과|성공/.test(item.expected ?? "")) {
         if (receipt.status !== "success") fail("통과를 예상했는데 되돌려진 tx");
+      } else {
+        fail(`expected(${item.expected ?? "없음"})에 '거부', '통과', '성공' 가운데 하나가 있어야 영수증 상태를 판정할 수 있음`);
       }
       if (tx.input.startsWith("0x") && tx.to && getAddress(tx.to) === getAddress("0x8004000000000000000000000000000000000001")) {
         const call = (() => { try { return decodeFunctionData({ abi: identityRegistryAbi, data: tx.input }); } catch { return undefined; } })();

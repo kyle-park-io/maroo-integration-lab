@@ -23,6 +23,12 @@ for (const d of runs) {
   // 같은 번호를 다른 프로세스가 쓰고 있을 수 있어, 이 레포의 clairveild 인지 확인하고 끈다.
   if (cmd.includes("clairveild") && cmd.includes(path.join(work, d))) {
     process.kill(pid);
+    // 곧바로 3단계를 다시 돌려도 포트가 비어 있도록, 노드가 실제로 끝날 때까지 10초까지 기다린다.
+    for (let i = 0; i < 50; i++) {
+      try { process.kill(pid, 0); } catch { break; }
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    try { process.kill(pid, 0); process.kill(pid, "SIGKILL"); console.log(`10초 안에 끝나지 않아 강제 종료: pid ${pid}`); } catch { /* 끝남 */ }
     stopped++;
     console.log(`로컬 노드 종료: pid ${pid} (${d})`);
   }
