@@ -1,6 +1,6 @@
 # Track B 증거 목록
 
-워크샵 경로를 실제로 실행한 기록입니다. 시각은 UTC입니다. 실행 환경: Linux(WSL2), Node.js 24.19, pnpm 11.25, Go 1.27.1, Foundry 1.8.1.
+워크샵 경로를 실제로 실행한 기록입니다. 시각은 UTC입니다. 네트워크: Maroo 테스트넷(chain ID 450815, RPC `https://rpc-testnet.maroo.io`)과 Clairveil v0.4.0 로컬 체인. 실행 환경: Linux(WSL2), Node.js 24.19, pnpm 11.25, Go 1.27.1, Foundry 1.8.1.
 
 ## 1. Maroo 테스트넷 `[Live Testnet]`
 
@@ -51,3 +51,22 @@
 | `pnpm b:check` | 필수 항목 모두 ✓. 권장 항목 중 잔액만 ! |
 | `pnpm b:smoke` | 2026-09-26 00:02 UTC, 91초. b:check, 1\~5단계와 성공 기준(2단계 5·6b·7c 거부와 6d 성공, 3단계 협력사 B 해독과 인출 성공, 4단계 분류) 모두 통과. 세션 기록 [session-20260926T000329Z.md](evidence/session-20260926T000329Z.md). 첫 실행(2026-09-25 20:01 UTC, 잔액 0으로 2단계 제외, 64초)의 세션 기록은 [session-20260925T200201Z.md](evidence/session-20260925T200201Z.md) |
 | `pnpm b:smoke`(2026-09-27 재실행) | 2026-09-27 08:56 UTC, 105초. 지갑의 가스 한도를 노드 추정값의 125%로 바꾼 뒤. b:check, 1\~5단계와 성공 기준 모두 통과. 2단계 거부 셋(5 `EasNoAttestationReceived`, 6b·7c `EasAttestationRevoked`, 같은 지갑의 재실행이라 T8)은 한도 300,000의 50.0%, 구매 기업 128.19 OKRW 사용. 세션 기록 [session-20260927T085834Z.md](evidence/session-20260927T085834Z.md), [2단계 기록](evidence/live/pcl-kyb-gate-20260927T085726Z.json) |
+| `pnpm b:reset` | 2026-09-27 18:55 UTC. 로컬 실행 폴더 3개 삭제, 켜져 있던 노드 없음. 미리 빌드한 바이너리(`.work/prebuilt`), 지갑 파일, 기록은 남음. 바로 이어 돌린 `pnpm review --local`이 79초에 9단계 모두 통과(로컬 차폐 정산 60초)했고 `git status` 변경 0줄 |
+
+## 4. 검증한 것과 검증하지 못한 것
+
+### 검증한 것
+
+- 테스트넷 연결, 역할 지갑의 잔액, Privacy 프리컴파일에 걸린 정책을 워크샵 1단계 명령으로 조회할 수 있다는 것
+- PCL 프록시 금고에서 KYB 증명의 유무, 색인, 폐기가 청구의 거부와 통과를 바꾼다는 것(2단계 tx 기록)
+- 같은 지갑으로 2단계를 다시 돌리면 6b의 거부 사유가 `EasAttestationRevoked`로 바뀐다는 것(트러블슈팅 T8)
+- Clairveil 로컬에서 예치, 지급, 스캔, 역할별 해독, 인출이 끝까지 실행된다는 것 `[Local]`
+- 워크샵 결과가 성공, 정책 거부, 증명·입력 거부, 인프라·자료 부재의 네 분류로 나뉜다는 것(4단계 기록)
+- 준비한 머신에서 `pnpm b:smoke` 한 번으로 1\~5단계와 성공 기준을 확인하고, `pnpm b:reset` 뒤에도 로컬 흐름이 다시 돈다는 것
+
+### 검증하지 못한 것
+
+- 테스트넷에서 유효한 Privacy 상태 변경. 필요한 재료 네 가지가 공개되지 않았고, 목록은 [참가자 가이드의 테스트넷 Privacy까지 남은 것](participant-guide.md#테스트넷-privacy까지-남은-것)에 있습니다.
+- 3단계 로컬 결과가 Maroo 테스트넷에서도 같은지. 로컬에서 만든 증명과 tx는 Maroo 테스트넷 호환성의 증거가 되지 못합니다.
+- 실제 참가자와 진행한 75분. 시간표는 이 머신의 실행 시간과 설명 분량으로 잡았습니다.
+- Linux(WSL2) 밖의 운영체제와 CPU에서 사전 준비와 미리 빌드한 바이너리.
