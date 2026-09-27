@@ -12,7 +12,7 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 | B Enable | 워크샵에서 구현하는 기관 실무 엔지니어 | [75분 워크샵 패키지](track-b-enable/README.md)(참가자·진행자 가이드), [실행 데모](track-b-enable/demo/), [트러블슈팅](track-b-enable/troubleshooting.md) 10개 | `pnpm b:smoke` | 녹화 대기(2026-09-27) |
 | C Activate | Maroo 해커톤에 참가할 빌더 | [세 트랙 포트폴리오](track-c-activate/portfolio.md), [Flagship 트랙 1](track-c-activate/tracks/1-private-settlement.md), [심사 자동 판정](track-c-activate/evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | `pnpm c:agent-limit`, `pnpm c:judge` | 녹화 대기(2026-09-27) |
 
-확인한 결과입니다. 탐색기 링크를 열면 tx의 성공·실패와 가스 사용량이 보입니다. 거부 사유는 탐색기가 풀지 못해 원문(`0xbca5593e…`, `EasNoAttestationReceived(address)`와 대상 주소)과 깨진 글자로 나오므로 기록 파일의 `reason`에서 봅니다.
+확인한 결과입니다. 탐색기 링크를 열면 tx의 성공·실패, 가스 사용량, 거부 사유(예: `EasNoAttestationReceived(address sender)`)가 보입니다. 새로 만든 금고 프록시는 탐색기가 그 주소를 한 번 열기 전까지 사유를 원문과 깨진 글자로만 보여 줍니다([DX 14](SUBMISSION_NOTES.md#dx-feedback)).
 
 - `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 PCL 정책이 `EasNoAttestationReceived`로 거부했고, 증명을 색인한 뒤의 청구는 통과했습니다([A 금고 흐름 기록](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json), 탐색기의 [거부 tx](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)와 [통과 tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)).
 - `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다. tx를 보내지 않고 `eth_call`과 `eth_estimateGas`로 확인했고, 유효한 증명을 만들 재료가 공개되지 않아 차폐 정산 전체는 Clairveil 로컬에서 돌렸습니다([A 진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)).
