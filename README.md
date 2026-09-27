@@ -12,14 +12,14 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 | B Enable | 워크샵에서 구현하는 기관 실무 엔지니어 | [75분 워크샵 패키지](track-b-enable/README.md)(참가자·진행자 가이드), [실행 데모](track-b-enable/demo/), [트러블슈팅](track-b-enable/troubleshooting.md) 10개 | `pnpm b:smoke` | 녹화 대기(2026-09-27) |
 | C Activate | Maroo 해커톤에 참가할 빌더 | [세 트랙 포트폴리오](track-c-activate/portfolio.md), [Flagship 트랙 1](track-c-activate/tracks/1-private-settlement.md), [심사 자동 판정](track-c-activate/evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | `pnpm c:agent-limit`, `pnpm c:judge` | 녹화 대기(2026-09-27) |
 
-확인한 결과입니다. 기록 파일마다 tx 해시와 탐색기 링크가 있습니다.
+확인한 결과입니다. 탐색기 링크를 열면 tx의 성공·실패와 가스 사용량이 보입니다. 거부 사유는 탐색기가 풀지 못해 원문 선택자(`0xbca5593e…`)로만 나오므로 기록 파일의 `reason`에서 봅니다.
 
-- `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 PCL 정책이 `EasNoAttestationReceived`로 거부했고, 증명을 색인한 뒤의 청구는 통과했습니다([A 금고 흐름 기록](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json)).
-- `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다. 유효한 증명을 만들 재료가 공개되지 않아 차폐 정산 전체는 Clairveil 로컬에서 돌렸습니다([A 진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)).
+- `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 PCL 정책이 `EasNoAttestationReceived`로 거부했고, 증명을 색인한 뒤의 청구는 통과했습니다([A 금고 흐름 기록](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json), 탐색기의 [거부 tx](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)와 [통과 tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)).
+- `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다. tx를 보내지 않고 `eth_call`과 `eth_estimateGas`로 확인했고, 유효한 증명을 만들 재료가 공개되지 않아 차폐 정산 전체는 Clairveil 로컬에서 돌렸습니다([A 진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)).
 - `[Local]` 협력사 B에게 보낸 15는 협력사 B, 구매 기업, 감사인이 각자 키로 풀었고, 제3자가 읽는 지급 tx에는 금액 필드가 없습니다([A 로컬 기록](track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md)).
 - `[Live Testnet]` `[Local]` 워크샵 1~5단계와 단계별 성공 기준이 `pnpm b:smoke` 한 번에 91초 만에 통과했습니다([B 세션 기록](track-b-enable/evidence/session-20260926T000329Z.md)).
-- `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 요건 R1~R4를 통과시켰습니다([C 판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json)).
-- `[Live Testnet]` 문서와 다르게 동작한 곳 19건을 재현 명령, owner와 함께 [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md#발견한-차이)에 적었습니다. PCL 정책에 거부된 tx는 문서와 달리 블록에 남아 가스 한도의 절반을 냈고([기록](track-a-explain/evidence/live/reject-gas-20260926T171442Z.json)), 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 막혔습니다([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)).
+- `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 요건 R1~R4를 통과시켰습니다([C 판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json), 탐색기의 [3 OKRW 결제](https://explorer-testnet.maroo.io/tx/0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787)와 [8 OKRW 거부](https://explorer-testnet.maroo.io/tx/0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9)).
+- `[Live Testnet]` 문서와 다르게 동작한 곳 19건을 재현 명령, owner와 함께 [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md#발견한-차이)에 적었습니다. PCL 정책에 거부된 tx는 문서와 달리 블록에 남아 가스 한도의 절반을 냈고([기록](track-a-explain/evidence/live/reject-gas-20260926T171442Z.json), 탐색기에 [150,000 / 300,000, 50%](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)로 보임), 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 막혔습니다([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)).
 
 키와 잔액 없이 확인하려면 `pnpm install`, `pnpm bootstrap`(2분 안팎) 뒤 `pnpm review`(20초)를 돌립니다([실행](#실행)). 기준 버전은 Clairveil v0.4.0 [`ca85b02708fdd75259d4d2ee2d671c21198cec69`](https://github.com/DELIGHT-LABS/clairveil/tree/ca85b02708fdd75259d4d2ee2d671c21198cec69)이고, 13장 요약 장표는 [PDF](slides/maroo-integration-lab-summary.pdf)로 있습니다.
 

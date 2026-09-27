@@ -6,7 +6,7 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 
 ## 확인한 결과
 
-- `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 트랙 2 요건 R1~R4를 통과시켰습니다([판정 결과](evidence/track2-example/evidence.judge.json)).
+- `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 트랙 2 요건 R1~R4를 통과시켰습니다([판정 결과](evidence/track2-example/evidence.judge.json), 탐색기의 [3 OKRW 결제](https://explorer-testnet.maroo.io/tx/0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787)와 [8 OKRW 거부](https://explorer-testnet.maroo.io/tx/0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9)).
 - `[Live Testnet]` 자동 판정은 Track A 기록으로 트랙 1 요건 R1~R5를 통과시켰고, 거부 tx는 직전 블록 상태로 다시 시뮬레이션해 적힌 사유와 대조했습니다([예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회)).
 - `[Live Testnet]` 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 `AgentTransferLimitMetadataInvalid`로 막혔습니다([기록](evidence/live/agent-limit-20260926T044056Z.json)).
 
