@@ -84,7 +84,8 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
   const after = balance(out, "supplier-a-balance-after.json");
   const wq = load(out, "supplier-a-withdraw-query.json");
   const fee = (wq.tx.auth_info.fee.amount as Json[]).filter((c) => c.denom === "uclair").reduce((s, c) => s + BigInt(c.amount), 0n);
-  const feeNote = after - before === 12n ? "fee는 잔액에서 빠지지 않았습니다" : "fee가 잔액에서 빠졌습니다";
+  const withdrawnA = BigInt(String(wq.tx.body.messages[0].amount).replace(/uclair$/, ""));
+  const feeNote = after - before === withdrawnA ? "fee는 잔액에서 빠지지 않았습니다" : "fee가 잔액에서 빠졌습니다";
   lines.push(`| 협력사 A | 인출 전후 투명 잔액 | ${before} → ${after} (차이 ${after - before}. tx에 적힌 fee ${fee}, ${feeNote}) |`);
   lines.push(`| 협력사 A | 인출 뒤 남은 노트 | spendable [${spendable(out, "supplier-a-notes-after.json").join(", ")}] |`);
   lines.push(`| 누구나 | 차폐 풀 준비금 불변식 | invariant_holds=${load(out, "reserve.json").invariant_holds} |`);

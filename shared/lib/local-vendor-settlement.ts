@@ -99,6 +99,8 @@ export async function runLocalVendorSettlement(opts: {
   async function submit(name: string, args: string[], { allowFail = false } = {}): Promise<Json> {
     const res = await cliJson([...args, ...txFlags]);
     save(`${name}.json`, res);
+    // 브로드캐스트 단계(CheckTx)에서 거부되면 블록에 들어가지 않는다. 기다리지 않고 원인을 바로 낸다.
+    if ((res.code ?? 0) !== 0 && !allowFail) throw new Error(`${name} 이 브로드캐스트에서 거부됐습니다 (code ${res.code}): ${res.raw_log}`);
     const q = await waitTx(res.txhash);
     save(`${name}-query.json`, q);
     console.log(`  ${name}  ${res.txhash}  높이 ${q.height}  code ${q.code ?? 0}`);
@@ -124,7 +126,9 @@ export async function runLocalVendorSettlement(opts: {
   const roles = opts.extras ? ["buyer", "supplier-a", "supplier-b", "auditor", "relayer"] : ["buyer", "supplier-a", "supplier-b", "auditor"];
   const address: Record<string, string> = {};
   for (const who of roles) {
-    save(`${who}-key.json`, await cli(["keys", "add", who, ...keyring, "--output", "json"]));
+    // 로컬 체인에서만 쓰는 키지만 복구 문구는 파일에 남기지 않는다.
+    const { mnemonic: _mnemonic, ...key } = JSON.parse(await cli(["keys", "add", who, ...keyring, "--output", "json"])) as Json;
+    save(`${who}-key.json`, key);
     address[who] = (await cli(["keys", "show", "-a", who, ...keyring])).trim();
     save(`${who}-address.txt`, address[who] + "\n");
   }
