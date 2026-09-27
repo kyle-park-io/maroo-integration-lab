@@ -24,8 +24,8 @@
 | 2 | R1 | Agent 프리컴파일과 IdentityRegistry | 레지스트리가 배포돼 있고 `register`가 통과 | 레지스트리 `0x8004…0001`(AgentIdentity, preinstall-1.0.0), `register(string)` 시뮬레이션 통과(다음 agentId 79) |
 | 2 | R2, R4 | 에이전트 한도 템플릿 | 템플릿이 등록돼 있음 | `AGENT_OKRW_TRANSFER_LIMIT_POLICY` 등록됨 |
 | 2 | R1 | 에이전트 지갑 연결(`pnpm c:agent-limit`) | 연결 뒤 에이전트 지갑으로 ID를 찾음 | `setAgentWallet` 성공. 연결 뒤 `getAgentIds(에이전트 지갑)` = `[79]`, `getAgentIds(소유자)` = `[]`, `ownerOf(79)`는 구매 기업 그대로 ([기록](evidence/live/agent-limit-20260926T044056Z.json)) |
-| 2 | R2~R4 | 한도, 정책, 결제, 거부(`pnpm c:agent-limit`) | 한도 안 결제 성공, 한도 초과 `ExceededAgentTransferLimit` | `TransferLimit` 5 OKRW(32바이트 uint256), 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW 결제 `ExceededAgentTransferLimit(5e18, 8e18)`로 되돌려짐 ([기록](evidence/live/agent-limit-20260926T044056Z.json), [트랙 2 16절](tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet)) |
-| 2 | R2~R4 | 가스 한도를 추정값의 125%로 바꾼 뒤 재실행(2026-09-27, [agent-limit-20260927T085643Z.json](evidence/live/agent-limit-20260927T085643Z.json)) | 같은 결과 | 세 형식 시험 결과 같음(빈 값과 숫자 문자열은 `AgentTransferLimitMetadataInvalid`, 32바이트만 동작), 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`, 거부 tx 가스 364,011 / 728,023(50.0%) |
+| 2 | R2\~R4 | 한도, 정책, 결제, 거부(`pnpm c:agent-limit`) | 한도 안 결제 성공, 한도 초과 `ExceededAgentTransferLimit` | `TransferLimit` 5 OKRW(32바이트 uint256), 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW 결제 `ExceededAgentTransferLimit(5e18, 8e18)`로 되돌려짐 ([기록](evidence/live/agent-limit-20260926T044056Z.json), [트랙 2 16절](tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet)) |
+| 2 | R2\~R4 | 가스 한도를 추정값의 125%로 바꾼 뒤 재실행(2026-09-27, [agent-limit-20260927T085643Z.json](evidence/live/agent-limit-20260927T085643Z.json)) | 같은 결과 | 세 형식 시험 결과 같음(빈 값과 숫자 문자열은 `AgentTransferLimitMetadataInvalid`, 32바이트만 동작), 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`, 거부 tx 가스 364,011 / 728,023(50.0%) |
 | 2 | 주의 사항 | 전역 정책의 에이전트 소유자 평가 | 에이전트 결제를 소유자 기준으로 평가 | `ForEach(Every, AgentOwners, Or(24시간 1,000만 OKRW, KYC 증명))`, `ForEach(Any, AgentOwners, KYC 증명)` |
 | 2 | 문제 정의 | 레지스트리 활동 | 등록과 메타데이터 활동이 있음 | 최근 50건(`register` 22, `setMetadata` 15, `setAgentURI` 11, 실패 2), 마지막 2026-09-06 18:15 |
 | 3 | R2, R4 | 정책 템플릿 | 문서가 적은 템플릿이 등록돼 있고, 지웠다는 두 템플릿은 없음 | `EAS_POLICY`, `VOLUME_POLICY`, `PERIODIC_VOLUME_POLICY`, `LOGICAL_POLICY`, `FOR_EACH_POLICY` 등록됨. 없는 ID는 되돌려짐 |
@@ -57,7 +57,7 @@
 | --- | --- |
 | 명령 | `pnpm c:judge-example`(Track A 기록을 트랙 1 형식으로 옮긴 뒤 `pnpm c:judge --track 1`) |
 | 입력 | [evidence.json](evidence/judge-example/evidence.json): 로컬 항목 셋(R1, R2), 금고 tx 넷(R3 거부 둘과 통과 하나, R4 입금), Privacy 최초 실패 기록 하나(R5) |
-| 결과 | [evidence.judge.json](evidence/judge-example/evidence.judge.json): R1~R5 모두 통과. 거부 tx 둘은 직전 블록 상태로 다시 시뮬레이션해 `EasNoAttestationReceived`, `EasAttestationRevoked`가 적힌 사유와 같았고, 금고의 `claim()` 선택자(`0x4e71d92d`)에 `EAS_POLICY`가 묶여 있음을 확인 |
+| 결과 | [evidence.judge.json](evidence/judge-example/evidence.judge.json): R1\~R5 모두 통과. 거부 tx 둘은 직전 블록 상태로 다시 시뮬레이션해 `EasNoAttestationReceived`, `EasAttestationRevoked`가 적힌 사유와 같았고, 금고의 `claim()` 선택자(`0x4e71d92d`)에 `EAS_POLICY`가 묶여 있음을 확인 |
 | 시험한 실패 경우 | 공개 레지스트리 tx에 부풀린 거부 사유(`ExceededAgentTransferLimit`)를 붙인 항목은 재시뮬레이션 사유와 달라 실패로 판정(2026-09-26 05시, 레포에는 남기지 않음) |
 
 트랙 2는 이 레포가 직접 채운 기록으로 판정했습니다.
@@ -66,7 +66,7 @@
 | --- | --- |
 | 명령 | `pnpm c:agent-limit`가 만든 입력으로 `pnpm c:judge track-c-activate/evidence/track2-example/evidence.json --track 2` |
 | 입력 | [evidence.json](evidence/track2-example/evidence.json): 등록과 지갑 연결(R1), `setMetadata`와 정책 바인딩(R2), 한도 안 결제(R3), 한도 초과 결제(R4) |
-| 결과 | [evidence.judge.json](evidence/track2-example/evidence.judge.json): R1~R4 모두 통과. 거부 tx는 직전 블록 재시뮬레이션에서 `ExceededAgentTransferLimit(5e18, 8e18)`, 금고 `fund()`(`0x23024408`)에 정책이 묶여 있고 `TransferLimit`이 32바이트 uint256 |
+| 결과 | [evidence.judge.json](evidence/track2-example/evidence.judge.json): R1\~R4 모두 통과. 거부 tx는 직전 블록 재시뮬레이션에서 `ExceededAgentTransferLimit(5e18, 8e18)`, 금고 `fund()`(`0x23024408`)에 정책이 묶여 있고 `TransferLimit`이 32바이트 uint256 |
 | 시험한 실패 경우 | Maroo Docs 형식(숫자 문자열)으로 쓴 `setMetadata` tx를 R2 항목으로 넣으면 "TransferLimit 값이 19바이트"로 실패 판정(2026-09-26, 레포에는 남기지 않음) |
 
 ## 6. 보조 증거

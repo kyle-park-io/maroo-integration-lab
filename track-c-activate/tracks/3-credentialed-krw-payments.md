@@ -52,7 +52,7 @@ OKRW, PCL, EAS.
 
 ## 9. 제출자가 연동을 증명하는 방법
 
-- `evidence.json`(형식은 [트랙 1의 23절](1-private-settlement.md#23-테스트넷-증거-요건))에 R1~R4의 tx 해시와 사유 코드를 적습니다.
+- `evidence.json`(형식은 [트랙 1의 23절](1-private-settlement.md#23-테스트넷-증거-요건))에 R1\~R4의 tx 해시와 사유 코드를 적습니다.
 - 스키마 UID와 스키마 문자열, 정책을 묶은 선택자를 README에 적습니다.
 
 ## 10. 필수 제출 자료

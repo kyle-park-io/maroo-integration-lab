@@ -3,7 +3,7 @@
 레포의 문서와 기록을 13장으로 줄인 요약 그림입니다. 영상의 장 사이에도 같은 그림을 씁니다. 숫자와 문장은 아래 근거 문서에서 옮겼고, 장표에만 있는 주장은 없습니다. 라벨의 뜻은 [README의 증거 라벨](../README.md#증거-라벨)과 같습니다.
 
 - PDF 한 부: [maroo-integration-lab-summary.pdf](maroo-integration-lab-summary.pdf)
-- 장마다 PNG: `slide-01.png` ~ `slide-13.png`
+- 장마다 PNG: `slide-01.png` \~ `slide-13.png`
 
 | 장 | 제목 | 근거 |
 | --- | --- | --- |

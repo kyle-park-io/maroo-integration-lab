@@ -14,7 +14,7 @@
 ## 읽는 순서
 
 1. [기관 연동 가이드](integration-guide.md) 0절에서 독자 상황, 네 질문의 답, 지금 되는 것과 남은 것을 봅니다.
-2. 가이드 1~4절에서 구조, 흐름, 가시성, 키와 책임을 봅니다.
+2. 가이드 1\~4절에서 구조, 흐름, 가시성, 키와 책임을 봅니다.
 3. [실행 레시피](runnable-recipe.md)로 직접 실행하고, [증거 목록](evidence.md)과 결과를 대조합니다.
 4. [기관 FAQ](faq.md)와 [문서 개선 노트](documentation-improvement-notes.md)를 봅니다.
 
@@ -22,11 +22,11 @@
 
 | 결과물 | 파일 | 담은 것 |
 | --- | --- | --- |
-| 기관 연동 가이드 | [integration-guide.md](integration-guide.md) | 공급업체 정산 여정으로 짠 0~8절과 부록. 아키텍처 다이어그램, 시퀀스 다이어그램, 노트 상태 다이어그램. 온체인, 오프체인, 지갑, prover, auditor, policy 경계 표. 상태 전이, 가시성, 키와 서비스 책임, 실패 분류와 최초 실패 계층, 4~8주 PoC 설계, 프로덕션 전에 남은 것. 문서 확인(`[Docs Only]`), 직접 검증(`[Live Testnet]`, `[Local]`), 제안(권고)을 문장마다 표시 |
+| 기관 연동 가이드 | [integration-guide.md](integration-guide.md) | 공급업체 정산 여정으로 짠 0\~8절과 부록. 아키텍처 다이어그램, 시퀀스 다이어그램, 노트 상태 다이어그램. 온체인, 오프체인, 지갑, prover, auditor, policy 경계 표. 상태 전이, 가시성, 키와 서비스 책임, 실패 분류와 최초 실패 계층, 4\~8주 PoC 설계, 프로덕션 전에 남은 것. 문서 확인(`[Docs Only]`), 직접 검증(`[Live Testnet]`, `[Local]`), 제안(권고)을 문장마다 표시 |
 | 실행 레시피 | [runnable-recipe.md](runnable-recipe.md), [recipe/](recipe/) | TypeScript 스크립트 여섯 개와 Solidity 금고. 준비, 입력값, 예상 결과, 확인 방법, 오류 처리. 테스트넷과 로컬의 검증 범위를 나눔 |
 | 기관 FAQ | [faq.md](faq.md) | 질문 9개. prover에 보이는 것, 감사, disclosure, 키 보관, KYB와 PCL, 사전 검사, 재시도와 이중 지급, 업그레이드, 프로덕션 준비도 |
 | 문서 개선 노트 | [documentation-improvement-notes.md](documentation-improvement-notes.md) | Maroo Docs 7개, Clairveil 1개. 항목마다 멈추는 사람과 단계, 잘못 믿게 되는 것, 확인 비용, 재현 명령, 고친 문구 제안 |
-| 기술 워크스루 영상 | 녹화 대기(2026-09-27) | 시니어 엔지니어 대상 아키텍처 리뷰와 실행 경로 시연, 12~18분 |
+| 기술 워크스루 영상 | 녹화 대기(2026-09-27) | 시니어 엔지니어 대상 아키텍처 리뷰와 실행 경로 시연, 12\~18분 |
 
 ## 바로 실행
 

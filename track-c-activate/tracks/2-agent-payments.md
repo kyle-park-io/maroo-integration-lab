@@ -53,7 +53,7 @@ Agent identity(ERC-8004 IdentityRegistry와 Agent 프리컴파일) 또는 MAWS, 
 
 ## 9. 제출자가 연동을 증명하는 방법
 
-- `evidence.json`(형식은 [트랙 1의 23절](1-private-settlement.md#23-테스트넷-증거-요건))에 R1~R4의 tx 해시를 적습니다.
+- `evidence.json`(형식은 [트랙 1의 23절](1-private-settlement.md#23-테스트넷-증거-요건))에 R1\~R4의 tx 해시를 적습니다.
 - R5는 에이전트가 받은 오류 원문, 해석한 사유, 다음 행동을 한 줄씩 남긴 로그를 제출합니다.
 - 기기 갈래는 기기 이벤트와 결제 tx를 잇는 로그를 둡니다.
 
@@ -90,7 +90,7 @@ Agent identity(ERC-8004 IdentityRegistry와 Agent 프리컴파일) 또는 MAWS, 
 | [두 층 정책 모델](https://docs.maroo.io/concepts/agents/two-layer-policy-model/), [MAWS 구조](https://docs.maroo.io/concepts/agents/maws-architecture-overview/) | MAWS를 쓸 때 |
 | [탐색기에 검증된 IdentityRegistry 소스](https://explorer-testnet.maroo.io/address/0x8004000000000000000000000000000000000001?tab=contract) | 실제 함수 목록. 문서의 호출 스케치와 다르므로 이 소스를 기준으로 삼음 |
 | `pnpm c:grounding` | 레지스트리, 프리컴파일, 템플릿, 전역 정책 조회와 등록 시뮬레이션. `--write`로 등록 tx 한 건 |
-| `pnpm c:agent-limit` | R1~R4를 테스트넷에서 한 번에 채우는 흐름(16절). Maroo 공식 SDK `@maroo-chain/viem`의 레지스트리 액션, `policy.agentOkrwTransferLimit`, `pcl.deployPclProxy`, `simulatePclProxy`를 씀 |
+| `pnpm c:agent-limit` | R1\~R4를 테스트넷에서 한 번에 채우는 흐름(16절). Maroo 공식 SDK `@maroo-chain/viem`의 레지스트리 액션, `policy.agentOkrwTransferLimit`, `pcl.deployPclProxy`, `simulatePclProxy`를 씀 |
 
 ## 14. 흔히 발생하는 무효 또는 피상적 연동
 
@@ -113,7 +113,7 @@ Agent identity(ERC-8004 IdentityRegistry와 Agent 프리컴파일) 또는 MAWS, 
 
 ## 16. 요건을 직접 채운 예시 `[Live Testnet]`
 
-이 레포가 구매 기업 지갑과 에이전트 지갑으로 R1~R4를 테스트넷에서 채웠습니다. 에이전트는 기존 정산 금고(`SettlementVault`)의 구매자 자리에 앉아 협력사 몫을 넣고, 금고의 `fund()`에 에이전트 한도 정책을 묶었습니다. 새 컨트랙트는 만들지 않았습니다.
+이 레포가 구매 기업 지갑과 에이전트 지갑으로 R1\~R4를 테스트넷에서 채웠습니다. 에이전트는 기존 정산 금고(`SettlementVault`)의 구매자 자리에 앉아 협력사 몫을 넣고, 금고의 `fund()`에 에이전트 한도 정책을 묶었습니다. 새 컨트랙트는 만들지 않았습니다.
 
 ```mermaid
 sequenceDiagram
@@ -155,7 +155,7 @@ sequenceDiagram
 | SDK 주석 형식: 32바이트 big-endian uint256 | 통과(추정 가스 502,449) | `ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)` |
 
 - 세 경우 모두 `eth_call`(SDK `simulatePclProxy`)과 `eth_estimateGas`가 같은 결과를 냈습니다. 컨트랙트 범위의 에이전트 한도는 `eth_call`로도 미리 확인할 수 있습니다.
-- 판정: `pnpm c:judge track-c-activate/evidence/track2-example/evidence.json --track 2`에서 R1~R4 모두 통과했습니다([판정 결과](../evidence/track2-example/evidence.judge.json)). 문서 형식으로 쓴 `setMetadata` tx를 넣으면 R2가 실패로 판정됩니다.
+- 판정: `pnpm c:judge track-c-activate/evidence/track2-example/evidence.json --track 2`에서 R1\~R4 모두 통과했습니다([판정 결과](../evidence/track2-example/evidence.judge.json)). 문서 형식으로 쓴 `setMetadata` tx를 넣으면 R2가 실패로 판정됩니다.
 - 새 지갑 파일로 에이전트 등록(agentId 80)부터 다시 실행해도 같은 결과였습니다([등록 기록](../evidence/live/grounding-20260926T053055Z.json), [실증 기록](../evidence/live/agent-limit-20260926T053121Z.json)).
 - 한 번 실행에 약 30 OKRW가 듭니다. 구매 기업 19.30(금고 배포, 정책, 메타데이터 세 번), 에이전트 지갑 10.80(결제 3과 가스)이었습니다.
 - 확인하지 않은 것: 전역 범위 정책에서 다른 컨트랙트가 에이전트가 시작한 호출을 옮길 때의 귀속, R5와 기기 갈래.

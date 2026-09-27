@@ -117,4 +117,4 @@ eth_estimateGas  거부: AnyOfRejected(...)
 | 금고 회수 권한 | 이 레포의 금고는 협력사가 청구하기 전이면 구매 기업이 언제든 `recall`로 몫을 되돌릴 수 있습니다. 프로덕션에서는 청구 기간이나 타임락을 둡니다 | `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) 8단계, 권고 |
 | 출시 전 관문 | Clairveil 운영 가이드의 최소 메인넷 관문(10개)과 위협 모델의 다운스트림 보안 관문(9개)이 남아 있습니다 | `[Docs Only]` [운영 가이드 11절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-operations-guide.md), [위협 모델 8절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md) |
 
-- 권고: 4~8주 PoC는 소액 흐름 검증, prover 배치 결정, 감사 키 보관 설계, KYB 발급 경로, 체인 밖 지급 원장과 대사까지로 잡고, 금액 상한과 규제기관 열람은 Maroo의 로드맵 확인 항목으로 둡니다.
+- 권고: 4\~8주 PoC는 소액 흐름 검증, prover 배치 결정, 감사 키 보관 설계, KYB 발급 경로, 체인 밖 지급 원장과 대사까지로 잡고, 금액 상한과 규제기관 열람은 Maroo의 로드맵 확인 항목으로 둡니다.

@@ -6,8 +6,8 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 
 ## 확인한 결과
 
-- `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 트랙 2 요건 R1~R4를 통과시켰습니다([판정 결과](evidence/track2-example/evidence.judge.json), 탐색기의 [3 OKRW 결제](https://explorer-testnet.maroo.io/tx/0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787)와 [8 OKRW 거부](https://explorer-testnet.maroo.io/tx/0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9)).
-- `[Live Testnet]` 자동 판정은 Track A 기록으로 트랙 1 요건 R1~R5를 통과시켰고, 거부 tx는 직전 블록 상태로 다시 시뮬레이션해 적힌 사유와 대조했습니다([예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회)).
+- `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 트랙 2 요건 R1\~R4를 통과시켰습니다([판정 결과](evidence/track2-example/evidence.judge.json), 탐색기의 [3 OKRW 결제](https://explorer-testnet.maroo.io/tx/0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787)와 [8 OKRW 거부](https://explorer-testnet.maroo.io/tx/0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9)).
+- `[Live Testnet]` 자동 판정은 Track A 기록으로 트랙 1 요건 R1\~R5를 통과시켰고, 거부 tx는 직전 블록 상태로 다시 시뮬레이션해 적힌 사유와 대조했습니다([예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회)).
 - `[Live Testnet]` 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 `AgentTransferLimitMetadataInvalid`로 막혔습니다([기록](evidence/live/agent-limit-20260926T044056Z.json)).
 
 ## 결과물
@@ -19,19 +19,19 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 | 트랙 2. 규칙 안의 에이전트 결제 | [tracks/2-agent-payments.md](tracks/2-agent-payments.md) | 필수 15항목. 기기가 결제하는 갈래 포함 |
 | 트랙 3. 자격으로 여는 원화 결제 | [tracks/3-credentialed-krw-payments.md](tracks/3-credentialed-krw-payments.md) | 필수 15항목 |
 | 기술 근거 | [grounding/check-track-requirements.ts](grounding/check-track-requirements.ts), [evidence.md](evidence.md) | 세 트랙 요건이 기대는 기능을 테스트넷에서 조회하고 시뮬레이션한 기록 |
-| 심사 자동 판정 | [judge/check-evidence.ts](judge/check-evidence.ts), [예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | 참가자의 `evidence.json`을 테스트넷에서 다시 확인해 요건별로 판정. 적힌 거부 사유가 실제와 다르면 실패로 표시. Track A 기록으로 만든 예시에서 트랙 1 요건 R1~R5 통과 |
-| 워크스루 영상 | 녹화 대기(2026-09-27) | 트랙을 나눈 이유, Flagship 최소 연동 요건과 심사 기준, 피상적 연동을 거르는 방법, 5~8분 |
+| 심사 자동 판정 | [judge/check-evidence.ts](judge/check-evidence.ts), [예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | 참가자의 `evidence.json`을 테스트넷에서 다시 확인해 요건별로 판정. 적힌 거부 사유가 실제와 다르면 실패로 표시. Track A 기록으로 만든 예시에서 트랙 1 요건 R1\~R5 통과 |
+| 워크스루 영상 | 녹화 대기(2026-09-27) | 트랙을 나눈 이유, Flagship 최소 연동 요건과 심사 기준, 피상적 연동을 거르는 방법, 5\~8분 |
 
 ## 필수 항목 대응
 
 | 항목 | 트랙 1 | 트랙 2 | 트랙 3 |
 | --- | --- | --- | --- |
-| 이름, 핵심 주제, 문제 정의, 대상 빌더, 활용 사례 | 1~5절 | 1~5절 | 1~5절 |
-| 필수 primitive와 필요한 이유 | 6~7절 | 6~7절 | 6~7절 |
-| 최소 연동 요건, 증명 방법, 제출 자료 | 8~10절 | 8~10절 | 8~10절 |
-| 심사 기준과 배점, 프로젝트 예시, 참고 자료 | 11~13절 | 11~13절 | 11~13절 |
-| 무효 연동 사례, 보안·프라이버시·프로덕션 주의 사항 | 14~15절 | 14~15절 | 14~15절 |
-| Flagship 추가 항목 | 16~26절 | 해당 없음 | 해당 없음 |
+| 이름, 핵심 주제, 문제 정의, 대상 빌더, 활용 사례 | 1\~5절 | 1\~5절 | 1\~5절 |
+| 필수 primitive와 필요한 이유 | 6\~7절 | 6\~7절 | 6\~7절 |
+| 최소 연동 요건, 증명 방법, 제출 자료 | 8\~10절 | 8\~10절 | 8\~10절 |
+| 심사 기준과 배점, 프로젝트 예시, 참고 자료 | 11\~13절 | 11\~13절 | 11\~13절 |
+| 무효 연동 사례, 보안·프라이버시·프로덕션 주의 사항 | 14\~15절 | 14\~15절 | 14\~15절 |
+| Flagship 추가 항목 | 16\~26절 | 해당 없음 | 해당 없음 |
 | 이 레포가 직접 채운 예시 | 24절(`pnpm c:judge-example`) | 16절(`pnpm c:agent-limit`) | 없음 |
 
 ## 실행

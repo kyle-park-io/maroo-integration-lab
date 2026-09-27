@@ -12,7 +12,7 @@
 - Clairveil 버전: clairveil-samples `8321ded`가 맞춰 둔 조합(Clairveil v0.4.0, ClairveilJS `faf220d5`)을 썼습니다. Maroo `IPrivacy`의 전송 요청 필드가 v0.4.0 `MsgTransfer`와 같고 v0.5.x(`privacy/v2`)와 다른 것도 이 선택을 받칩니다 `[Live Testnet]` ABI 대조.
 - 실제 구현, 제안, 모의 구현의 구분
   - 실제로 실행한 것: 레포의 모든 명령과 그 기록(`evidence/`). 테스트넷 조회와 시뮬레이션, 로컬 체인 tx.
-  - 제안: 문서에 "권고"로 표시한 설계와 절차, A의 4~8주 PoC 설계, B의 진행자 운영 방식, C의 스타터 키트 명세.
+  - 제안: 문서에 "권고"로 표시한 설계와 절차, A의 4\~8주 PoC 설계, B의 진행자 운영 방식, C의 스타터 키트 명세.
   - 모의 구현: 없습니다. 테스트넷에 기관용 KYB 발급자가 없어 이 레포의 `ISSUER` 역할이 시험용 KYB 스키마(`bytes32 bizRegNoHash, bool kybVerified`)를 등록하고 증명을 발급합니다. 실제 사업자 확인을 거친 증명이 아니라서 문서에는 "시험용 발급자"로 적습니다.
   - 시뮬레이션: 유효한 증명 없이 부른 Privacy 호출(`eth_call`, `eth_estimateGas`)은 거부 경로 증거로만 씁니다. 무효한 증명을 담은 tx는 보내지 않았습니다.
 - 의도적으로 제외한 범위: 새 ZK 회로, Clairveil 코드 수정, 프로덕션 지갑과 키 관리, 완성된 프론트엔드, 비공개 Maroo 구성 요소의 추측과 역공학, 메인넷, 법률 자문과 규제 적합성 판단.
@@ -20,12 +20,12 @@
 
 ### A
 
-- 독자: 대기업 구매·재무 조직, 또는 그 지급 시스템을 운영하는 은행과 핀테크의 시니어 백엔드 엔지니어. TypeScript와 EVM 도구에 익숙하고, 4~8주 PoC 뒤 보안·컴플라이언스·운영·제품 팀에 설명해야 하는 사람으로 가정했습니다.
+- 독자: 대기업 구매·재무 조직, 또는 그 지급 시스템을 운영하는 은행과 핀테크의 시니어 백엔드 엔지니어. TypeScript와 EVM 도구에 익숙하고, 4\~8주 PoC 뒤 보안·컴플라이언스·운영·제품 팀에 설명해야 하는 사람으로 가정했습니다.
 - 이 독자는 공개 체인 결제에서 금액과 거래 관계가 드러나는 것을 가장 먼저 걱정하고, 그다음으로 감사 가능성과 키 책임을 묻는다고 봤습니다. 가이드 0절의 네 질문이 이 가정에서 나왔습니다.
 
 ### B
 
-- 참가자: 기관의 실무 엔지니어 10~30명. TypeScript 백엔드 경험이 있고 지갑과 트랜잭션을 한 번 이상 다뤄 본 사람으로 가정했습니다.
+- 참가자: 기관의 실무 엔지니어 10\~30명. TypeScript 백엔드 경험이 있고 지갑과 트랜잭션을 한 번 이상 다뤄 본 사람으로 가정했습니다.
 - Clairveil 빌드는 학습 목표가 아니라서 사전 준비(`pnpm b:prepare`)로 뺐습니다. faucet이 멈출 수 있어 진행자 지갑 배분(`pnpm b:fund`)을 기본 경로로 두었습니다.
 
 ### C
@@ -78,8 +78,8 @@
 | `pnpm review`(새 클론, 잔액 0) | 19초에 8단계 모두 통과(타입 검사, 금고 테스트, 단위 테스트, 테스트넷 조회 넷, 워크샵 사전 점검). `--local`은 79초에 9단계 모두 통과. 추적 중인 파일은 바뀌지 않음 |
 | `pnpm test:contracts` | 금고 테스트 6개 통과 |
 | `pnpm typecheck` | 오류 없음 |
-| `pnpm test:unit` | 31개 통과(체인 호출 없음). 정책 해석이 테스트넷 정책 원문에서 SDK 도입 전 해석기의 기록과 같음, 심사 판정 규칙(트랙 1~3), 워크샵 4단계 분류, revert 사유 해석, 금고 흐름이 `@maroo-chain/viem`으로 만드는 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
-| 에이전트 스킬 시험 | 새 하위 에이전트가 스킬 파일만 읽고 연동 질문 11개에 답함. 8개는 스킬의 규칙과 라벨대로 맞게 답했고, 3개는 "스킬에 없음"으로 답해 짐작하지 않았음(메인넷 RPC, OKRW ERC-20 주소, Privacy 성공 방법). 성공 경로가 지금 없다는 것과 OKRW는 네이티브 value라는 것을 스킬에 더 적음. 2차로 GitHub에서 새로 받은 클론을 에이전트 도구로 열고 처음 보는 개발자의 질문 여섯 개를 새 세션마다 물음. 연동 질문 다섯 개는 모두 스스로 스킬을 불러 13~37초에 답했고, 레포 소개 질문은 README를 읽고 답함. 여섯 개 모두 답의 방향은 기록과 맞았고, 두 답이 스킬에서 옮긴 부정확한 문장(가스 절반이 적용되는 범위, 금고 흐름 비용)을 담고 있어 스킬을 고침. 3차로 Codex에 같은 여섯 질문을 물음. 루트 AGENTS.md가 없으면 여섯 세션 모두 스킬을 읽지 않았고 가스 질문은 웹의 문서 수치로 틀리게 답함. AGENTS.md를 더하면 여섯 세션 모두 스킬을 읽고 맞게 답했고 시간 중앙값은 95초에서 37초로 줄어 AGENTS.md를 넣음. 4차로 같은 스킬을 Codex가 스스로 찾는 `.agents/skills/`에 두자 AGENTS.md 없이도 여섯 세션 모두 스킬을 열고 맞게 답함. 최종 형태(스킬 두 자리와 AGENTS.md)도 두 질문으로 확인함 [기록](track-a-explain/evidence/code/skill-check-20260927.md) |
+| `pnpm test:unit` | 31개 통과(체인 호출 없음). 정책 해석이 테스트넷 정책 원문에서 SDK 도입 전 해석기의 기록과 같음, 심사 판정 규칙(트랙 1\~3), 워크샵 4단계 분류, revert 사유 해석, 금고 흐름이 `@maroo-chain/viem`으로 만드는 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
+| 에이전트 스킬 시험 | 새 하위 에이전트가 스킬 파일만 읽고 연동 질문 11개에 답함. 8개는 스킬의 규칙과 라벨대로 맞게 답했고, 3개는 "스킬에 없음"으로 답해 짐작하지 않았음(메인넷 RPC, OKRW ERC-20 주소, Privacy 성공 방법). 성공 경로가 지금 없다는 것과 OKRW는 네이티브 value라는 것을 스킬에 더 적음. 2차로 GitHub에서 새로 받은 클론을 에이전트 도구로 열고 처음 보는 개발자의 질문 여섯 개를 새 세션마다 물음. 연동 질문 다섯 개는 모두 스스로 스킬을 불러 13\~37초에 답했고, 레포 소개 질문은 README를 읽고 답함. 여섯 개 모두 답의 방향은 기록과 맞았고, 두 답이 스킬에서 옮긴 부정확한 문장(가스 절반이 적용되는 범위, 금고 흐름 비용)을 담고 있어 스킬을 고침. 3차로 Codex에 같은 여섯 질문을 물음. 루트 AGENTS.md가 없으면 여섯 세션 모두 스킬을 읽지 않았고 가스 질문은 웹의 문서 수치로 틀리게 답함. AGENTS.md를 더하면 여섯 세션 모두 스킬을 읽고 맞게 답했고 시간 중앙값은 95초에서 37초로 줄어 AGENTS.md를 넣음. 4차로 같은 스킬을 Codex가 스스로 찾는 `.agents/skills/`에 두자 AGENTS.md 없이도 여섯 세션 모두 스킬을 열고 맞게 답함. 최종 형태(스킬 두 자리와 AGENTS.md)도 두 질문으로 확인함 [기록](track-a-explain/evidence/code/skill-check-20260927.md) |
 | GitHub Actions `ci` | 2026-09-26 05:01 UTC 첫 실행 35초, 타입 검사, `forge fmt --check`, 금고 테스트 6개, 단위 테스트 24개 모두 통과(에이전트 스킬 검사가 더해져 지금은 31개). 테스트넷 호출 없음 |
 | `pnpm diagrams:check` | Mermaid 다섯 개를 두 테마로 10번 렌더링, 실패 0. 그림을 열어 선이 상자를 가로지르는 곳을 찾아 한 번 고침 |
 | 커밋 전 훅 | 타입 검사, `forge fmt`, `forge test`, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어를 커밋마다 검사 |
@@ -97,7 +97,7 @@
 | `pnpm a:probe-send-gas` | 2026-09-26 05:21 | 단순 이체 추정 104,017(일반 계정), 283,560(에이전트 지갑). 가스 21,000 전송은 되돌려짐(수수료 0.189 OKRW), 추정값의 125% 전송도 104,017만 씀. 04:30 실행의 283,524는 구매 기업 지갑이 에이전트 지갑이던 때의 값 | [JSON](track-a-explain/evidence/live/probe-send-gas-20260926T052147Z.json) |
 | `pnpm a:reject-gas` | 2026-09-26 17:14 | 두 번의 금고 흐름과 두 번의 트랙 2 실행에서 정책에 걸린 tx 여덟 건의 영수증. 모두 블록에 들어가 되돌려졌고 가스 한도의 50.0%를 씀(청구 150,000/300,000으로 1.35 OKRW, 결제 약 364,000/728,000으로 3.28 OKRW). 조회만 함 | [JSON](track-a-explain/evidence/live/reject-gas-20260926T171442Z.json), [JSON](track-a-explain/evidence/live/reject-gas-20260926T171444Z.json) |
 | `pnpm a:probe-kyc` | 2026-09-25 20:17 | 카카오 본인 인증 증명이 있는 지갑(주소 비공개)도 증명 없는 지갑과 같이 `SDKInvalidRequest()` | [JSON](track-a-explain/evidence/live/probe-kyc-holder-20260925T201710Z.json) |
-| `pnpm a:doc-claims` | 2026-09-26 05:13 | 문서 개선 노트 1~5의 근거. 다섯 항목 모두 같은 결론. 문서 페이지가 200이 아니면 판정하지 않고 멈춤 | [JSON](track-a-explain/evidence/live/doc-claims-20260926T051350Z.json) |
+| `pnpm a:doc-claims` | 2026-09-26 05:13 | 문서 개선 노트 1\~5의 근거. 다섯 항목 모두 같은 결론. 문서 페이지가 200이 아니면 판정하지 않고 멈춤 | [JSON](track-a-explain/evidence/live/doc-claims-20260926T051350Z.json) |
 | `pnpm a:local` | 2026-09-25 18:19 | 로컬 tx 11건. 단독 인출 실패(code 1)와 같은 블록 우회 성공, 역할별 해독 `verified=true` | [기록](track-a-explain/evidence/local/vendor-settlement-20260925T181924Z.md) |
 | `pnpm a:kyb-gate` | 2026-09-26 00:01 | tx 18건, 37초. 증명 없음·색인 전 청구 `EasNoAttestationReceived`, 폐기 뒤 `EasAttestationRevoked`, 색인 뒤 청구 성공. 구현 슬롯 확인, 정책 관리자와 업그레이드 권한 분리. 구매 기업 250.06 OKRW 사용 | [JSON](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 | `pnpm a:kyb-gate`(SDK 코드, 새 지갑) | 2026-09-26 05:26 | 프록시 배포와 정책 바인딩을 `@maroo-chain/viem`으로 바꾼 뒤 첫 테스트넷 실행. 5·6b `EasNoAttestationReceived`, 7c `EasAttestationRevoked`, 6d 성공 | [JSON](track-a-explain/evidence/live/pcl-kyb-gate-20260926T052641Z.json) |
@@ -108,7 +108,7 @@
 | --- | --- | --- | --- |
 | `pnpm b:prepare` | 2026-09-25 19:57 | 바이너리와 회로 산출물 108초 | [evidence.md](track-b-enable/evidence.md) |
 | `pnpm b:smoke` | 2026-09-25 20:01 | 64초. 점검, 1·3·4·5단계와 성공 기준 모두 통과. 2단계는 잔액 0으로 건너뜀 | [세션 기록](track-b-enable/evidence/session-20260925T200201Z.md) |
-| `pnpm b:smoke`(2단계 포함) | 2026-09-26 00:02 | 91초. 1~5단계와 성공 기준 모두 통과. 2단계 6b는 같은 협력사 지갑의 두 번째 실행이라 `EasAttestationRevoked` | [2단계 기록](track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json), [세션 기록](track-b-enable/evidence/session-20260926T000329Z.md) |
+| `pnpm b:smoke`(2단계 포함) | 2026-09-26 00:02 | 91초. 1\~5단계와 성공 기준 모두 통과. 2단계 6b는 같은 협력사 지갑의 두 번째 실행이라 `EasAttestationRevoked` | [2단계 기록](track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json), [세션 기록](track-b-enable/evidence/session-20260926T000329Z.md) |
 | `pnpm b:fund --file <주소 파일> --amount 10` | 2026-09-26 04:27 | 구매 기업 지갑에서 자기 협력사 지갑 둘에 사전 검사 통과 뒤 10 OKRW씩 전송 성공. 한 건 수수료 2.55 OKRW(그때 구매 기업 지갑이 에이전트 지갑이라 가스 283,524. 일반 지갑이면 약 0.94 OKRW) | [JSON](track-b-enable/evidence/live/fund-20260926T042738Z.json) |
 
 ### C
@@ -117,10 +117,10 @@
 | --- | --- | --- | --- |
 | `pnpm c:grounding` | 2026-09-25 19:42 | 템플릿 9개 등록, 전역 정책 트리, Privacy 정책, 레지스트리 등록 시뮬레이션(다음 agentId 79), 레지스트리 마지막 tx 2026-09-06 | [JSON](track-c-activate/evidence/live/grounding-20260925T194211Z.json) |
 | `pnpm c:grounding --write` | 2026-09-26 00:04 | 에이전트 등록 tx 성공(agentId 79, 블록 19111740). 등록한 지갑의 `getAgentIds`가 바로 `[79]` | [JSON](track-c-activate/evidence/live/grounding-20260926T000418Z.json) |
-| `pnpm c:judge-example` | 2026-09-26 00:03 | Track A 기록으로 만든 트랙 1 예시 제출물이 R1~R5 모두 통과. 거부 tx 둘의 사유를 직전 블록 재시뮬레이션으로 재현 | [판정 결과](track-c-activate/evidence/judge-example/evidence.judge.json) |
-| `pnpm c:agent-limit` | 2026-09-26 04:40 | 트랙 2 R1~R4 실증. 에이전트 지갑 연결, `TransferLimit` 5 OKRW, 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`. 빈 값과 문서 형식 메타데이터는 `AgentTransferLimitMetadataInvalid`. 약 30 OKRW | [JSON](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json) |
+| `pnpm c:judge-example` | 2026-09-26 00:03 | Track A 기록으로 만든 트랙 1 예시 제출물이 R1\~R5 모두 통과. 거부 tx 둘의 사유를 직전 블록 재시뮬레이션으로 재현 | [판정 결과](track-c-activate/evidence/judge-example/evidence.judge.json) |
+| `pnpm c:agent-limit` | 2026-09-26 04:40 | 트랙 2 R1\~R4 실증. 에이전트 지갑 연결, `TransferLimit` 5 OKRW, 금고 `fund()`에 에이전트 한도 정책, 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`. 빈 값과 문서 형식 메타데이터는 `AgentTransferLimitMetadataInvalid`. 약 30 OKRW | [JSON](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json) |
 | `pnpm c:grounding --write`, `pnpm c:agent-limit`(새 지갑) | 2026-09-26 05:30 | 에이전트 80 등록부터 다시 실행. 지갑 연결, 마감 제한(+299초 통과, +301초 `deadline too far`), 세 형식, 3 OKRW 성공, 8 OKRW `ExceededAgentTransferLimit`. 04:40 실행과 같은 결과 | [등록](track-c-activate/evidence/live/grounding-20260926T053055Z.json), [실증](track-c-activate/evidence/live/agent-limit-20260926T053121Z.json) |
-| `pnpm c:judge <트랙 2 예시> --track 2` | 2026-09-26 04:45 | R1~R4 모두 통과. 거부 tx 사유를 직전 블록 재시뮬레이션으로 재현, `TransferLimit` 32바이트 확인 | [판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json) |
+| `pnpm c:judge <트랙 2 예시> --track 2` | 2026-09-26 04:45 | R1\~R4 모두 통과. 거부 tx 사유를 직전 블록 재시뮬레이션으로 재현, `TransferLimit` 32바이트 확인 | [판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json) |
 
 ### 직접 검증한 것과 문서로만 확인한 것
 
@@ -244,5 +244,5 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | Clairveil v0.4.0 인출 스냅샷 조건이 Maroo 테스트넷에도 있는지 | 로컬에서만 재현(단독 인출 실패, 같은 블록 우회) | 테스트넷 Privacy 정상 경로가 열린 뒤 인출 한 번 | Maroo |
 | 에이전트 한도의 전역 범위 귀속(다른 컨트랙트가 에이전트의 호출을 옮길 때) | 컨트랙트 범위, 직접 보낸 경우만 확인 | 전역 정책 설정 권한이 필요해 Maroo 쪽 시험이 필요 | Maroo |
 | 관찰자 노드(규제기관 열람)와 차폐 금액 상한의 일정 | 문서에 미구현, 노트 하나 약 18.45 OKRW | Maroo 로드맵 확인 | Maroo |
-| 문서 차이 19건의 반영 | 2026-09-26 문서 미러 기준 | `pnpm a:doc-claims`(1~5번), `pnpm a:probe-send-gas`, `pnpm c:agent-limit`를 다시 실행해 문서 문장과 체인 동작 대조 | Maroo Docs |
+| 문서 차이 19건의 반영 | 2026-09-26 문서 미러 기준 | `pnpm a:doc-claims`(1\~5번), `pnpm a:probe-send-gas`, `pnpm c:agent-limit`를 다시 실행해 문서 문장과 체인 동작 대조 | Maroo Docs |
 | 실제 참가자와의 워크샵, 실제 해커톤 참가자의 트랙 2 제출 | 이 머신의 실행 시간으로만 설계 | 파일럿 워크샵 한 번, `pnpm c:judge`로 참가자 제출물 판정 | 운영진 |
