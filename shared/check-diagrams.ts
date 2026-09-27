@@ -13,6 +13,10 @@ import { ROOT } from "./lib/paths.ts";
 
 const OUT = path.join(ROOT, ".work/diagrams");
 const MMDC = path.join(ROOT, "node_modules/.bin/mmdc");
+if (!fs.existsSync(MMDC)) {
+  console.log("node_modules/.bin/mmdc 가 없습니다. 먼저 pnpm install 을 실행하십시오.");
+  process.exit(1);
+}
 
 function findChrome(): string | undefined {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) return process.env.PUPPETEER_EXECUTABLE_PATH;

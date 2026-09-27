@@ -4,7 +4,7 @@
 //   pnpm bootstrap
 //
 // 하는 일
-//   1. Clairveil 고정 커밋 받기(vendor/ 가 없을 때)
+//   1. Clairveil 고정 커밋 받기(vendor/ 의 세 레포 가운데 하나라도 없을 때)
 //   2. 금고 컨트랙트 컴파일(out/ 이 없을 때)
 //   3. Clairveil 바이너리와 회로 산출물을 .work/prebuilt/ 에 빌드(없거나 커밋이 다를 때)
 //   4. 역할 지갑 만들기(지갑 파일이 없거나 역할이 빠졌을 때)
@@ -21,7 +21,8 @@ export function bootstrap() {
   const core = path.join(ROOT, "vendor/clairveil");
 
   console.log("1) Clairveil 고정 커밋");
-  if (!fs.existsSync(path.join(core, ".git"))) run("node", ["shared/setup-clairveil.ts"]);
+  const repos = ["clairveil", "clairveiljs", "clairveil-samples"].map((r) => path.join(ROOT, "vendor", r, ".git"));
+  if (repos.some((r) => !fs.existsSync(r))) run("node", ["shared/setup-clairveil.ts"]);
   else console.log("   이미 있습니다");
 
   console.log("2) 금고 컨트랙트 컴파일");

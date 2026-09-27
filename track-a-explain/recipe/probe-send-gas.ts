@@ -11,7 +11,8 @@
 //   3. 가스 21,000 으로 실제 전송: 결과와 쓴 가스
 //   4. eth_estimateGas 값으로 실제 전송: 결과와 쓴 가스
 //   5. 문서가 권하는 25% 여유를 둔 한도로 실제 전송: 쓰지 않은 가스가 수수료에서 빠지는지
-// BUYER 가 자기 SUPPLIER_A 에게 1 OKRW 를 세 번 보낸다. 수수료를 합쳐 9 OKRW 안팎이 든다.
+// BUYER 가 자기 SUPPLIER_A 에게 1 OKRW 를 세 번 보낸다. 가스 21,000 전송은 되돌려져 금액이 옮겨지지 않으므로,
+// 구매 기업 잔액에서 4 OKRW 안팎(협력사 지갑으로 옮기는 2, 수수료 약 2)이 빠진다.
 // 결과는 track-a-explain/evidence/live/probe-send-gas-<시각>.json 에 남긴다.
 
 import fs from "node:fs";

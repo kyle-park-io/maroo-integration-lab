@@ -29,7 +29,11 @@ const errorsAbi = [...iPrivacyAbi, ...iPclAbi].filter((x) => x.type === "error")
 
 // 1. Privacy 정책이 요구하는 스키마와, 인증 전용 지갑이 받은 증명
 const cfg = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "contractPolicies", args: [PRIVACY] }) as { policies: readonly PolicySet[] };
-const schema = cfg.policies.map(findEasSchema).find(Boolean) as `0x${string}`;
+const schema = cfg.policies.map(findEasSchema).find(Boolean) as `0x${string}` | undefined;
+if (!schema) {
+  console.log("Privacy 정책에서 EAS_POLICY 스키마를 찾지 못했습니다. 정책이 바뀌었을 수 있으니 pnpm a:inspect 로 지금 정책을 확인하십시오.");
+  process.exit(1);
+}
 const { eas, indexer } = await pub.readContract({ address: EAS_PARAMS, abi: easParamsAbi, functionName: "getParams" });
 const count = await pub.readContract({ address: indexer, abi: indexerAbi, functionName: "getReceivedAttestationUIDCount", args: [holder, schema] });
 const uids = count ? await pub.readContract({ address: indexer, abi: indexerAbi, functionName: "getReceivedAttestationUIDs", args: [holder, schema, 0n, count, false] }) : [];

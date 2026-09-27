@@ -14,12 +14,17 @@ import { formatEther, type Hex } from "viem";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { EXPLORER, publicClient as pub, writeEvidence } from "../../shared/lib/maroo.ts";
 
-const latest = (dir: string, prefix: string) => {
-  const files = fs.readdirSync(path.join(ROOT, dir)).filter((f) => f.startsWith(prefix) && f.endsWith(".json")).sort();
+const latest = (dir: string, prefix: string, command: string) => {
+  const abs = path.join(ROOT, dir);
+  const files = fs.existsSync(abs) ? fs.readdirSync(abs).filter((f) => f.startsWith(prefix) && f.endsWith(".json")).sort() : [];
+  if (!files.length) {
+    console.log(`${dir}/${prefix}*.json 기록이 없습니다. 먼저 ${command} 를 실행하거나 기록 파일 경로를 인자로 주십시오.`);
+    process.exit(1);
+  }
   return path.join(dir, files[files.length - 1]);
 };
-const gateFile = process.argv[2] ?? latest("track-a-explain/evidence/live", "pcl-kyb-gate-");
-const agentFile = process.argv[3] ?? latest("track-c-activate/evidence/live", "agent-limit-");
+const gateFile = process.argv[2] ?? latest("track-a-explain/evidence/live", "pcl-kyb-gate-", "pnpm a:kyb-gate");
+const agentFile = process.argv[3] ?? latest("track-c-activate/evidence/live", "agent-limit-", "pnpm c:agent-limit");
 type Step = { step: string; tx?: Hex; reason?: string };
 const read = (f: string) => JSON.parse(fs.readFileSync(path.join(ROOT, f), "utf8")) as { steps: Step[] };
 
