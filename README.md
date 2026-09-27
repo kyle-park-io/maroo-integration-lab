@@ -32,7 +32,7 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 | 기관의 사업·컴플라이언스 담당(개발자가 아닌 평가자 포함) | [요약 장표 13장](slides/maroo-integration-lab-summary.pdf), 같은 가이드 0절의 네 질문 표, [FAQ 9](track-a-explain/faq.md#9-지금-이-구조로-실제-협력사-대금을-처리할-수-있나요) | 10분 | 내부 보안·컴플라이언스 검토에 올릴 범위와 아직 체인에 없는 것(규제기관 열람, 테스트넷 Privacy 상태 변경) |
 | 워크샵을 여는 DevRel·진행자(Track B) | [Track B README](track-b-enable/README.md), [진행자 가이드](track-b-enable/facilitator-guide.md) | 15분 | 75분 워크샵 일정과 사전 준비(바이너리 빌드 108초, 참가자당 OKRW 1,000과 이체 수수료 약 0.94 OKRW) |
 | 해커톤을 설계하는 팀(Track C) | [트랙 포트폴리오](track-c-activate/portfolio.md), [트랙 2의 16절](track-c-activate/tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet) | 15분 | 세 트랙 구성, 트랙별 최소 연동 요건, 심사 자동 판정(`pnpm c:judge`)을 행사에 쓸지 |
-| AI 에이전트로 Maroo를 연동하는 개발자 | [에이전트 스킬](.claude/skills/maroo-integration/SKILL.md), [시험 기록](track-a-explain/evidence/code/skill-check-20260927.md)(새 에이전트가 11문항 가운데 8개를 맞게 답하고 3개는 짐작하지 않음) | 5분 | 자기 에이전트나 사내 개발 도구에 이 규칙을 넣을지 |
+| AI 에이전트로 Maroo를 연동하는 개발자 | [에이전트 스킬](.claude/skills/maroo-integration/SKILL.md), [시험 기록](track-a-explain/evidence/code/skill-check-20260927.md)(새 클론에서 연 세션이 연동 질문 다섯 개 모두 스스로 스킬을 불러 답함) | 5분 | 자기 에이전트나 사내 개발 도구에 이 규칙을 넣을지 |
 | Maroo 문서·제품 팀 | [SUBMISSION_NOTES의 차이와 DX 피드백](SUBMISSION_NOTES.md#발견한-차이), [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) | 30분 | 재현 명령과 owner가 붙은 문서 차이 19건, DX 피드백 14건의 처리 순서 |
 
 제출물을 네 질문으로 보면 이렇습니다. 무엇을 확인했나: 위 결과 목록의 기록과 [증거 라벨](#증거-라벨). 무엇이 달랐나: [발견한 차이](SUBMISSION_NOTES.md#발견한-차이) 19건. 어디까지 검증했나: [직접 검증한 것과 문서로만 확인한 것](SUBMISSION_NOTES.md#직접-검증한-것과-문서로만-확인한-것). 다음에 무엇을 확인하나: [다음에 확인할 것](SUBMISSION_NOTES.md#다음에-확인할-것).
