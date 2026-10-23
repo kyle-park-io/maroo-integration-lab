@@ -56,7 +56,7 @@ let chain: Json | undefined;
 if (record) {
   const stateFile = path.join(caseDir, "state.json");
   const state: RecordState = fs.existsSync(stateFile) ? JSON.parse(fs.readFileSync(stateFile, "utf8")) : {};
-  const pending = plan.filter((p) => !state[p.key]);
+  const pending = plan.filter((p) => !state[p.key]?.uid);
   const counts: Partial<Record<Holder, number>> = {};
   for (const p of pending) counts[p.actor] = (counts[p.actor] ?? 0) + 1;
   console.log(`6) 요청, 승인, 열람의 해시를 Maroo 테스트넷 EAS 증명으로 남깁니다(남은 기록 ${pending.length}건).`);

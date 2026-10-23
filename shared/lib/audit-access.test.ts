@@ -82,3 +82,23 @@ test("이어 하기는 이미 남긴 기록을 건너뛴다", () => {
   // 같은 키라도 내용이 바뀌었으면 이어 하지 않는다
   assert.throws(() => pendingRecords(plan, { request: { uid: "0xaa", tx: "0xbb", contentHash: "0x99" } }), /내용이 다릅니다/);
 });
+
+import { resumeAction } from "./audit-access.ts";
+
+test("보낸 뒤 영수증을 기다리다 끊긴 기록은 다시 보내기 전에 그 tx 의 영수증부터 본다", () => {
+  const sent = { tx: "0xbb" as const, sent: true as const, contentHash: "0xcc" as const };
+  assert.equal(resumeAction(undefined, { receipt: "none", inMempool: false }), "send");
+  assert.equal(resumeAction({ uid: "0xaa", tx: "0xbb" }, { receipt: "none", inMempool: false }), "done");
+  assert.equal(resumeAction(sent, { receipt: "success", inMempool: false }), "adopt");
+  assert.equal(resumeAction(sent, { receipt: "reverted", inMempool: false }), "failed");
+  assert.equal(resumeAction(sent, { receipt: "none", inMempool: true }), "wait");
+  assert.equal(resumeAction(sent, { receipt: "none", inMempool: false }), "send");
+});
+
+test("보냈지만 확인하지 못한 기록은 남은 기록으로 센다", () => {
+  const plan = [
+    { key: "request", step: "request" as const, actor: "regulator" as const, contentHash: "0x01" as const },
+    { key: "access", step: "access" as const, actor: "regulator" as const, contentHash: "0x02" as const },
+  ];
+  assert.deepEqual(pendingRecords(plan, { request: { tx: "0xbb", sent: true } }).map((p) => p.key), ["request", "access"]);
+});

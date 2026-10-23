@@ -12,7 +12,7 @@ import {
 import {
   EAS_PARAMS, EXPLORER, addressOf, easAbi, easParamsAbi, publicClient as pub, schemaRegistryAbi, walletFor, type Role,
 } from "./maroo.ts";
-import { HOLDER_LABEL, STEP_CODE, STEP_LABEL, pendingRecords, type Holder, type RecordPlan, type RecordState } from "./audit-access.ts";
+import { HOLDER_LABEL, STEP_CODE, STEP_LABEL, pendingRecords, resumeAction, type Holder, type RecordPlan, type RecordState } from "./audit-access.ts";
 
 export const AUDIT_SCHEMA = "bytes32 caseHash, uint8 step, bytes32 contentHash, bytes32 requestHash";
 export const HOLDER_ROLE: Record<Holder, Role> = { "audit-team": "AUDIT_TEAM", "external-auditor": "EXTERNAL_AUDITOR", regulator: "REGULATOR" };
@@ -100,35 +100,71 @@ export async function recordAll(plan: RecordPlan[], ctx: { schemaUid: Hex; caseI
       [{ type: "bytes32" }, { type: "uint8" }, { type: "bytes32" }, { type: "bytes32" }],
       [caseHashOf(ctx.caseId), STEP_CODE[p.step], p.contentHash, ctx.requestHash],
     );
-    let tx: Hex;
+    // 지난 실행이 보내고 영수증을 확인하지 못한 기록이면 그 tx 부터 본다
+    const prev = state[p.key];
+    if (prev?.sent) {
+      const receipt = await pub.getTransactionReceipt({ hash: prev.tx }).catch((e) => { if (/NotFound|could not be found/i.test(String((e as Error)?.name) + String((e as Error)?.message))) return undefined; throw e; });
+      const inMempool = receipt ? false : await pub.getTransaction({ hash: prev.tx }).then(() => true, () => false);
+      const action = resumeAction(prev, { receipt: receipt ? receipt.status : "none", inMempool });
+      if (action === "wait") throw new Error(`${STEP_LABEL[p.step]} 기록 tx 가 아직 블록에 들어가지 않았습니다: ${EXPLORER}/tx/${prev.tx}\n잠시 뒤 --resume 으로 다시 실행하십시오.`);
+      if (action === "failed") throw new Error(`${STEP_LABEL[p.step]} 기록 tx 가 실패했습니다: ${EXPLORER}/tx/${prev.tx}. pnpm explain ${prev.tx} 로 이유를 확인하십시오.`);
+      if (action === "adopt" && receipt) {
+        done.push(finish(p, prev.tx, receipt));
+        continue;
+      }
+    }
+    // 서명해 해시를 먼저 정하고, 보내기 전에 상태 파일에 남긴다. 보내다 끊기거나 영수증을 기다리다 끊겨 --resume 으로 이어 하면
+    // 같은 기록을 다시 보내지 않고 이 tx 부터 본다.
+    const wallet = walletFor(HOLDER_ROLE[p.actor]);
+    const request = await wallet.prepareTransactionRequest({
+      account: wallet.account, chain: wallet.chain, to: eas,
+      data: encodeFunctionData({ abi: easAbi, functionName: "attest", args: [{ schema: ctx.schemaUid, data: { recipient: zeroAddress, expirationTime: 0n, revocable: false, refUID, data, value: 0n } }] }),
+    });
+    const serialized = await wallet.signTransaction(request as never);
+    const tx = keccak256(serialized);
+    state[p.key] = { tx, sent: true, contentHash: p.contentHash };
+    fs.writeFileSync(ctx.stateFile, JSON.stringify(state, null, 2));
     try {
-      tx = await walletFor(HOLDER_ROLE[p.actor]).sendTransaction({
-        to: eas,
-        data: encodeFunctionData({ abi: easAbi, functionName: "attest", args: [{ schema: ctx.schemaUid, data: { recipient: zeroAddress, expirationTime: 0n, revocable: false, refUID, data, value: 0n } }] }),
-      });
+      await pub.sendRawTransaction({ serializedTransaction: serialized });
     } catch (err) {
-      if (/insufficient funds|exceeds the balance/i.test(String((err as Error).message))) {
+      const msg = String((err as Error).message) + String((err as { cause?: unknown }).cause ?? "");
+      // 노드가 받지 않은 것이 확실하면 남긴 tx 를 지운다
+      const refused = /insufficient funds|exceeds the balance|nonce too low|ECONNREFUSED|ENOTFOUND|EAI_AGAIN/i.test(msg);
+      if (refused) {
+        delete state[p.key];
+        fs.writeFileSync(ctx.stateFile, JSON.stringify(state, null, 2));
+      }
+      if (/insufficient funds|exceeds the balance/i.test(msg)) {
         throw new Error(`${HOLDER_LABEL[p.actor]} 지갑의 OKRW가 ${STEP_LABEL[p.step]} 기록 tx 의 선결제 상한(가스 한도 × 최대 수수료)보다 적어 보내지 못했습니다.\n--top-up 을 붙여 --resume 으로 다시 실행하십시오.`);
       }
+      if (!refused) throw new Error(`${STEP_LABEL[p.step]} 기록 tx 를 보내다 연결이 끊겨 노드가 받았는지 모릅니다: ${EXPLORER}/tx/${tx}\n네트워크를 확인한 뒤 --resume 으로 다시 실행하십시오. 이어 하기는 이 tx 의 영수증부터 보고 다시 보내지 않습니다.`);
       throw err;
     }
-    const r = await pub.waitForTransactionReceipt({ hash: tx });
+    const r = await pub.waitForTransactionReceipt({ hash: tx }).catch((err) => {
+      throw new Error(`${STEP_LABEL[p.step]} 기록 tx 의 영수증을 받지 못했습니다(${String((err as Error).message).split("\n")[0]}): ${EXPLORER}/tx/${tx}\n잠시 뒤 --resume 으로 다시 실행하십시오. 이어 하기는 이 tx 의 영수증부터 보고 다시 보내지 않습니다.`);
+    });
     if (r.status !== "success") throw new Error(`${STEP_LABEL[p.step]} 기록 tx 가 실패했습니다: ${EXPLORER}/tx/${tx}. pnpm explain ${tx} 로 이유를 확인하십시오.`);
+    done.push(finish(p, tx, r));
+  }
+  return done;
+
+  function finish(p: RecordPlan, tx: Hex, r: Awaited<ReturnType<typeof pub.getTransactionReceipt>>): Recorded {
     const uid = parseEventLogs({ abi: easAbi, logs: r.logs, eventName: "Attested" })[0].args.uid as Hex;
     state[p.key] = { uid, tx, contentHash: p.contentHash };
     fs.writeFileSync(ctx.stateFile, JSON.stringify(state, null, 2));
     const rec = { key: p.key, step: STEP_LABEL[p.step], actor: p.actor, uid, tx, block: r.blockNumber.toString(), gasUsed: r.gasUsed.toString(), explorer: `${EXPLORER}/tx/${tx}` };
     console.log(`  [기록] ${rec.step} ${HOLDER_LABEL[p.actor]}  ${rec.explorer}`);
-    done.push(rec);
+    return rec;
   }
-  return done;
 }
 
 // 체인에 남은 증명을 다시 읽어 상태 파일과 맞는지 확인한다
 export async function readBack(state: RecordState, schemaUid: Hex) {
   const { eas } = await easAddresses();
   const out: { key: string; uid: Hex; attester: Address; schemaOk: boolean; refUID: Hex; revocable: boolean }[] = [];
+  // 보냈지만 확인하지 못한 기록(uid 없음)은 읽을 증명이 없어 건너뛴다
   for (const [key, v] of Object.entries(state)) {
+    if (!v.uid) continue;
     const a = await pub.readContract({ address: eas, abi: easAbi, functionName: "getAttestation", args: [v.uid] });
     out.push({ key, uid: v.uid, attester: a.attester, schemaOk: a.schema === schemaUid, refUID: a.refUID, revocable: a.revocable });
   }

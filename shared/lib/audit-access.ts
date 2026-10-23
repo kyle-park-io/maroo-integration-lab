@@ -77,7 +77,18 @@ export type Step = "request" | "approve" | "reject" | "access";
 export const STEP_CODE: Record<Step, number> = { request: 1, approve: 2, reject: 3, access: 4 };
 export const STEP_LABEL: Record<Step, string> = { request: "요청", approve: "승인", reject: "거절", access: "열람" };
 export type RecordPlan = { key: string; step: Step; actor: Holder; contentHash: Hex };
-export type RecordState = Record<string, { uid: Hex; tx: Hex; contentHash?: Hex }>;
+// uid 가 있으면 남긴 기록, sent 만 있으면 보냈지만 영수증을 확인하지 못한 기록이다(다시 보내기 전에 그 tx 부터 본다).
+export type RecordState = Record<string, { uid?: Hex; tx: Hex; contentHash?: Hex; sent?: true }>;
+
+// 이어 하기에서 기록 하나를 어떻게 할지. 보낸 tx 의 영수증이 있으면 그것을 쓰고(adopt), 대기열에 있으면 기다리고,
+// 어디에도 없으면 들어가지 않은 것이라 다시 보낸다. 같은 기록을 두 번 남기지 않으려는 순서다.
+export function resumeAction(entry: RecordState[string] | undefined, chain: { receipt: "success" | "reverted" | "none"; inMempool: boolean }): "done" | "send" | "adopt" | "failed" | "wait" {
+  if (!entry) return "send";
+  if (entry.uid) return "done";
+  if (chain.receipt === "success") return "adopt";
+  if (chain.receipt === "reverted") return "failed";
+  return chain.inMempool ? "wait" : "send";
+}
 
 // 남기지 않은 기록만 순서대로. 이미 남긴 키의 내용 해시가 계획과 다르면 이어 하지 않는다.
 export function pendingRecords(plan: RecordPlan[], state: RecordState): RecordPlan[] {
@@ -87,5 +98,5 @@ export function pendingRecords(plan: RecordPlan[], state: RecordState): RecordPl
       throw new Error(`이미 남긴 기록 ${p.key}의 내용이 다릅니다. 같은 사건을 다른 내용으로 이어 쓸 수 없습니다. 새 사건으로 다시 실행하십시오.`);
     }
   }
-  return plan.filter((p) => !state[p.key]);
+  return plan.filter((p) => !state[p.key]?.uid);
 }

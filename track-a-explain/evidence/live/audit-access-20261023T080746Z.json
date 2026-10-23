@@ -1,0 +1,313 @@
+{
+  "checkedAt": "2026-10-23T08:07:46.485Z",
+  "labels": {
+    "decrypt": "[Local] Clairveil 로컬 체인(pnpm a:local)의 감사 공개",
+    "records": "[Live Testnet] Maroo 테스트넷 EAS 증명"
+  },
+  "command": "pnpm a:audit-access --resume .work/audit-access/20261023T080719Z",
+  "caseId": "CASE-20261023-B1",
+  "requestHash": "0x03a4156731e7ad71f87a49aba50a2e492212cc78fa3ef3b124ca2f5d22ba00c7",
+  "caseDir": ".work/audit-access/20261023T080719Z",
+  "local": {
+    "runDir": ".work/vendor-20261023T072133Z",
+    "request": {
+      "caseId": "CASE-20261023-B1",
+      "requester": "regulator",
+      "legalBasis": "협력사 B 앞 지급 한 건의 자금 출처 확인(가상의 사건)",
+      "period": {
+        "from": "2026-10-23T00:00:00Z",
+        "to": "2026-10-23T23:59:59Z"
+      },
+      "targets": [
+        {
+          "tx": "8D4292D1482C6BA763D9C84F46E18891DD7057D6F8CC7E7F82012B2375744CBB",
+          "message": 0,
+          "time": "2026-10-23T07:22:16Z"
+        }
+      ],
+      "fields": [
+        "amount",
+        "from",
+        "to"
+      ],
+      "requestedAt": "2026-10-23T08:07:19Z"
+    },
+    "requestHash": "0x03a4156731e7ad71f87a49aba50a2e492212cc78fa3ef3b124ca2f5d22ba00c7",
+    "approvals": [
+      {
+        "requestHash": "0x03a4156731e7ad71f87a49aba50a2e492212cc78fa3ef3b124ca2f5d22ba00c7",
+        "approver": "audit-team",
+        "decision": "approve",
+        "reason": "요청 범위가 사건과 맞음",
+        "at": "2026-10-23T08:07:19Z"
+      },
+      {
+        "requestHash": "0x03a4156731e7ad71f87a49aba50a2e492212cc78fa3ef3b124ca2f5d22ba00c7",
+        "approver": "external-auditor",
+        "decision": "approve",
+        "reason": "요청 범위가 사건과 맞음",
+        "at": "2026-10-23T08:07:19Z"
+      }
+    ],
+    "plan": [
+      {
+        "key": "request",
+        "step": "request",
+        "actor": "regulator",
+        "contentHash": "0xe24bc76a87d3dee0abeb2f37797cde23e674f8fe04a7d7f42dc13d072e6db0d9"
+      },
+      {
+        "key": "approve:audit-team",
+        "step": "approve",
+        "actor": "audit-team",
+        "contentHash": "0x09ab2aede101e8229cd26e7511263ceeaedcd431ce8704d8f617dc5a3a3004f4"
+      },
+      {
+        "key": "approve:external-auditor",
+        "step": "approve",
+        "actor": "external-auditor",
+        "contentHash": "0x9fa1b65ba33979b4f8fc808804a6966b1c19210d026fa6e1238280376ff71772"
+      },
+      {
+        "key": "access",
+        "step": "access",
+        "actor": "regulator",
+        "contentHash": "0xd07ecb372ce009076995854594b50798c24a7d3062e57b2acedce76de2d7c7c9"
+      }
+    ],
+    "checks": [
+      {
+        "name": "몫이 감사 공개키로 합쳐짐",
+        "ok": true,
+        "detail": "몫 공개값 두 개를 합친 값과 체인의 감사 공개키 279e53759f50cfd8…가 같습니다"
+      },
+      {
+        "name": "요청 형식",
+        "ok": true,
+        "detail": "법적 근거, 기간, 대상, 항목이 모두 있고 대상 tx 가 기간 안에 있습니다"
+      },
+      {
+        "name": "요청한 역할의 승인을 세지 않음",
+        "ok": true,
+        "detail": "요청한 역할을 뺀 승인이 1건이라 기준(2건)에 못 미칩니다. 요청한 역할의 승인은 세지 않습니다."
+      },
+      {
+        "name": "승인 하나로는 열지 않음",
+        "ok": true,
+        "detail": "요청한 역할을 뺀 승인이 1건이라 기준(2건)에 못 미칩니다."
+      },
+      {
+        "name": "부분값 하나로는 열리지 않음",
+        "ok": true,
+        "detail": "부분값 2개가 필요하지만 받은 부분값은 1개입니다"
+      },
+      {
+        "name": "협력사 B 지급 메시지 0 감사 공개를 두 부분값으로 엶",
+        "ok": true,
+        "detail": "열린 내용의 disclosure 해시와 체인에 기록된 해시가 같습니다"
+      },
+      {
+        "name": "협력사 B 지급 메시지 0 결과가 감사인 키로 직접 푼 결과와 같음",
+        "ok": true,
+        "detail": "로컬 실행이 감사인 키 하나로 푼 기록(pay-supplier-b-audit-view.json)과 금액, 보낸 주소, 받는 주소를 견줬습니다"
+      },
+      {
+        "name": "협력사 A 일괄 지급 메시지 0은 요청 범위 밖",
+        "ok": true,
+        "detail": "요청에 없는 tx 라 승인한 역할에게 부분값을 요청하지 않습니다"
+      },
+      {
+        "name": "협력사 A 일괄 지급 메시지 0에 협력사 B 건의 부분값을 넣으면 도구가 거부함",
+        "ok": true,
+        "detail": "audit-team의 부분값은 다른 암호문에 대해 만든 것입니다"
+      },
+      {
+        "name": "협력사 A 일괄 지급 메시지 0은 협력사 B 건의 부분값으로 복호되지 않음",
+        "ok": true,
+        "detail": "AES-GCM 인증에 실패해 열리지 않았습니다. 부분값이 이 암호문이나 감사 키와 맞지 않습니다"
+      },
+      {
+        "name": "협력사 A 일괄 지급 메시지 1은 요청 범위 밖",
+        "ok": true,
+        "detail": "요청에 없는 tx 라 승인한 역할에게 부분값을 요청하지 않습니다"
+      },
+      {
+        "name": "협력사 A 일괄 지급 메시지 1에 협력사 B 건의 부분값을 넣으면 도구가 거부함",
+        "ok": true,
+        "detail": "audit-team의 부분값은 다른 암호문에 대해 만든 것입니다"
+      },
+      {
+        "name": "협력사 A 일괄 지급 메시지 1은 협력사 B 건의 부분값으로 복호되지 않음",
+        "ok": true,
+        "detail": "AES-GCM 인증에 실패해 열리지 않았습니다. 부분값이 이 암호문이나 감사 키와 맞지 않습니다"
+      }
+    ],
+    "opened": {
+      "results": [
+        {
+          "label": "협력사 B 지급 메시지 0",
+          "tx": "8D4292D1482C6BA763D9C84F46E18891DD7057D6F8CC7E7F82012B2375744CBB",
+          "message": 0,
+          "envelopeSha256": "a7333de735235d3ee13f6dcaa3ad11a64e06f28ef7e7b278a3c7d7c516a8f608",
+          "disclosureDigest": "01dbae8c19191994622cd4ab7f47b34ec66aba1f5aa751097b1133012d7a32c5",
+          "approvers": [
+            "audit-team",
+            "external-auditor"
+          ],
+          "payload": {
+            "version": "privacy-fixed-v1",
+            "plane": "audit",
+            "policy": 7,
+            "output_index": 0,
+            "commitment_hex": "1ead8691d5fa9524a782ab4f3947ef6d4d1b0a0b891da50362cb88ad71a9f09b",
+            "disclosure_digest_hex": "01dbae8c19191994622cd4ab7f47b34ec66aba1f5aa751097b1133012d7a32c5",
+            "disclosure_blinding_hex": "028a71524853539d743978876774289f2e1facbe1b3ddb5f67376c91ae8f04ee",
+            "amount": "15",
+            "asset_id_hex": "238d5f23e4d918d40b0982ce3aef16a75c4d1760193d1c3b30b9f5df681903ca",
+            "from_shielded_address": "clairs1vmemmqh0293qmt0hq4hgnlygcl9qfsa7p7fy06uzcmf4ns8sgqde7ftlm42a9saup4xr5vvmwueencc34wkr7t8y7sa84ac2j0ww5zqzv77au",
+            "to_shielded_address": "clairs1j44ummueka6jqnajyn4wumhy5gtyds4qavuvh9rud26jzc66f7hdeuhqk8ylj7nmn4vfhe23hw54u2sf7q600e6060qpvf5gts75vpsrkwv3g"
+          }
+        }
+      ]
+    },
+    "decision": {
+      "open": true,
+      "approvers": [
+        "audit-team",
+        "external-auditor"
+      ],
+      "reason": "요청한 역할을 뺀 승인 2건으로 기준(2건)을 채웠습니다."
+    },
+    "shares": {
+      "auditPubKeyHex": "279e53759f50cfd8c09d2da1fd87ad318ca31cd0f2941c3fe44a9a8fde8880af",
+      "holders": [
+        {
+          "holder": "audit-team",
+          "index": 1,
+          "sharePubHex": "cbfcd13f44df7aec8b1b8d183a07c26e869ef7728e788f34060d42e2d9d4468f"
+        },
+        {
+          "holder": "external-auditor",
+          "index": 2,
+          "sharePubHex": "3b2f1876bd40a5d4a65881bd6d58ada26cdba3bb56309e407b027d513d817c91"
+        },
+        {
+          "holder": "regulator",
+          "index": 3,
+          "sharePubHex": "d93f5c6e59abd316bce7842aa7c995c1a4d86272fb83fee5d808849f98e53210"
+        }
+      ]
+    },
+    "resumedAt": "2026-10-23T08:07:35.279Z"
+  },
+  "chain": {
+    "schema": {
+      "uid": "0x15a9437d19343de8495aa82f6e3348ee1716a158886cd76ec830b313817d098a",
+      "definition": "bytes32 caseHash, uint8 step, bytes32 contentHash, bytes32 requestHash"
+    },
+    "funding": [
+      {
+        "holder": "regulator",
+        "address": "0x213dD82e42Bc4f3A867e069645D80B5EAb8410D7",
+        "before": "21.328257",
+        "needed": "20"
+      },
+      {
+        "holder": "audit-team",
+        "address": "0x39e111Ebec239F734195AC40eDe17aA2c28613BC",
+        "before": "13.949066",
+        "needed": "10"
+      },
+      {
+        "holder": "external-auditor",
+        "address": "0x0D9Dea2687bA0b6A0d035c5C63ecC508af069ff8",
+        "before": "13.949066",
+        "needed": "10"
+      }
+    ],
+    "records": {
+      "request": {
+        "uid": "0xaee1358e6e1cc64e6608a843c4c37a975d8ed1aebfc37d2ef3c87803d1ac5d92",
+        "tx": "0x885286fcba714c24d470927f5661bebae532a3b18e7a92ea6447502421e974b1",
+        "contentHash": "0xe24bc76a87d3dee0abeb2f37797cde23e674f8fe04a7d7f42dc13d072e6db0d9"
+      },
+      "approve:audit-team": {
+        "uid": "0xe224252ec0bb59812c18ed78934632254e935c4362a88c74b49f0e986665f12e",
+        "tx": "0x08994e94a06ac87a2dccc12902462c57450c6cc4f4a08e0341f505a73afba7f2",
+        "contentHash": "0x09ab2aede101e8229cd26e7511263ceeaedcd431ce8704d8f617dc5a3a3004f4"
+      },
+      "approve:external-auditor": {
+        "uid": "0x4c8a8848f279f8889a525a2f2177320b0256101f73a0cb91e16f0b7ad843c641",
+        "tx": "0x630b39508d98b57e06fbf0f3ff0b33abf115111303bde6a246b8fe9c45cedfbd",
+        "contentHash": "0x9fa1b65ba33979b4f8fc808804a6966b1c19210d026fa6e1238280376ff71772"
+      },
+      "access": {
+        "uid": "0x49567fba9e265589ec1ebf40807c2a3208964541e576f1b15fe4babd34227a9d",
+        "tx": "0xc03df26af3c578e28dfc7ce032709a9c9731358056d6f6fd5e728f51b9a0e193",
+        "contentHash": "0xd07ecb372ce009076995854594b50798c24a7d3062e57b2acedce76de2d7c7c9"
+      }
+    },
+    "checks": [
+      {
+        "key": "request",
+        "uid": "0xaee1358e6e1cc64e6608a843c4c37a975d8ed1aebfc37d2ef3c87803d1ac5d92",
+        "tx": "0x885286fcba714c24d470927f5661bebae532a3b18e7a92ea6447502421e974b1",
+        "attester": "0x213dD82e42Bc4f3A867e069645D80B5EAb8410D7",
+        "schemaOk": true,
+        "refUID": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "revocable": false,
+        "explorer": {
+          "indexed": true,
+          "status": "ok",
+          "from": "0x213dD82e42Bc4f3A867e069645D80B5EAb8410D7"
+        },
+        "ok": true
+      },
+      {
+        "key": "approve:audit-team",
+        "uid": "0xe224252ec0bb59812c18ed78934632254e935c4362a88c74b49f0e986665f12e",
+        "tx": "0x08994e94a06ac87a2dccc12902462c57450c6cc4f4a08e0341f505a73afba7f2",
+        "attester": "0x39e111Ebec239F734195AC40eDe17aA2c28613BC",
+        "schemaOk": true,
+        "refUID": "0xaee1358e6e1cc64e6608a843c4c37a975d8ed1aebfc37d2ef3c87803d1ac5d92",
+        "revocable": false,
+        "explorer": {
+          "indexed": true,
+          "status": "ok",
+          "from": "0x39e111Ebec239F734195AC40eDe17aA2c28613BC"
+        },
+        "ok": true
+      },
+      {
+        "key": "approve:external-auditor",
+        "uid": "0x4c8a8848f279f8889a525a2f2177320b0256101f73a0cb91e16f0b7ad843c641",
+        "tx": "0x630b39508d98b57e06fbf0f3ff0b33abf115111303bde6a246b8fe9c45cedfbd",
+        "attester": "0x0D9Dea2687bA0b6A0d035c5C63ecC508af069ff8",
+        "schemaOk": true,
+        "refUID": "0xaee1358e6e1cc64e6608a843c4c37a975d8ed1aebfc37d2ef3c87803d1ac5d92",
+        "revocable": false,
+        "explorer": {
+          "indexed": true,
+          "status": "ok",
+          "from": "0x0D9Dea2687bA0b6A0d035c5C63ecC508af069ff8"
+        },
+        "ok": true
+      },
+      {
+        "key": "access",
+        "uid": "0x49567fba9e265589ec1ebf40807c2a3208964541e576f1b15fe4babd34227a9d",
+        "tx": "0xc03df26af3c578e28dfc7ce032709a9c9731358056d6f6fd5e728f51b9a0e193",
+        "attester": "0x213dD82e42Bc4f3A867e069645D80B5EAb8410D7",
+        "schemaOk": true,
+        "refUID": "0xaee1358e6e1cc64e6608a843c4c37a975d8ed1aebfc37d2ef3c87803d1ac5d92",
+        "revocable": false,
+        "explorer": {
+          "indexed": true,
+          "status": "ok",
+          "from": "0x213dD82e42Bc4f3A867e069645D80B5EAb8410D7"
+        },
+        "ok": true
+      }
+    ]
+  }
+}
