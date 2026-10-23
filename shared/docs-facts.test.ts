@@ -78,3 +78,30 @@ test("탐색기 tx 링크와 같은 줄에 단 거부 가스 기록에는 그 tx
     }
   }
 });
+
+// GitHub 가 제목에서 앵커를 만드는 방식: 소문자, 문장 부호 제거, 공백은 하이픈
+const slug = (h: string) => h.trim().toLowerCase().replace(/[^\p{L}\p{N}\- _]/gu, "").replace(/ /g, "-");
+function anchorsOf(p: string): Set<string> {
+  const out = new Set<string>();
+  let fence = false;
+  for (const l of read(p).split("\n")) {
+    if (l.startsWith("```")) fence = !fence;
+    const m = !fence && l.match(/^#{1,6} (.+)$/);
+    if (m) out.add(slug(m[1]));
+  }
+  return out;
+}
+
+test("레포 안 문서 링크의 절 앵커가 실제 제목과 맞는다", () => {
+  const broken: string[] = [];
+  for (const f of trackedMarkdown()) {
+    for (const m of read(f).matchAll(/\]\(([^)\s]*?)#([^)\s]+)\)/g)) {
+      const [target, frag] = [m[1], decodeURIComponent(m[2])];
+      if (target.startsWith("http")) continue;
+      const p = target ? path.normalize(path.join(path.dirname(f), target)) : f;
+      if (!p.endsWith(".md") || !fs.existsSync(path.join(ROOT, p))) continue;
+      if (!anchorsOf(p).has(frag)) broken.push(`${f} -> ${target || "(같은 문서)"}#${frag}`);
+    }
+  }
+  assert.deepEqual(broken, []);
+});

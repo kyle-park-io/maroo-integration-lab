@@ -22,7 +22,7 @@
 | 트랙 | 요건 | 확인한 것 | 예상 결과 | 실제 결과 |
 | --- | --- | --- | --- | --- |
 | 1 | R3, R5 | Privacy 프리컴파일 정책 | Privacy 호출을 제한하는 정책이 걸려 있음(2026-09-26 판 문서는 KYC 서비스를 "mock"으로만 적었고, 2026-10-23 판은 카카오를 통한 실제 본인 확인이라고 적습니다) | `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY(0개 주소))`, 관리자 `0x58eC…804F` |
-| 1 | R5 | 빈 예치 요청의 최초 실패 계층 | 전역 정책은 통과하고 요청 검증에서 거부 | `eth_call`과 `eth_estimateGas` 모두 `SDKInvalidRequest()` |
+| 1 | R5 | 빈 예치 요청의 최초 실패 계층 | 전역 정책 거부 없이 요청 검증에서 거부 | `eth_call`과 `eth_estimateGas` 모두 `SDKInvalidRequest()` |
 | 1 | 심사 | 탐색기 API로 Privacy tx를 확인하는 경로 | Privacy tx 목록과 성공 여부를 탐색기 API로 읽을 수 있습니다 | 최근 50건 모두 `ok/success`, 마지막 2026-09-21 04:40 |
 | 2 | R1 | 에이전트 등록 tx | 등록 성공, 등록한 지갑으로 새 ID 조회 | `register(string)` 성공, agentId 79(시뮬레이션이 예측한 번호와 같음), 등록한 지갑의 `getAgentIds`가 바로 `[79]` |
 | 2 | R1 | Agent 프리컴파일과 IdentityRegistry | 레지스트리가 배포돼 있고 `register`가 통과 | 레지스트리 `0x8004…0001`(AgentIdentity, preinstall-1.0.0), `register(string)` 시뮬레이션 통과(다음 agentId 79) |

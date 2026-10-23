@@ -26,7 +26,7 @@
 | 범위 | 상태 | 라벨 | 근거 |
 | --- | --- | --- | --- |
 | Privacy 프리컴파일의 정책, 요구 증명, 요청 모양 조회 | 실행함 | `[Live Testnet]` | [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
-| Privacy 예치가 처음 막히는 층 진단 | 전역 정책은 통과하고 요청 검증(`SDKInvalidRequest`)에서 막힘 | `[Live Testnet]` eth_call과 eth_estimateGas, 거부 경로 증거 | [진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
+| Privacy 예치가 처음 막히는 층 진단 | 전역 정책 거부 없이 요청 검증(`SDKInvalidRequest`)에서 막힘 | `[Live Testnet]` eth_call과 eth_estimateGas, 거부 경로 증거 | [진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
 | 보내기 전 정책 검사 방법 | PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않고 `eth_estimateGas`에서 나옵니다. PCL 프록시 호출은 두 방법 모두 거부합니다 | `[Live Testnet]` | [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json), [faucet 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
 | OKRW 지급과 KYB 관문을 건 정산 금고 | 실행함. 증명 없음, 색인 전, 폐기 뒤 청구는 거부되고 색인 뒤 청구는 통과. 정책 관리자와 업그레이드 권한이 다른 주소 | `[Live Testnet]` 상태 변경 tx 18건 | [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 | 차폐 정산 전체(예치, 일괄 지급, 스캔, 해독, 인출) | 실행함 | `[Local]` Clairveil v0.4.0 | [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) |
@@ -323,7 +323,7 @@ tx가 실패하거나 결과를 알 수 없을 때 쓰는 분류표입니다. �
 | 층 | 확인 방법 | 테스트넷 결과 | 다음 층으로 가는 데 필요한 것 |
 | --- | --- | --- | --- |
 | 1. 네트워크와 주소 | chain ID, Privacy 주소의 정책 조회 | 통과 | 없음 |
-| 2. 전역 정책 | `eth_estimateGas` | 통과. `eth_estimateGas`도 3층의 오류를 돌려줍니다 | 보내는 계정이 24시간 한도 안이거나 KYC 증명을 가짐 |
+| 2. 전역 정책 | `eth_estimateGas` | 전역 정책 거부는 나오지 않았습니다. `eth_estimateGas`도 3층의 오류를 돌려줍니다 | 보내는 계정이 24시간 한도 안이거나 KYC 증명을 가짐 |
 | 3. 요청 검증 | 빈 요청, 모양을 갖춘 요청 | `SDKInvalidRequest()` | 현재 verifier와 맞는 회로 산출물로 만든 증명, 커밋먼트, 암호화 노트 |
 | 4. Privacy 컨트랙트 정책 | 본인 인증 증명(attestation)이 없는 지갑과 있는 지갑으로 같은 요청 | 두 지갑 모두 3층에서 먼저 막혀 도달하지 못했습니다 | 개인 본인 인증 증명(`kakaoIdHash` 스키마) |
 | 5. 증명 검증과 차폐 상태 | 유효한 요청 | 시험할 수 없었습니다 | Merkle witness와 nullifier를 읽는 조회 경로, 성공한 예시 입력 |

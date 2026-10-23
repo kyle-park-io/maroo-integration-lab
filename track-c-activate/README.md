@@ -3,6 +3,7 @@
 Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 어디까지 연동해야 유효한 제출로 인정받고, 무엇으로 증명하는지 정한 트랙 설계입니다. 트랙 셋 가운데 기밀 정산을 Flagship으로 깊게 썼습니다.
 
 - 세 트랙의 연결: Flagship 트랙 1은 Track A와 B의 비공개 공급업체 정산 사례를 빌더에게 넓힌 것입니다. 첫 성공 경로의 기준 구현은 [Track A 레시피](../track-a-explain/runnable-recipe.md)이고, 멘토 답변 방향은 Track A에서 찾은 사유 코드와 Track B 트러블슈팅에서 옮겼습니다.
+- 질문별 답: 멘토가 먼저 받을 질문(PCL 거부 판별, `SDKInvalidRequest`, 테스트넷 Privacy까지 남은 것)의 20초 답과 확인 명령은 [README의 질문별 답과 근거 명령](../README.md#질문별-답과-근거-명령)에 있습니다.
 
 ## 확인한 결과
 

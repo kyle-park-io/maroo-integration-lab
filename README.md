@@ -18,13 +18,27 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 확인한 결과입니다. 탐색기 링크를 열면 tx의 성공·실패, 가스 사용량, 거부 사유(예: `EasNoAttestationReceived(address sender)`)가 보입니다. 새로 만든 금고 프록시는 탐색기가 그 주소를 한 번 열기 전까지 사유를 원문과 깨진 글자로만 보여 줍니다([DX 14](SUBMISSION_NOTES.md#dx-feedback)).
 
 - `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 PCL 정책이 `EasNoAttestationReceived`로 거부했고, 증명을 색인한 뒤의 청구는 통과했습니다([A 금고 흐름 기록](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json), 탐색기의 [거부 tx](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)와 [통과 tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)).
-- `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다. tx를 보내지 않고 `eth_call`과 `eth_estimateGas`로 확인했고, 유효한 증명을 만들 재료가 공개되지 않아 차폐 정산 전체는 Clairveil 로컬에서 돌렸습니다([A 진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)).
+- `[Live Testnet]` Privacy 예치 요청은 전역 정책 거부 없이 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다. tx를 보내지 않고 `eth_call`과 `eth_estimateGas`로 확인했고, 유효한 증명을 만들 재료가 공개되지 않아 차폐 정산 전체는 Clairveil 로컬에서 돌렸습니다([A 진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)).
 - `[Local]` 협력사 B에게 보낸 15는 협력사 B, 구매 기업, 감사인이 각자 키로 풀었고, 제3자가 읽는 지급 tx에는 금액 필드가 없습니다([A 로컬 기록](track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md)).
 - `[Live Testnet]` `[Local]` 워크샵 1\~5단계와 단계별 성공 기준이 `pnpm b:smoke` 한 번에 91초 만에 통과했습니다([B 세션 기록](track-b-enable/evidence/session-20260926T000329Z.md)).
 - `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 요건 R1\~R4를 통과시켰습니다([C 판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json), 탐색기의 [3 OKRW 결제](https://explorer-testnet.maroo.io/tx/0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787)와 [8 OKRW 거부](https://explorer-testnet.maroo.io/tx/0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9)).
-- `[Live Testnet]` 문서와 다르게 동작한 곳 19건을 재현 명령, owner와 함께 [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md#발견한-차이)에 적었습니다. 2026-10-23 판 문서에서는 13건이 고쳐졌고 3건이 일부 고쳐졌습니다. PCL 정책에 거부된 tx는 문서와 달리 블록에 남아 가스 한도의 절반을 냈고([기록](track-a-explain/evidence/live/reject-gas-20260926T171444Z.json), 탐색기에 [150,000 / 300,000, 50%](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)로 보임), 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 막혔습니다([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)).
+- `[Live Testnet]` 문서와 다르게 동작한 곳 19건을 재현 명령, owner와 함께 [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md#발견한-차이)에 적었습니다. 2026-10-23 판 문서에서는 13건이 고쳐졌고 3건이 일부 고쳐졌습니다. PCL 정책에 거부된 tx는 2026-09-26 판 문서와 달리 블록에 남아 가스 한도의 절반을 냈고([기록](track-a-explain/evidence/live/reject-gas-20260926T171444Z.json), 탐색기에 [150,000 / 300,000, 50%](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)로 보임), 2026-09-26 판 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 막혔습니다([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)).
 
 키와 잔액 없이 확인하려면 `pnpm install`, `pnpm bootstrap`(2분 안팎) 뒤 `pnpm review`(20초)를 돌립니다([실행](#실행)). 기준 버전은 Clairveil v0.4.0 [`ca85b02708fdd75259d4d2ee2d671c21198cec69`](https://github.com/DELIGHT-LABS/clairveil/tree/ca85b02708fdd75259d4d2ee2d671c21198cec69)이고, 13장 요약 장표는 [PDF](slides/maroo-integration-lab-summary.pdf)로 있습니다.
+
+## 질문별 답과 근거 명령
+
+Maroo를 처음 붙이는 개발자가 먼저 묻는 질문마다 20초 안에 읽는 답과, 그 답을 직접 확인하는 명령을 모았습니다. 질문은 B 워크샵의 토론 질문과 Privacy의 범위에 관한 질문에서 골랐고, 마지막 열에 확인 명령과 자세한 근거가 있는 절을 함께 적었습니다.
+
+| 질문 | 20초 답 | 확인 명령과 자세한 절 |
+| --- | --- | --- |
+| 이 거부는 금고 코드가 했는가, PCL이 했는가 | revert 데이터의 오류 선택자로 가립니다. `EasNoAttestationReceived`(`0xbca5593e`)처럼 IPcl에 있는 오류면 PCL이 거부했고, `NotBuyer()`처럼 금고 ABI에 있는 오류면 금고 코드가 거부했습니다. 받는 주소가 PCL 프록시인지는 `IPcl.pclProxy`로 확인합니다 | `pnpm a:reject-gas`. [A 가이드 6절](track-a-explain/integration-guide.md#6-판정과-실패-진단) |
+| 제3자는 협력사 A가 12를 받은 것을 알 수 있는가 | 지급 tx에서는 알 수 없습니다. 지급 tx에는 금액과 받는 주소 필드가 없습니다. 다만 예치 12와 인출 12가 공개되어 같은 금액으로 두 거래를 이어 볼 수 있습니다 `[Local]` | `pnpm a:local`. [A 가이드 3절](track-a-explain/integration-guide.md#3-누가-무엇을-보는가) |
+| 감사인과 협력사는 무엇이 다르고, 감사 키는 누가 갖는가 | 협력사는 자기에게 온 지급만, 감사인은 그 기간의 모든 지급을 풉니다 `[Local]`. 감사 비밀키 하나로 모든 지급이 풀리므로 보관 주체와 열람 승인 절차가 필요하고, Clairveil은 그 결정을 Clairveil을 가져다 체인을 운영하는 회사(여기서는 Maroo)가 하도록 남겨 둡니다 | `pnpm a:local`. [A 가이드 4절](track-a-explain/integration-guide.md#4-키와-서비스의-책임) |
+| `SDKInvalidRequest`는 정책 거부인가 | 아닙니다. 모든 프리컴파일이 함께 쓰는 인자 없는 요청 검증 오류라, 형식, 자산 등록, 증명 검증 가운데 어디서 막혔는지는 가릴 수 없습니다. 이 레포의 예치 요청은 Privacy 정책을 평가하는 단계까지 가지 못했습니다 | `pnpm a:probe`. [A 가이드 6절](track-a-explain/integration-guide.md#테스트넷-privacy의-최초-실패-계층) |
+| 로컬 결과를 테스트넷 성공으로 적으면 안 되는 이유 | 로컬 검증 키는 setup이 돌 때마다 새로 만드는 키라 Maroo의 키와 같을 수 없고, 전송과 인출 증명은 체인 도메인과 Merkle root에도 묶입니다. 판도 다릅니다. 테스트넷 노드는 Clairveil v0.3.0에 의존하고, 이 레포의 로컬 체인은 v0.4.0입니다 | `pnpm a:chain-info`. [A 가이드 1절](track-a-explain/integration-guide.md#clairveil과-maroo-xprivacy의-관계) |
+| Maroo가 말하는 Verifiable Privacy는 Clairveil의 Privacy와 무엇이 다른가 | Clairveil의 Privacy는 금액과 거래 관계를 가리고 그 계산이 맞다는 것을 증명하며, 감사 키를 가진 사람은 모든 지급을 풉니다. Maroo 문서의 Verifiable Privacy는 여기에 규제 기관이 법이 정한 범위 안에서만 데이터에 접근하는 열람 경로(관찰자 노드)를 더한 모델이고, 그 열람 프로토콜은 아직 체인에 없다고 문서가 적습니다 | Maroo 문서 [「검증 가능한 프라이버시」](https://docs.maroo.io/concepts/privacy/verifiable-privacy/). [A 가이드 8절](track-a-explain/integration-guide.md#8-프로덕션-전에-남은-것) |
+| 테스트넷 Privacy까지 무엇이 남았는가 | Maroo 검증 키와 짝인 proving 키(또는 prover), 차폐 상태 조회 경로, 성공한 예시 입력입니다. 2026-10-23에도 Cosmos REST의 Clairveil 조회 경로(`/clairveil/privacy/v1/params`)는 501을 돌려줬습니다 | `pnpm a:probe`, `pnpm a:chain-info`. [A 가이드 6절](track-a-explain/integration-guide.md#테스트넷-privacy의-최초-실패-계층), [노드 정보 기록](track-a-explain/evidence/live/chain-info-20261023T045537Z.json) |
 
 ## 읽는 사람별 입구
 
