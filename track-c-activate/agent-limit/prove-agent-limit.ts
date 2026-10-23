@@ -19,7 +19,7 @@
 //   4. 한도 안 결제(성공 tx)와 한도 초과 결제(거부 tx, 가스 고정)
 //   5. 기록과 c:judge --track 2 입력(evidence.json)
 // SDK(@maroo-chain/viem)의 레지스트리 액션, policy.agentOkrwTransferLimit, pcl.deployPclProxy, simulatePclProxy, PclViolation 을 쓴다.
-// 한 번 실행에 OKRW 100 안팎이 든다(가스 보충 30, 결제 3, 배포와 tx 가스). 개인키는 출력하지 않는다.
+// 한 번 실행에 든 OKRW는 끝에 찍고 기록의 「끝 잔액」 단계에 남긴다. 개인키는 출력하지 않는다.
 
 import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
@@ -78,6 +78,10 @@ log("0) 에이전트", {
   agentId: agentId.toString(), owner, registry, agentWallet: agent,
   getAgentIdsOfOwner: buyerAgents.map(String), getAgentIdsOfAgentWallet: agentWalletAgents.map(String),
 });
+// 이번 실행에 든 OKRW를 기록하려고 두 지갑의 시작 잔액을 남긴다
+const startBalance = { buyer: await pub.getBalance({ address: buyer }), agent: await pub.getBalance({ address: agent }) };
+log("시작 잔액", { buyer: formatEther(startBalance.buyer), agent: formatEther(startBalance.agent) });
+
 // 결제 값과 최대 가스비(가스 한도 × maxFeePerGas)를 함께 낼 잔액을 맞춘다
 async function ensureAgentBalance(label: string, min: bigint) {
   if ((await pub.getBalance({ address: agent })) < min) {
@@ -225,6 +229,10 @@ log(`4b) 에이전트 결제 ${formatEther(PAY_OVER)} OKRW(한도 초과)`, {
 });
 
 // 5. 기록
+const endBalance = { buyer: await pub.getBalance({ address: buyer }), agent: await pub.getBalance({ address: agent }) };
+const spent = startBalance.buyer + startBalance.agent - endBalance.buyer - endBalance.agent;
+log("끝 잔액", { buyer: formatEther(endBalance.buyer), agent: formatEther(endBalance.agent), spentByBothWallets: formatEther(spent) });
+console.log(`구매 기업과 에이전트 지갑에서 빠진 OKRW: ${formatEther(spent)} (한도 안 결제 ${formatEther(PAY_OK)} OKRW 포함)`);
 const file = writeEvidence(path.join(ROOT, "track-c-activate/evidence/live"), "agent-limit", {
   checkedAt: new Date().toISOString(), label: "[Live Testnet]", agentId: agentId.toString(), owner: buyer, agentWallet: agent, registry, vault,
   limit: formatEther(LIMIT), payOk: formatEther(PAY_OK), payOver: formatEther(PAY_OVER), setAgentWalletTx: setWalletTx ?? "이미 연결됨",
