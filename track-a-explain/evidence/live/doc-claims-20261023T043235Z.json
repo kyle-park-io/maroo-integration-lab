@@ -1,0 +1,56 @@
+{
+  "checkedAt": "2026-10-23T04:32:35.982Z",
+  "label": "문서 원문 대조와 조회, eth_call. tx 없음",
+  "checks": [
+    {
+      "id": "kyc-labelled-mock",
+      "docsPage": "https://docs.maroo.io/resources/network/testnet-access/",
+      "docsSaysKycMock": false,
+      "privacyTopPolicy": [
+        "LOGICAL_POLICY"
+      ],
+      "note": "Privacy 정책의 세부(EAS_POLICY 스키마)는 inspect-privacy-boundary 기록에 있다"
+    },
+    {
+      "id": "withdraw-denom",
+      "docsPage": "https://docs.maroo.io/apis/contract/contract-privacy-withdraw/",
+      "docsAokrwCount": 0,
+      "docsAtokrwCount": 6,
+      "docsMentionsDenomMismatchError": true,
+      "chainMintDenom": "atokrw"
+    },
+    {
+      "id": "privacy-precompile-listed",
+      "deployedContractsPage": "https://docs.maroo.io/resources/contracts/deployed-contracts/",
+      "listsPrivacyAddress": true,
+      "architecturePage": "https://docs.maroo.io/concepts/core/maroo-architecture/",
+      "saysFourPrecompiles": false,
+      "chainPrivacyPolicyBound": true
+    },
+    {
+      "id": "empty-initializer",
+      "docsPage": "https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/",
+      "docsSaysPass0x": false,
+      "docsSaysCannotBeEmpty": true,
+      "ethCall": {
+        "empty 0x, kind Transparent": "Error(execution reverted)",
+        "empty 0x, kind UUPS": "Error(execution reverted)",
+        "initialize(), kind Transparent": "통과",
+        "initialize(), kind UUPS": "통과"
+      }
+    },
+    {
+      "id": "preflight-method",
+      "docsPages": [
+        "https://docs.maroo.io/guides/integration/simulating-pcl-checks/",
+        "https://docs.maroo.io/concepts/compliance/pcl-reason-codes/",
+        "https://docs.maroo.io/apis/contract/"
+      ],
+      "simulationProxyHook": true,
+      "simulationEthCallSkipsRecheck": true,
+      "reasonCodesMentionEstimateGas": false,
+      "contractApiSaysEthCall": true,
+      "chainEvidence": "probe-global-compare 기록: 같은 금액을 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출로 eth_call, eth_estimateGas 에 견줌"
+    }
+  ]
+}

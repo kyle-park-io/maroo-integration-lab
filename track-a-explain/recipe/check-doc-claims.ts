@@ -11,6 +11,7 @@ import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { OKRW, PCL, PRIVACY, publicClient as pub, rawEthCall, decodeRaw, writeEvidence } from "../../shared/lib/maroo.ts";
 import { preflightClaims } from "./doc-claims-preflight.ts";
+import { initializerClaims } from "./doc-claims-initializer.ts";
 
 const DOCS = "https://docs.maroo.io";
 // 2026-09-23 레시피 검증 때 배포된 구현. 초기화 데이터만 바꿔 deployPclProxy 를 시뮬레이션한다.
@@ -88,7 +89,7 @@ for (const [label, init] of [["empty 0x", "0x"], ["initialize()", "0x8129fc1c"]]
 }
 record("empty-initializer", {
   docsPage: `${DOCS}/apis/contract/contract-pcl-deploy-pcl-proxy/`,
-  docsSaysPass0x: count(deployDoc, '"0x"') > 0,
+  ...initializerClaims(deployDoc),
   ethCall: sims,
 });
 
