@@ -131,7 +131,7 @@ pnpm a:probe-public [tx 해시]
 pnpm a:watch-privacy
 ```
 
-- Maroo가 proving 재료를 공개했는지 매번 같은 값으로 확인합니다. 노드 판, Clairveil 차폐 상태 조회 경로 13개의 응답 코드, 회로 설정이 proving 산출물을 내주는지, 빈 예치 요청과 4층 시험의 사유, 공식 SDK에 Cosmos REST를 넣은 예치 준비(`pnpm a:probe-sdk --rest`, `vendor/clairveiljs` 의존성이 있을 때), Privacy 프리컴파일 tx 수와 함수별 성공 수, Maroo 문서 Privacy 페이지의 내용 해시, Clairveil 최신 릴리스, `@maroo-chain` 패키지 최신 판을 읽습니다. 10초 안팎 걸립니다.
+- Maroo가 proving 재료를 공개했는지 매번 같은 값으로 확인합니다. 노드 판, Clairveil 차폐 상태 조회 경로 13개의 응답 코드, 회로 설정이 proving 산출물을 내주는지, 빈 예치 요청과 4층 시험의 사유, 공식 SDK에 Cosmos REST를 넣은 예치 준비(`pnpm a:probe-sdk --rest`, `vendor/clairveiljs` 의존성이 있을 때), Privacy 프리컴파일 tx 수와 함수별 성공 수, Maroo 문서 Privacy 페이지의 내용 해시, Clairveil 최신 릴리스, `@maroo-chain` 패키지 최신 판을 읽고, Clairveil 릴리스 압축(.tar.gz)을 모두 받아 파일마다 sha256을 테스트넷 검증 키와 견줍니다. 같은 파일이 나오면 proving 재료가 그 릴리스로 나온 것으로 보고 준비됨으로 판정합니다. 15초 안팎 걸립니다.
 - 기록은 `evidence/live/watch-privacy/<날짜>.json`에 남고, 이전 날짜의 기록과 달라진 값을 출력합니다. GitHub Actions(`.github/workflows/watch-privacy.yml`)가 하루 한 번 같은 명령을 돌려 기록을 실행 결과에 붙이고, proving 재료가 보이면 이슈를 하나 엽니다. 저장소에 커밋하지는 않습니다.
 - 2026-10-23의 결과: 조회 경로 11개가 200, `privacy_scan`과 `commitment_paths_at_root`가 501, 회로 설정의 `manifest_available`이 false, SDK 예치 준비는 증명 공급자까지 갑니다. `[Live Testnet]` [첫 기록](evidence/live/watch-privacy/2026-10-23.json)
 
