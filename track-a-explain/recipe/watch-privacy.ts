@@ -25,7 +25,7 @@ import { EXPLORER, PRIVACY, REST, RPC, labValue, publicClient as pub } from "../
 import { explainCall } from "../../shared/lib/explain-chain.ts";
 import { summarizeChainInfo } from "../../shared/lib/chain-info.ts";
 import { classifyRevert } from "../../shared/lib/explain.ts";
-import { changesSince, countBySelector, readiness, type WatchRecord } from "../../shared/lib/privacy-watch.ts";
+import { changesSince, countBySelector, readiness, recordFile, type WatchRecord } from "../../shared/lib/privacy-watch.ts";
 
 const save = !process.argv.includes("--no-save");
 const DIR = path.join(ROOT, "track-a-explain/evidence/live/watch-privacy");
@@ -159,8 +159,8 @@ console.log(prevFile ? `\n이전 기록(${prevFile})과 달라진 것: ${changes
 for (const c of changes) console.log(`  ${c}`);
 
 if (save) {
-  fs.mkdirSync(DIR, { recursive: true });
-  const file = path.join(DIR, `${record.checkedAt.slice(0, 10)}.json`);
+  const file = recordFile(DIR, record.checkedAt.slice(0, 10));
+  fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify(record, null, 2) + "\n");
   console.log(`\n기록: ${path.relative(ROOT, file)}`);
 }

@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { countBySelector, diffDocs, readiness, changesSince, type WatchRecord } from "./privacy-watch.ts";
+import path from "node:path";
+import { ROOT } from "./paths.ts";
+import { countBySelector, diffDocs, readiness, changesSince, recordFile, type WatchRecord } from "./privacy-watch.ts";
 
 test("Privacy 프리컴파일 tx 를 선택자와 결과로 센다", () => {
   const c = countBySelector([
@@ -67,4 +69,17 @@ test("이전 기록과 견줘 바뀐 항목만 적는다", () => {
   assert.ok(c.some((x) => x.includes("verifiable-privacy")));
   assert.ok(c.some((x) => x.includes("proving")));
   assert.deepEqual(changesSince(base, base), []);
+});
+
+test("MAROO_LAB_OUT 이 있으면 감시 기록을 그 폴더 아래에 쓴다", () => {
+  const dir = path.join(ROOT, "track-a-explain/evidence/live/watch-privacy");
+  const before = process.env.MAROO_LAB_OUT;
+  try {
+    delete process.env.MAROO_LAB_OUT;
+    assert.equal(recordFile(dir, "2026-10-24"), path.join(dir, "2026-10-24.json"));
+    process.env.MAROO_LAB_OUT = ".work/review/x";
+    assert.equal(recordFile(dir, "2026-10-24"), path.join(ROOT, ".work/review/x/track-a-explain/evidence/live/watch-privacy/2026-10-24.json"));
+  } finally {
+    if (before === undefined) delete process.env.MAROO_LAB_OUT; else process.env.MAROO_LAB_OUT = before;
+  }
 });

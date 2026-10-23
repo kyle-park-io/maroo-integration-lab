@@ -1,8 +1,11 @@
 // Privacy 준비 상태 감시의 판정. 체인과 문서를 부르지 않는다(조회는 track-a-explain/recipe/watch-privacy.ts).
 //
-// 외부 개발자가 Maroo 테스트넷에서 Privacy 를 끝까지 실행하려면 Maroo 가 verifier 와 맞는 proving 재료와
-// 차폐 상태 조회 경로를 공개해야 한다(가이드 6절 최초 실패 계층). 그날을 놓치지 않으려고 매번 같은 값을 읽어 기록하고,
+// 외부 개발자가 Maroo 테스트넷에서 Privacy 를 끝까지 실행하려면 Maroo 가 verifier 와 맞는 proving 재료를
+// 공개해야 한다(가이드 6절 최초 실패 계층). 차폐 상태 조회 경로는 2026-10-23 에 Cosmos REST 에서 응답했다. 그날을 놓치지 않으려고 매번 같은 값을 읽어 기록하고,
 // 이전 기록과 달라진 것과 다음에 시험할 층을 적는다.
+
+import path from "node:path";
+import { outPath } from "./paths.ts";
 
 export type WatchRecord = {
   checkedAt: string;
@@ -85,4 +88,9 @@ export function changesSince(prev: WatchRecord | undefined, now: WatchRecord): s
   for (const p of d.added) out.push(`문서 새로 생김: ${p}`);
   for (const p of d.removed) out.push(`문서 사라짐: ${p}`);
   return out;
+}
+
+// 감시 기록 파일. MAROO_LAB_OUT 이 있으면 커밋된 기록 대신 그 폴더 아래에 쓴다(pnpm review 와 같은 방식).
+export function recordFile(dir: string, date: string): string {
+  return path.join(outPath(dir), `${date}.json`);
 }
