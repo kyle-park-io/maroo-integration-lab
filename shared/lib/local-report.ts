@@ -17,10 +17,21 @@ export const STEPS: [string, string][] = [
   ["deposit-zero-3", "구매 기업 0 노트 예치"],
   ["pay-supplier-a", "협력사 A 지급: 송장 12, 8 일괄 전송"],
   ["pay-supplier-b", "협력사 B 지급: 송장 15, 수신자 암호화 disclosure"],
-  ["withdraw-alone", "협력사 A 인출 12, 단독으로 보냄"],
+  ["withdraw-alone", "협력사 A 단독 인출 12"],
   ["cobl-deposit", "구매 기업 0 노트 예치, 인출과 같은 블록"],
   ["supplier-a-withdraw", "협력사 A 인출 12, 0 노트 예치와 같은 블록"],
 ];
+
+// 2026-10-23 전에 쓴 기록의 단계 이름. 레포에 남은 옛 기록을 4단계가 읽을 때 쓴다.
+const LEGACY_LABELS: Record<string, string> = {
+  "withdraw-alone": "협력사 A 인출 12, 단독으로 보냄",
+};
+
+// 기록 마크다운에서 한 단계의 tx 표 줄을 찾는다. 지금 이름과 옛 이름을 모두 본다.
+export function findStepLine(md: string, name: string): string | undefined {
+  const labels = [STEPS.find(([n]) => n === name)?.[1], LEGACY_LABELS[name]].filter(Boolean) as string[];
+  return md.split("\n").find((l) => labels.some((label) => l.startsWith(`| ${label} |`)));
+}
 
 const load = (out: string, name: string): Json => JSON.parse(fs.readFileSync(path.join(out, name), "utf8"));
 
@@ -60,6 +71,8 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
     "",
     "## 1. 단계별 tx",
     "",
+    "실행한 순서대로 tx 하나가 한 줄입니다. 결과 칸은 체인이 돌려준 code이고, 실패면 raw_log 앞부분을 붙였습니다.",
+    "",
     "| 단계 | tx | 높이 | 결과 | gas_used |",
     "| --- | --- | --- | --- | --- |",
   ];
@@ -69,7 +82,9 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
     lines.push(`| ${label} | \`${q.txhash}\` | ${q.height} | ${result} | ${q.gas_used} |`);
   }
 
-  lines.push("", "## 2. 역할마다 자기 키로 본 것", "", "| 누가 | 무엇을 | 결과 |", "| --- | --- | --- |");
+  lines.push("", "## 2. 역할마다 자기 키로 본 것", "",
+    "역할마다 자기 키로 노트를 스캔하거나 disclosure를 풀어 얻은 값입니다. 누가 칸의 역할이 무엇을 칸의 대상을 열었고, 결과 칸은 CLI가 돌려준 값입니다.", "",
+    "| 누가 | 무엇을 | 결과 |", "| --- | --- | --- |");
   lines.push(`| 구매 기업 | 지급 전 자기 노트 | spendable [${spendable(out, "buyer-notes-before.json").join(", ")}] |`);
   lines.push(`| 협력사 A | 받은 노트 스캔 | spendable [${spendable(out, "supplier-a-notes.json").join(", ")}] |`);
   lines.push(`| 협력사 B | 받은 노트 스캔 | spendable [${spendable(out, "supplier-b-notes.json").join(", ")}] |`);
@@ -91,6 +106,7 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
   lines.push(`| 누구나 | 차폐 풀 준비금 불변식 | invariant_holds=${load(out, "reserve.json").invariant_holds} |`);
 
   lines.push("", "## 3. 제3자가 공개 체인에서 읽을 수 있는 것", "",
+    "성공한 tx의 본문에서 키 없이 읽히는 필드입니다. 읽히는 값 칸은 값이 그대로 보이는 필드이고, 오른쪽 칸은 이름만 보이고 값은 암호문이나 증명인 필드입니다.", "",
     "| 단계 | 메시지 | 읽히는 값 | 값이 아닌 필드(암호문, 증명, 커밋먼트 등) |", "| --- | --- | --- | --- |");
   for (const [name, label] of STEPS) {
     const q = load(out, `${name}-query.json`);
@@ -119,6 +135,7 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
     const rq = relayFile ? load(out, relayFile) : undefined;
     const row = (label: string, q: Json) => `| ${label} | \`${q.txhash}\` | ${q.height} | ${(q.code ?? 0) === 0 ? "성공" : `실패 code ${q.code}: \`${String(q.raw_log ?? "").slice(0, 160)}\``} | ${q.gas_used} |`;
     lines.push("## 5. 참조 구현의 대량 지급 기능(선택 단계)", "",
+      "`--extras`로 실행했을 때만 붙는 절입니다. 증명 하나로 여러 건을 지급하는 tx와 중계자가 대신 내는 인출을 실행한 결과입니다.", "",
       "| 단계 | tx | 높이 | 결과 | gas_used |", "| --- | --- | --- | --- | --- |",
       row("구매 기업 예치 30", load(out, "extra-deposit-30-query.json")),
       row("증명 하나짜리 일괄 지급: A 5, B 7, A 3 (출력 32칸 고정)", bq));
@@ -138,3 +155,4 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
   }
   fs.writeFileSync(opts.report, lines.join("\n"));
 }
+

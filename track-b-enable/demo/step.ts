@@ -15,6 +15,7 @@ import { encodeFunctionData, formatEther, getAddress, parseEther, type Address, 
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { iPrivacyAbi } from "@maroo-chain/contracts/abi/precompiles/privacy/IPrivacy";
 import { ROOT, outPath } from "../../shared/lib/paths.ts";
+import { findStepLine } from "../../shared/lib/local-report.ts";
 import { describePolicy, findEasSchema, type PolicySet } from "../../shared/lib/pcl-policy.ts";
 import {
   EAS_PARAMS, EXPLORER, PCL, PRIVACY, RPC, addressOf, decodeRaw, easParamsAbi, indexerAbi, publicClient as pub, rawEthCall,
@@ -142,8 +143,8 @@ async function step4() {
   const local = newest(LOCAL_DIR, "vendor-settlement-");
   if (local) {
     const md = fs.readFileSync(local, "utf8");
-    const alone = md.split("\n").find((l) => l.includes("인출 12, 단독으로 보냄"));
-    const cobl = md.split("\n").find((l) => l.includes("인출 12, 0 노트 예치와 같은 블록"));
+    const alone = findStepLine(md, "withdraw-alone");
+    const cobl = findStepLine(md, "supplier-a-withdraw");
     if (cobl) rows.push({ case: "로컬 인출(같은 블록 우회)", label: "[Local] tx", method: rel(local), outcome: cobl.includes("성공") ? "통과" : "실패", class: cobl.includes("성공") ? "성공" : "인프라·자료 부재", next: "Maroo 테스트넷 결과가 아님" });
     if (alone) rows.push({ case: "로컬 인출(단독)", label: "[Local] tx", method: rel(local), outcome: "merkle root snapshot re-registration is inconsistent", class: "참조 구현 문제", next: "같은 블록에 잎을 더하는 tx를 함께 넣음" });
   }
