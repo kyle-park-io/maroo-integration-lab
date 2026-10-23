@@ -175,6 +175,7 @@ pnpm a:local
 - `pnpm setup:clairveil`은 clairveil-samples가 맞춰 둔 조합을 받습니다. Clairveil v0.4.0 `ca85b027`, ClairveilJS `faf220d5`, clairveil-samples `8321ded`입니다.
 - `pnpm a:local`은 Clairveil을 빌드하고 회로 산출물을 만든 뒤, 로컬 체인을 띄워 아래 순서로 실행합니다. 이 머신에서 약 4분 걸렸고, 실행 폴더(`.work/`)에 약 560MB를 씁니다. 127.0.0.1:26657이 비어 있어야 합니다.
 - `pnpm b:prepare`로 바이너리와 회로 산출물을 미리 만들어 두면 `pnpm a:local`이 그것을 재사용해 1분 안팎에 끝납니다(2026-10-23 실행 61초, [기록](evidence/local/vendor-settlement-20261023T045326Z.md)).
+- `pnpm a:local --operator`는 정산 대행사(운영자) 키를 더하고, 사용자 공개를 금액만 담아 대행사의 공개키로 암호화한 지급 세 건(협력사 A 4, 6과 협력사 B 5)을 보냅니다. 대행사는 자기 지급 지시서로 협력사별 합계를 내고, 감사인이 같은 지급에서 푼 금액의 합과 견줍니다. 결과는 기록 6절에 남고, 2026-10-23 실행은 102초 걸렸습니다([기록](evidence/local/vendor-settlement-20261023T055418Z.md)).
 - `pnpm a:local --extras`는 뒤에 참조 구현의 두 기능을 더 실행합니다. 증명 하나짜리 일괄 지급(출력 32칸 고정)과 대리 인출이고, 결과는 기록 5절에 남습니다. 대리 인출은 0 노트 예치를 먼저 보낸 뒤 보내야 같은 블록에서 성공합니다.
 
 | 순서 | 하는 일 |

@@ -44,8 +44,9 @@ export function buildClairveil(dir: string, log: string) {
 // beforeStage 는 1~10 단계 번호를 받는다. 워크샵 실행기는 여기서 예상 결과를 먼저 보여 주고 진행을 멈춘다.
 // extras 를 켜면 기존 흐름 뒤에 참조 구현의 대량 지급 기능 두 가지를 더 실행한다(작업 기록 5절).
 //   증명 하나짜리 일괄 지급(transfer-batch-16x32, 출력 32칸 고정), 중계자가 보내는 대리 인출(prepare-withdraw, relay-withdraw)
+// operator 를 켜면 정산 대행사(운영자) 키를 더하고, 금액만 대행사에게 공개하는 지급 세 건을 보낸 뒤 대행사와 감사인이 각자 푼다(작업 기록 6절).
 export async function runLocalVendorSettlement(opts: {
-  evidenceDir: string; command: string; prebuiltDir?: string; beforeStage?: (stage: number) => Promise<void>; extras?: boolean;
+  evidenceDir: string; command: string; prebuiltDir?: string; beforeStage?: (stage: number) => Promise<void>; extras?: boolean; operator?: boolean;
 }): Promise<string> {
   if (!fs.existsSync(path.join(CORE, ".git"))) {
     throw new Error("vendor/clairveil 이 없습니다. 먼저 pnpm setup:clairveil 을 실행하십시오.");
@@ -123,7 +124,7 @@ export async function runLocalVendorSettlement(opts: {
 
   await stage(2);
   console.log("2) 역할 키와 체인 초기화 (감사 키는 auditor 의 공개키)");
-  const roles = opts.extras ? ["buyer", "supplier-a", "supplier-b", "auditor", "relayer"] : ["buyer", "supplier-a", "supplier-b", "auditor"];
+  const roles = ["buyer", "supplier-a", "supplier-b", "auditor", ...(opts.extras ? ["relayer"] : []), ...(opts.operator ? ["operator"] : [])];
   const address: Record<string, string> = {};
   for (const who of roles) {
     // 로컬 체인에서만 쓰는 키지만 복구 문구는 파일에 남기지 않는다.
@@ -283,6 +284,30 @@ export async function runLocalVendorSettlement(opts: {
       if ((rq.code ?? 0) === 0) { save("extra-relay-withdraw-query.json", rq); relayed = true; }
     }
     if (!relayed) console.log("  대리 인출이 세 번 모두 같은 블록에 들어가지 못했습니다. 기록에는 마지막 시도를 남깁니다.");
+  }
+
+  if (opts.operator) {
+    console.log("운영자 1) 정산 대행사에게 금액만 공개하는 지급: 협력사 A 송장 4, 6(일괄), 협력사 B 송장 5");
+    const operatorPub = (await cliJson(["tx", "privacy", "show-disclosure-pubkey", "--from", "operator", ...keyring, "--output", "json"])).public_key_hex;
+    for (const amount of [4, 6, 5]) await submit(`op-deposit-${amount}`, privacyTx("deposit", `${amount}uclair`, "--from", "buyer", ...keyring, "--gas", "2500000"));
+    for (const i of [1, 2, 3]) await submit(`op-deposit-zero-${i}`, privacyTx("deposit", "0uclair", "--from", "buyer", ...keyring, "--gas", "2500000"));
+    // 사용자 공개는 금액만(privacy-policy amount) 담아 대행사의 공개키로 암호화한다. 감사 공개는 늘 붙는다.
+    const toOperator = ["--privacy-policy", "amount", "--disclosure-mode", "recipient-encrypted", "--disclosure-pubkey", operatorPub];
+    const opA = await submit("op-pay-supplier-a", privacyTx("transfer-batch", shielded["supplier-a"], "4uclair", "6uclair", ...toOperator, "--from", "buyer", ...keyring, "--gas", "20000000"));
+    const opB = await submit("op-pay-supplier-b", privacyTx("transfer", shielded["supplier-b"], "5uclair", ...toOperator, "--from", "buyer", ...keyring, "--gas", "10000000"));
+    // 대행사가 만든 지급 지시서. 받는 협력사는 공개에 없으므로 대행사는 이 지시서로 협력사를 붙인다.
+    save("op-ledger.json", [
+      { invoice: "A-3", supplier: "supplier-a", amount: 4, tx: opA.txhash, message: 0 },
+      { invoice: "A-4", supplier: "supplier-a", amount: 6, tx: opA.txhash, message: 1 },
+      { invoice: "B-2", supplier: "supplier-b", amount: 5, tx: opB.txhash, message: 0 },
+    ]);
+    console.log("운영자 2) 정산 대행사는 사용자 공개를, 감사인은 감사 공개를 각자 키로 푼다");
+    for (const [name, q] of [["a", opA], ["b", opB]] as const) {
+      for (const [i, msg] of (q.tx.body.messages as Json[]).entries()) {
+        save(`op-view-${name}-${i}.json`, await decode([Buffer.from(msg.user_disclosure_payload, "base64").toString("hex")], "recipient", "operator"));
+        save(`op-audit-view-${name}-${i}.json`, await decode([Buffer.from(msg.audit_disclosure_payload, "base64").toString("hex")], "audit", "auditor"));
+      }
+    }
   }
 
   await stage(10);

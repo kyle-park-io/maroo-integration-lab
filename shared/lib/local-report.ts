@@ -5,6 +5,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { auditorTotals, compareTotals, operatorTotals, type AuditView, type LedgerItem, type View } from "./operator-view.ts";
 
 type Json = Record<string, any>;
 
@@ -152,6 +153,40 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
         `| 대리 인출의 받는 주소(recipient)와 금액 | \`${wm.recipient}\`(협력사 B), ${wm.amount} |`);
     }
     lines.push("");
+  }
+
+  // 선택 단계(--operator)를 실행했을 때만 붙는다
+  if (fs.existsSync(path.join(out, "op-ledger.json"))) {
+    const ledger = load(out, "op-ledger.json") as unknown as LedgerItem[];
+    const views: View[] = [], audits: AuditView[] = [];
+    const rows: string[] = [];
+    for (const [name, file] of [["a", "op-pay-supplier-a-query.json"], ["b", "op-pay-supplier-b-query.json"]] as const) {
+      const q = load(out, file);
+      (q.tx.body.messages as Json[]).forEach((m, i) => {
+        const v = load(out, `op-view-${name}-${i}.json`), a = load(out, `op-audit-view-${name}-${i}.json`);
+        const onchain = Buffer.from(m.user_disclosure_digest, "base64").toString("hex");
+        const digestOk = v.payload?.disclosure_digest_hex === onchain;
+        views.push({ tx: q.txhash, message: i, amount: v.summary?.amount, fields: v.summary?.disclosed_fields ?? [], verified: v.verification?.verified === true && digestOk });
+        audits.push({ tx: q.txhash, message: i, amount: a.summary?.amount, to: a.summary?.to_shielded_address, verified: a.verification?.verified === true });
+        const item = ledger.find((l) => l.tx === q.txhash && l.message === i);
+        rows.push(`| ${item?.invoice ?? "지시서에 없는 tx"} | \`${q.txhash.slice(0, 10)}…\` 메시지 ${i} | ${v.summary?.delivery}, 필드 [${(v.summary?.disclosed_fields ?? []).join(", ")}], 금액 ${v.summary?.amount}, 체인의 사용자 공개 해시와 ${digestOk ? "같습니다" : "다릅니다"} | 금액 ${a.summary?.amount}, 받는 주소 \`${String(a.summary?.to_shielded_address).slice(0, 16)}…\` |`);
+      });
+    }
+    const supplierOf: Record<string, string> = {
+      [load(out, "supplier-a-shielded.json").address]: "supplier-a", [load(out, "supplier-b-shielded.json").address]: "supplier-b",
+    };
+    const op = operatorTotals(ledger, views);
+    const cmp = compareTotals(op.totals, auditorTotals(audits, supplierOf));
+    const label: Record<string, string> = { "supplier-a": "협력사 A", "supplier-b": "협력사 B" };
+    lines.push("## 6. 운영자 시야(선택 단계)", "",
+      "`--operator`로 실행했을 때만 붙는 절입니다. 구매 기업이 지급 세 건의 사용자 공개를 금액만 담아 정산 대행사의 공개키로 암호화했습니다. 대행사는 자기 지급 지시서로 협력사를 붙여 협력사별 합계를 내고, 감사인이 같은 지급의 감사 공개에서 푼 건별 금액의 합과 견줍니다.", "",
+      "| 지시서 송장 | 지급 tx | 정산 대행사가 자기 키로 푼 사용자 공개 | 감사인이 푼 감사 공개 |", "| --- | --- | --- | --- |", ...rows, "",
+      "협력사별 합계를 두 시야에서 견준 결과입니다.", "",
+      "| 협력사 | 정산 대행사 합계 | 감사인 합계 | 두 합계 |", "| --- | --- | --- | --- |",
+      ...cmp.map((r) => `| ${label[r.supplier] ?? r.supplier} | ${r.operator} | ${r.auditor} | ${r.same ? "같습니다" : "다릅니다"} |`), "",
+      op.problems.length ? `- 정산 대행사 집계에서 찾은 문제: ${op.problems.join(" ")}` : "- 정산 대행사가 푼 공개에는 금액 필드만 있었고, 지시서 금액과 모두 같았습니다.",
+      "- 정산 대행사는 공개에서 받는 협력사와 보낸 계정을 읽지 못합니다. 협력사 칸은 대행사의 지급 지시서에서 왔습니다.",
+      "");
   }
   fs.writeFileSync(opts.report, lines.join("\n"));
 }
