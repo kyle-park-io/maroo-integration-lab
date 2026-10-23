@@ -30,6 +30,8 @@ flowchart TB
 
 ## 사전 준비(워크샵 전날, 20분 안팎)
 
+워크샵 전날까지 설치해 둘 도구와 점검 항목을 모았습니다. 확인 방법 열의 명령으로 설치 여부를 확인합니다.
+
 | 필요한 것 | 확인 방법 |
 | --- | --- |
 | Node.js 24 이상, pnpm 11 | `node --version`, `pnpm --version` |
@@ -129,6 +131,8 @@ pnpm b:step 5
 
 ## 두 환경의 경계
 
+이 워크샵은 Maroo 테스트넷과 Clairveil 로컬 체인 두 환경에서 실행합니다. 환경마다 실행한 것과 그 결과로 말할 수 있는 것을 모았습니다.
+
 | 환경 | 이 워크샵에서 실행한 것 | 말할 수 있는 것 |
 | --- | --- | --- |
 | Maroo 테스트넷 | OKRW 이체, PCL 프록시 금고, EAS 증명 발급·색인·폐기, 거부와 통과 | Maroo에서 정책이 실제로 호출을 막고 통과시켰다 |
@@ -152,7 +156,7 @@ pnpm b:step 5
 | --- | --- |
 | 차폐 금액 상한 | 노트 하나에 약 18.45 OKRW `[Docs Only]` |
 | 참조 구현의 성숙도 | Clairveil은 실험 단계이고 외부 감사와 공식 trusted setup이 범위 밖 `[Docs Only]` |
-| 규제기관 열람 | 관찰자 노드 열람이 체인에 없음 `[Docs Only]` |
+| 규제기관 열람 | 관찰자 노드 열람 기능의 부재 `[Docs Only]` |
 | 기관 KYB | Privacy 정책은 개인 본인 인증 스키마만 요구 `[Live Testnet]` |
 | 기관 쪽 운영 | 키 보관, 지급 원장과 대사, prover 배치, 금고 회수 권한(청구 기간이나 타임락) 권고 |
 
@@ -160,7 +164,7 @@ pnpm b:step 5
 
 - 정리: `pnpm b:reset`으로 로컬 노드와 실행 폴더를 지웁니다. 지갑과 기록은 남습니다.
 - 더 볼 것: [기관 연동 가이드](../track-a-explain/integration-guide.md)(구조와 신뢰 경계), [실행 레시피](../track-a-explain/runnable-recipe.md)(명령별 입력과 오류), [기관 FAQ](../track-a-explain/faq.md)
-- 자기 조직의 흐름으로 바꿔 보기: 2단계 금고의 KYB 스키마를 자기 조직이 쓰는 자격으로 바꾸고, 3단계의 금액과 협력사 수를 실제 정산 주기에 맞춰 봅니다.
-- 협력사 수가 많으면 Clairveil v0.4.0의 16x32 일괄 지급으로 지급 건수까지 가려 봅니다(`pnpm a:local --extras`, 메시지 1개에 출력 32개). 대리 인출도 같은 명령에 들어 있습니다 `[Local]`.
+- 자기 조직의 흐름으로 바꾸기: 2단계 금고의 KYB 스키마를 자기 조직이 쓰는 자격으로 바꾸고, 3단계의 금액과 협력사 수를 실제 정산 주기에 맞춥니다.
+- 협력사 수가 많으면 Clairveil v0.4.0의 16x32 일괄 지급으로 지급 건수까지 가려지는지 확인합니다(`pnpm a:local --extras`, 메시지 1개에 출력 32개). 대리 인출도 같은 명령에 들어 있습니다 `[Local]`.
 - 정책 코드는 Maroo 공식 TypeScript SDK(`@maroo-chain/viem`)로 씁니다. 2단계 금고의 프록시 배포와 정책 바인딩도 이 SDK를 씁니다([`shared/lib/kyb-gate.ts`](../shared/lib/kyb-gate.ts)).
 - 팀에 가져갈 것: 위 "테스트넷 Privacy까지 남은 것"의 두 목록과 5단계 세션 기록(`track-b-enable/evidence/session-<시각>.md`). Maroo에 요청할 재료와 기관이 설계할 일이 나뉘어 있습니다.

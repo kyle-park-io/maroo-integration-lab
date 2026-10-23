@@ -4,11 +4,13 @@
 
 ## 1. Maroo 테스트넷 `[Live Testnet]`
 
+테스트넷에서 실행한 1단계, 2단계, 4단계의 기록입니다. 기록 열은 코드가 남긴 JSON 파일이고, 예상 결과 열과 실제 결과 열을 견주어 읽습니다.
+
 | 단계 | 기록 | 실행 시각 | 호출 대상과 입력 | 예상 결과 | 실제 결과 |
 | --- | --- | --- | --- | --- | --- |
 | 1단계 연결 | [step1-connect-20260925T195533Z.json](evidence/live/step1-connect-20260925T195533Z.json) | 2026-09-25 19:55 | `eth_chainId`, 역할 다섯의 잔액, `IPcl.contractPolicies(Privacy)`, `IPcl.globalPolicies`, Indexer의 구매 기업 본인 인증 증명 수 | chain ID 450815, 정책 조회 | chain ID 450815, Privacy `And(EAS_POLICY, DENYLIST_POLICY)`, 전역 정책 트리, 증명 0개. 잔액은 모두 0 |
 | 2단계 금고 | [pcl-kyb-gate-20260926T000228Z.json](evidence/live/pcl-kyb-gate-20260926T000228Z.json) | 2026-09-26 00:02 | OKRW 이체, KYB 스키마(재사용), 금고 배포와 정책 바인딩, 입금, 청구 거부 셋과 통과 하나, 폐기, 회수 | [참가자 가이드 2단계](participant-guide.md#2단계-kyb-관문이-걸린-정산-금고-15분-live-testnet)의 성공 기준 | 모두 충족. 금고 `0x6980C889…9A70`. 5 `EasNoAttestationReceived`, 6b `EasAttestationRevoked`(A 실행에서 폐기한 증명이 색인돼 있어서), 6d 성공, 7c `EasAttestationRevoked` |
-| 4단계 분류 | [step4-diagnose-20260926T000329Z.json](evidence/live/step4-diagnose-20260926T000329Z.json) | 2026-09-26 00:03 | 2단계 기록의 거부와 통과, 증명 없는 협력사 B의 `claim()`을 `eth_estimateGas`로 재시뮬레이션, 빈 요청의 `Privacy.deposit`을 `eth_call`과 `eth_estimateGas`, 잔액보다 큰 예치 | 네 분류가 모두 나옴 | 정책 거부(2단계 5·6b·7c, 재시뮬레이션 `EasNoAttestationReceived`), 성공(6d, 로컬 인출), 증명·입력 거부(`SDKInvalidRequest()` 두 건), 인프라·자료 부재(공개되지 않은 증명 재료, 잔액 부족), 참조 구현 문제(로컬 단독 인출). 2단계를 뺀 첫 실행 기록은 [step4-diagnose-20260925T195916Z.json](evidence/live/step4-diagnose-20260925T195916Z.json) |
+| 4단계 분류 | [step4-diagnose-20260926T000329Z.json](evidence/live/step4-diagnose-20260926T000329Z.json) | 2026-09-26 00:03 | 2단계 기록의 거부와 통과, 증명 없는 협력사 B의 `claim()`을 `eth_estimateGas`로 재시뮬레이션, 빈 요청의 `Privacy.deposit`을 `eth_call`과 `eth_estimateGas`, 잔액보다 큰 예치 | 네 분류 모두 출력 | 정책 거부(2단계 5·6b·7c, 재시뮬레이션 `EasNoAttestationReceived`), 성공(6d, 로컬 인출), 증명·입력 거부(`SDKInvalidRequest()` 두 건), 인프라·자료 부재(공개되지 않은 증명 재료, 잔액 부족), 참조 구현 문제(로컬 단독 인출). 2단계를 뺀 첫 실행 기록은 [step4-diagnose-20260925T195916Z.json](evidence/live/step4-diagnose-20260925T195916Z.json) |
 
 ### 2단계 주요 tx
 
@@ -19,7 +21,7 @@
 | 3b PCL 프록시 배포 | 금고 `0x6980C8892072539D1A08007D10F0A496F4ff9A70`. 정책 관리자는 구매 기업, ProxyAdmin 소유자는 `UPGRADE_OWNER` | [0x1b7e…eee1](https://explorer-testnet.maroo.io/tx/0x1b7e8376ed4b17e7c97566ec12132cd79480c6da6abd9d96927017e71ca2eee1) |
 | 5 협력사 B 청구 | 거부, `EasNoAttestationReceived` | [0x8183…4f0d](https://explorer-testnet.maroo.io/tx/0x818318c4370cfb3720a816292e95392312021917feff1c8eb6d3bfc44a5d4f0d) |
 | 6b 색인 전 청구 | 거부, `EasAttestationRevoked`(같은 협력사 지갑의 두 번째 실행이라 A 실행에서 폐기한 증명이 색인돼 있음, 트러블슈팅 T8) | [0x4431…8f09](https://explorer-testnet.maroo.io/tx/0x4431a8f09ee74bded2f2319836748da41dbf47747ee026ed9f267f437c448f09) |
-| 6d 색인 뒤 청구 | 성공. 협력사 A 잔액 153.19 → 250.42 OKRW(100을 받고 가스를 냄) | [0xf41e…3c79](https://explorer-testnet.maroo.io/tx/0xf41efa60c0b46f324e7ec5d78286b5bf5ddaafe83df97a67422be8cf16bd3c79) |
+| 6d 색인 뒤 청구 | 성공. 협력사 A 잔액 153.19 → 250.42 OKRW(100 수령, 가스 지불) | [0xf41e…3c79](https://explorer-testnet.maroo.io/tx/0xf41efa60c0b46f324e7ec5d78286b5bf5ddaafe83df97a67422be8cf16bd3c79) |
 | 7c 폐기 뒤 청구 | 거부, `EasAttestationRevoked` | [0xb7cb…8e61](https://explorer-testnet.maroo.io/tx/0xb7cbf7b7c2fc0c4ec1a43120e935373cc58ae793ad1f6351d3bbcdda49ee8e61) |
 | 8 협력사 A 몫 회수 | 성공 | [0xc0f5…b3e5](https://explorer-testnet.maroo.io/tx/0xc0f522bce74a8473e1e0f8ffbe2b40c288fa234985597be265b23ab8424db3e5) |
 | 8 협력사 B 몫 회수 | 성공. 회수 뒤 두 몫 0, 구매 기업 잔액 4,425.97 → 4,621.75 OKRW | [0xd460…2e2d](https://explorer-testnet.maroo.io/tx/0xd46082d7ac482f28581acfe1ad2928053920c524327e2140fa1709e14fbd2e2d) |
@@ -29,20 +31,26 @@
 
 ### faucet 장애와 복구
 
+2026-09-25에 테스트넷 faucet 요청이 실패했고 2026-09-26에 복구되었습니다. 항목 열은 오류, 원인, 기간, 재현 방법이고, 내용 열이 각각의 확인 결과입니다.
+
 | 항목 | 내용 |
 | --- | --- |
 | 오류 | faucet 요청이 `Transaction failed … reverted with the following signature:.`로 실패. 같은 전송을 `eth_estimateGas`로 부르면 `AnyOfRejected(ExceededPeriodicVolume(10000000000000000000000000, 10005000000000000000000000, 1790380800), EasNoAttestationReceived(0x5336F019Bd8E9E0064be7330833dc883a8a6c94d))` |
-| 원인 | faucet 계정이 전역 정책의 24시간 한도(1,000만 OKRW)를 다 썼고 KYC 증명이 없음 |
-| 기간 | 2026-09-25 16:41 UTC 첫 실패, 19:08 UTC 원인 확인, 2026-09-26 00:00 UTC(`resetAt`) 뒤 00:00:22 UTC에 두 지갑 모두 받음. 발급자 지갑의 첫 요청은 `Missing or invalid parameters`로 실패하고 15초 뒤 두 번째 요청에 받음 |
+| 원인 | faucet 계정의 전역 정책 24시간 한도(1,000만 OKRW) 소진과 KYC 증명 부재 |
+| 기간 | 2026-09-25 16:41 UTC 첫 실패, 19:08 UTC 원인 확인, 2026-09-26 00:00 UTC(`resetAt`) 뒤 00:00:22 UTC에 두 지갑 모두 수령. 발급자 지갑의 첫 요청은 `Missing or invalid parameters`로 실패하고 15초 뒤 두 번째 요청에서 수령 |
 | 재현 | `pnpm a:probe-global` ([기록](../track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json)) |
 
 ## 2. Clairveil 로컬 `[Local]`
+
+Clairveil v0.4.0 로컬 체인에서 실행한 3단계의 기록입니다. 결과 열이 그 실행에서 확인한 동작입니다.
 
 | 단계 | 기록 | 실행 시각 | 결과 |
 | --- | --- | --- | --- |
 | 3단계 차폐 정산 | [vendor-settlement-20260925T195750Z.md](evidence/local/vendor-settlement-20260925T195750Z.md) | 2026-09-25 19:57 | 미리 빌드한 바이너리로 61초. 예치 여섯 건, 협력사 A 일괄 지급, 협력사 B 수신자 암호화 지급, 스캔, 역할별 해독(`verified=true`), 단독 인출 실패(code 1)와 같은 블록 우회 인출 성공 |
 
 ## 3. 사전 준비와 검증
+
+워크샵 전날 실행하는 명령(`b:prepare`, `b:fund`, `b:check`, `b:smoke`, `b:reset`)을 실제로 돌린 결과입니다. 결과 열에 실행 시각과 걸린 시간을 적었습니다.
 
 | 항목 | 결과 |
 | --- | --- |
