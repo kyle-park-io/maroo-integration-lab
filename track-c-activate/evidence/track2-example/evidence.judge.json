@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-26T04:41:36.833Z",
+  "checkedAt": "2026-10-23T07:17:06.778Z",
   "track": 2,
   "chainId": 450815,
   "summary": [
@@ -76,6 +76,7 @@
       "ok": true,
       "checks": [
         "✓ 영수증 success, 블록 19128102, value 3000000000000000000",
+        "✓ PolicyCheckPassed 있음. PCL 컨트랙트 정책을 통과한 tx",
         "✓ 정책 AGENT_OKRW_TRANSFER_LIMIT_POLICY@0x23024408"
       ],
       "value": "3000000000000000000",
@@ -89,6 +90,8 @@
       "checks": [
         "✓ 영수증 reverted, 블록 19128104, value 8000000000000000000",
         "✓ 거부 사유 ExceededAgentTransferLimit(5000000000000000000, 8000000000000000000)",
+        "✓ 계열 PCL 정책 위반, 선택자 0x1eea0f93",
+        "✓ 걸린 정책 컨트랙트 정책. 사유와 맞는 템플릿이 이 프록시에만 묶여 있습니다.",
         "✓ 정책 AGENT_OKRW_TRANSFER_LIMIT_POLICY@0x23024408"
       ],
       "value": "8000000000000000000",

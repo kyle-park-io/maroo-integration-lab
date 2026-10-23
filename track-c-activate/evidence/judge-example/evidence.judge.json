@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-09-26T04:26:08.871Z",
+  "checkedAt": "2026-10-23T07:15:40.724Z",
   "track": 1,
   "chainId": 450815,
   "summary": [
@@ -39,7 +39,7 @@
       ],
       "value": "0",
       "policies": "",
-      "txHash": "45CFD39B40C333C81D9FB0AB026F0308C12EFBD6DA4D5330F381793CBA29D942"
+      "txHash": "815055DFA009EFF3495288716D103C590A62A71B0ACEBC181E5C65EB0632687A"
     },
     {
       "requirement": "R1",
@@ -50,7 +50,7 @@
       ],
       "value": "0",
       "policies": "",
-      "txHash": "3B2EB48FE77B38814DA830DDCA697F671081FADE5FEE97C7CAD0BAD9A9BB8A72"
+      "txHash": "A60455D647933DEACB29AFC57323FA8A83078E5E53C781DBB02FF490381D24C7"
     },
     {
       "requirement": "R2",
@@ -61,59 +61,65 @@
       ],
       "value": "0",
       "policies": "",
-      "txHash": "36C936270B358CB6C573206792121E4AB2A5ED4D9B312BACBCD19BAA2B500CBE"
+      "txHash": "45533F99361C1F7F7E7FD5EC2E70D777E1EB1BC96C6DBD2E028771FF98CC1308"
     },
     {
       "requirement": "R3",
       "label": "[Live Testnet]",
       "ok": true,
       "checks": [
-        "✓ 영수증 reverted, 블록 19111569, value 0",
+        "✓ 영수증 reverted, 블록 21429581, value 0",
         "✓ 거부 사유 EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
+        "✓ 계열 PCL 정책 위반, 선택자 0xbca5593e",
+        "✓ 걸린 정책 컨트랙트 정책. 전역 정책에도 같은 템플릿이 있지만 Or 조합 안에만 있어, 그 자리에서 거부되면 AnyOfRejected로 감싸여 나옵니다. 사유가 감싸이지 않고 나왔으므로 컨트랙트 정책의 거부입니다.",
         "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
       ],
       "value": "0",
       "reason": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
       "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
-      "txHash": "0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f"
+      "txHash": "0xae3b9ee11599ee0e7ad245ad43b2089d68763ccd5d69742bee8b4a4df7b18dd4"
     },
     {
       "requirement": "R3",
       "label": "[Live Testnet]",
       "ok": true,
       "checks": [
-        "✓ 영수증 success, 블록 19111577, value 0",
+        "✓ 영수증 success, 블록 21429588, value 0",
+        "✓ PolicyCheckPassed 있음. PCL 컨트랙트 정책을 통과한 tx",
         "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
       ],
       "value": "0",
       "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
-      "txHash": "0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d"
+      "txHash": "0x67adb2cf48e02316a01d43a73e28e77b366c33eecbd5caebb314bf0a710ae2c3"
     },
     {
       "requirement": "R3",
       "label": "[Live Testnet]",
       "ok": true,
       "checks": [
-        "✓ 영수증 reverted, 블록 19111583, value 0",
+        "✓ 영수증 reverted, 블록 21429594, value 0",
         "✓ 거부 사유 EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
+        "✓ 계열 PCL 정책 위반, 선택자 0x906ffd43",
+        "✓ 걸린 정책 컨트랙트 정책. 전역 정책에도 같은 템플릿이 있지만 Or 조합 안에만 있어, 그 자리에서 거부되면 AnyOfRejected로 감싸여 나옵니다. 사유가 감싸이지 않고 나왔으므로 컨트랙트 정책의 거부입니다.",
         "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
       ],
       "value": "0",
       "reason": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
       "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
-      "txHash": "0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc"
+      "txHash": "0x72e87283f4e109732f5d97e2e543b0ad0b8987f1e561602b2f2c13d1aaa1be8d"
     },
     {
       "requirement": "R4",
       "label": "[Live Testnet]",
       "ok": true,
       "checks": [
-        "✓ 영수증 success, 블록 19111566, value 100000000000000000000",
+        "✓ 영수증 success, 블록 21429578, value 100000000000000000000",
+        "✓ PolicyCheckPassed 있음. PCL 컨트랙트 정책을 통과한 tx",
         "✓ 정책 EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d"
       ],
       "value": "100000000000000000000",
       "policies": "EAS_POLICY(schema 0x1268f1…fbbc)@0x4e71d92d",
-      "txHash": "0x8d9b1197ebdc2c799bacdfcb280e5b292d0252d5fcd8038001c5038bb9ea0c0c"
+      "txHash": "0x4d176345dbb4b9760b4c1989d9a862465b599e3f4268dccb9aa3cd2b76809537"
     },
     {
       "requirement": "R5",

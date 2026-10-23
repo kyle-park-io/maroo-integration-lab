@@ -166,7 +166,7 @@ sequenceDiagram
 
 - 세 경우 모두 `eth_call`(SDK `simulatePclProxy`)과 `eth_estimateGas`가 같은 결과를 냈습니다. 컨트랙트 범위의 에이전트 한도는 `eth_call`로도 미리 확인할 수 있습니다.
 - 판정: `pnpm c:judge track-c-activate/evidence/track2-example/evidence.json --track 2`에서 R1\~R4 모두 통과했습니다([판정 결과](../evidence/track2-example/evidence.judge.json)). 2026-09-26 판 문서 형식으로 쓴 `setMetadata` tx를 넣으면 R2가 실패로 판정됩니다.
-- 새 지갑 파일로 에이전트 등록(agentId 80)부터 다시 실행해도 같은 결과였습니다([등록 기록](../evidence/live/grounding-20260926T053055Z.json), [실증 기록](../evidence/live/agent-limit-20260926T053121Z.json)).
+- 새 지갑 파일로 에이전트 등록(agentId 80)부터 다시 실행해도 같은 결과였습니다([등록 기록](../evidence/live/grounding-20260926T053055Z.json), [실증 기록](../evidence/live/agent-limit-20260926T053121Z.json)). 2026-10-23에 agentId 79로 다시 돌린 실행도 세 형식의 결과, 3 OKRW 성공, 8 OKRW `ExceededAgentTransferLimit`(가스 728,023 가운데 364,011 사용)가 같았습니다([실증 기록](../evidence/live/agent-limit-20261023T071452Z.json)).
 - 한 번 실행에 약 30 OKRW가 듭니다. 구매 기업 19.30(금고 배포, 정책, 메타데이터 세 번), 에이전트 지갑 10.80(결제 3과 가스)이었습니다.
 - 확인하지 않은 것: 전역 범위 정책에서 다른 컨트랙트가 에이전트가 시작한 호출을 옮길 때의 귀속, R5와 기기 갈래.
 

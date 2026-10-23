@@ -78,7 +78,7 @@ pnpm a:inspect
 pnpm a:probe
 ```
 
-- 예상 결과: 빈 요청과 모양을 갖춘 요청 모두 `eth_call`과 `eth_estimateGas`에서 `SDKInvalidRequest()`, 1 wei를 실은 요청은 잔액이 없으면 `insufficient balance for transfer`. `eth_estimateGas`는 실행 뒤 전역 정책 재검사까지 평가하지만, 실행 중에 되돌려진 요청은 재검사까지 가지 않습니다. 같은 오류가 나오면 그 요청은 전역 정책 거부보다 먼저 요청 검증에서 막힌 것입니다. 유효한 증명 없이 부르므로 거부 경로 증거로만 씁니다. 외부에서 유효한 증명을 만들 proving 재료가 공개되지 않아, 이 레포가 만든 요청은 이 층까지 진단합니다. 공개된 성공 예치의 calldata로 다음 층을 확인하려면 아래 `pnpm a:probe-public`을 씁니다.
+- 예상 결과: 빈 요청과 모양을 갖춘 요청 모두 `eth_call`과 `eth_estimateGas`에서 `SDKInvalidRequest()`, 1 wei를 실은 요청은 잔액이 없으면 `insufficient balance for transfer`이고, 잔액이 있으면 같은 `SDKInvalidRequest()`입니다(2026-10-23 [기록](evidence/live/probe-first-failure-20261023T071333Z.json)). `eth_estimateGas`는 실행 뒤 전역 정책 재검사까지 평가하지만, 실행 중에 되돌려진 요청은 재검사까지 가지 않습니다. 같은 오류가 나오면 그 요청은 전역 정책 거부보다 먼저 요청 검증에서 막힌 것입니다. 유효한 증명 없이 부르므로 거부 경로 증거로만 씁니다. 외부에서 유효한 증명을 만들 proving 재료가 공개되지 않아, 이 레포가 만든 요청은 이 층까지 진단합니다. 공개된 성공 예치의 calldata로 다음 층을 확인하려면 아래 `pnpm a:probe-public`을 씁니다.
 
 ```bash
 pnpm a:probe-global [보내는 주소] [받는 주소] [금액]
@@ -170,7 +170,7 @@ pnpm a:kyb-gate
 | 8 회수 | 협력사 A, B의 남은 몫 0 | [0xb4c0…2cdd](https://explorer-testnet.maroo.io/tx/0xb4c0dcdb7322ce14e60ede027323f28540bc885e5864952d84c0aee70be62cdd) |
 
 - 쓴 OKRW: 구매 기업 250.06(가스 보충 120, 협력사 A가 받은 100, 가스), 발급자 8.10(가스). 발급자는 이미 잔액이 있어 가스 보충을 건너뛰었습니다.
-- 스크립트의 지갑은 tx 가스 한도를 노드 추정값의 125%로 둡니다(`shared/lib/maroo.ts`의 `walletFor`, 2026-09-27부터). 위 표의 실행은 그 전이라 통과 tx가 추정값 그대로 보내져 한도의 100%를 썼습니다. 바꾼 뒤 실행([기록](evidence/live/pcl-kyb-gate-20260927T083827Z.json))에서는 통과 tx 12건이 모두 한도의 80.0%를 썼습니다.
+- 스크립트의 지갑은 tx 가스 한도를 노드 추정값의 125%로 둡니다(`shared/lib/maroo.ts`의 `walletFor`, 2026-09-27부터). 위 표의 실행은 그 전이라 통과 tx가 추정값 그대로 보내져 한도의 100%를 썼습니다. 바꾼 뒤 실행([기록](evidence/live/pcl-kyb-gate-20260927T083827Z.json))에서는 통과 tx 12건이 모두 한도의 80.0%를 썼습니다. 2026-10-23에 다시 돌린 실행([기록](evidence/live/pcl-kyb-gate-20261023T071331Z.json))도 거부 셋과 통과 하나가 같았고, 구매 기업은 128.19 OKRW, 발급자는 5.86 OKRW를 썼습니다.
 - 거부된 청구도 가스를 씁니다. 협력사 A는 60 OKRW를 받은 뒤 색인 전 청구 한 번으로 1.35 OKRW를 썼습니다(가스 한도 300,000으로 고정, 쓴 가스는 그 절반인 150,000). `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` 사전 검사를 `eth_estimateGas`로 하면 이 비용을 줄일 수 있습니다.
 
 ### 단순 이체의 가스
@@ -217,7 +217,7 @@ pnpm explain --from BUYER --to SUPPLIER_A --value 2000001 --balance 20000000
 pnpm explain --examples      # 이 레포가 겪은 실패 다섯 계열과 통과 tx 하나, 3초 안팎
 ```
 
-첫 명령의 출력입니다. 2026-10-23 13:08 KST에 돌렸습니다 `[Live Testnet]` [기록](evidence/live/explain-examples-20261023T050841Z.json).
+첫 명령의 출력입니다. 2026-10-23 16:15 KST에 돌렸습니다 `[Live Testnet]` [기록](evidence/live/explain-examples-20261023T071511Z.json).
 
 ```text
 tx         0xa4c7…557f   블록 19111569   reverted   가스 150,000 / 300,000 (50.0%)

@@ -66,7 +66,7 @@ Maroo Docs의 2026-09-26 판 서술과 테스트넷에서 확인한 동작이 �
 | --- | --- |
 | 명령 | `pnpm c:judge-example`(Track A 기록을 트랙 1 형식으로 옮긴 뒤 `pnpm c:judge --track 1`) |
 | 입력 | [evidence.json](evidence/judge-example/evidence.json): 로컬 항목 셋(R1, R2), 금고 tx 넷(R3 거부 둘과 통과 하나, R4 입금), Privacy 최초 실패 기록 하나(R5) |
-| 결과 | [evidence.judge.json](evidence/judge-example/evidence.judge.json): R1\~R5 모두 통과. 거부 tx 둘은 직전 블록 상태로 다시 시뮬레이션해 `EasNoAttestationReceived`, `EasAttestationRevoked`가 적힌 사유와 같았고, 금고의 `claim()` 선택자(`0x4e71d92d`)에 `EAS_POLICY`가 묶여 있음을 확인 |
+| 결과 | [evidence.judge.json](evidence/judge-example/evidence.judge.json): R1\~R5 모두 통과(2026-10-23, 같은 날 다시 돌린 Track A 기록으로). 거부 tx 둘은 직전 블록 상태로 다시 시뮬레이션해 `EasNoAttestationReceived`, `EasAttestationRevoked`가 적힌 사유와 같았고, 두 사유 모두 PCL 정책 위반 계열의 컨트랙트 정책 거부로 판정. 통과 tx에는 `PolicyCheckPassed`가 있고, 금고의 `claim()` 선택자(`0x4e71d92d`)에 `EAS_POLICY`가 묶여 있음을 확인 |
 | 시험한 실패 경우 | 공개 레지스트리 tx에 부풀린 거부 사유(`ExceededAgentTransferLimit`)를 붙인 항목은 재시뮬레이션 사유와 달라 실패로 판정(2026-09-26 05시, 레포에는 남기지 않았습니다) |
 
 트랙 2는 이 레포가 직접 채운 기록으로 판정했습니다.
@@ -75,7 +75,7 @@ Maroo Docs의 2026-09-26 판 서술과 테스트넷에서 확인한 동작이 �
 | --- | --- |
 | 명령 | `pnpm c:agent-limit`가 만든 입력으로 `pnpm c:judge track-c-activate/evidence/track2-example/evidence.json --track 2` |
 | 입력 | [evidence.json](evidence/track2-example/evidence.json): 등록과 지갑 연결(R1), `setMetadata`와 정책 바인딩(R2), 한도 안 결제(R3), 한도 초과 결제(R4) |
-| 결과 | [evidence.judge.json](evidence/track2-example/evidence.judge.json): R1\~R4 모두 통과. 거부 tx는 직전 블록 재시뮬레이션에서 `ExceededAgentTransferLimit(5e18, 8e18)`, 금고 `fund()`(`0x23024408`)에 정책이 묶여 있고 `TransferLimit`이 32바이트 uint256 |
+| 결과 | [evidence.judge.json](evidence/track2-example/evidence.judge.json): R1\~R4 모두 통과(2026-10-23에 지금의 판정 코드로 다시 판정, 입력은 2026-09-26 tx 그대로). 거부 tx는 직전 블록 재시뮬레이션에서 `ExceededAgentTransferLimit(5e18, 8e18)`, PCL 정책 위반 계열의 컨트랙트 정책 거부. 한도 안 결제에는 `PolicyCheckPassed`가 있고, 금고 `fund()`(`0x23024408`)에 정책이 묶여 있고 `TransferLimit`이 32바이트 uint256 |
 | 시험한 실패 경우 | 2026-09-26 판 Maroo Docs 형식(숫자 문자열)으로 쓴 `setMetadata` tx를 R2 항목으로 넣으면 "TransferLimit 값이 19바이트"로 실패 판정(2026-09-26, 레포에는 남기지 않았습니다) |
 
 ## 6. 보조 증거

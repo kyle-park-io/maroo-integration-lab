@@ -56,7 +56,7 @@ Clairveil에서는 모든 자산 이동에 감사 disclosure가 들어갑니다.
 | 금고의 업그레이드 권한(ProxyAdmin 소유자) | 정책 관리와 다른 주체 | 금고 로직이 바뀌어 협력사 몫이 빠져나갈 수 있습니다 | 8번 답 |
 
 - Maroo Docs는 Privacy에서 지갑이 노트 키와 보기 키를 어떻게 보관하는지 다루지 않습니다. `[Docs Only]`
-- 테스트넷 Privacy 프리컴파일의 정책 관리자는 `0x58eC1E718ff15e5f34591747D47ADf5BccDA804F`입니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
+- 테스트넷 Privacy 프리컴파일의 정책 관리자는 `0x58eC1E718ff15e5f34591747D47ADf5BccDA804F`입니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20261023T071335Z.json)
 
 ## 5. 협력사 자격(KYB)은 어디서 확인되나요?
 
@@ -65,7 +65,7 @@ PCL은 호출하는 쪽을 평가합니다. 차폐 지급에서 받는 쪽은 �
 1. 협력사가 직접 부르는 호출(인출, 금고 청구)에 PCL 정책을 겁니다. 이 레포의 정산 금고는 `claim()`에만 KYB 증명 정책(`EAS_POLICY`)을 걸고, 다른 함수는 정책 대상에서 뺍니다.
 2. 구매 기업이 지급 목록을 만들 때 체인 밖에서 협력사의 증명을 확인합니다.
 
-- 테스트넷 Privacy 프리컴파일에는 `And(EAS_POLICY, DENYLIST_POLICY)`가 걸려 있습니다. 호출자는 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있고 차단 목록에 없어야 합니다. 개인 본인 인증 스키마이고, 기관용 KYB 스키마와 발급자는 테스트넷에 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
+- 테스트넷 Privacy 프리컴파일에는 `And(EAS_POLICY, DENYLIST_POLICY)`가 걸려 있습니다. 호출자는 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있고 차단 목록에 없어야 합니다. 개인 본인 인증 스키마이고, 기관용 KYB 스키마와 발급자는 테스트넷에 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20261023T071335Z.json)
 - EAS 증명은 발급한 뒤 Indexer에 색인해야 PCL이 인식합니다. 2026-09-26 금고 흐름에서 협력사 A는 증명을 받은 뒤에도 색인 전 청구가 `EasNoAttestationReceived`로 거부됐고([tx](https://explorer-testnet.maroo.io/tx/0xafe80ae6248a93138104ad72552da5987f24ccdbd74520c01713406fa31a9ef4)), `indexAttestation` 뒤 청구는 통과했습니다(2026-09-26 판 문서는 이 색인 단계를 적지 않았고, 2026-10-23 판 EAS 튜토리얼은 「PCL은 EAS Indexer를 통해서만 attestation을 찾고 일반 `attest`만으로는 인덱싱되지 않으므로」 `indexAttestation`을 제출하라고 적습니다. [tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)). `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)
 - 폐기한 증명이 색인돼 있는 협력사에게 새 증명을 발급하고 색인을 빠뜨리면, 청구는 `EasAttestationRevoked`로 거부됩니다. PCL이 색인된 옛 증명을 보기 때문입니다. 같은 협력사 지갑으로 금고 흐름을 두 번째 실행했을 때 색인 전 청구가 이렇게 거부됐고, 새 증명을 색인한 뒤에는 통과했습니다. `[Live Testnet]` [두 번째 실행 기록](../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json) 협력사 자격을 갱신하는 절차에 색인을 넣지 않으면, 협력사는 방금 받은 증명이 폐기됐다는 오류를 보게 됩니다. 2026-10-23 판 문서도 「가장 최근에 인덱싱된 attestation 하나만 검사하므로」 새 증명을 발급해 인덱싱해야 한다고 적습니다.
 - 권고: 기관 KYB로 Privacy 호출을 제한하려면 KYB 스키마와 발급자를 정하고, 체인 정책 관리자와 정책 변경을 협의하는 일을 PoC 범위에 넣습니다.
@@ -86,7 +86,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 - 위 계정(faucet)은 24시간 한도를 다 썼고 증명이 없어 거부됐고, 한도 창은 `resetAt`(2026-09-26 00:00 UTC)에 풀립니다. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json), 재현: `pnpm a:probe-global`
 - 사유 코드와 인자는 [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)에 정의돼 있습니다. `[Docs Only]`
 - 가스 한도도 `eth_estimateGas` 값으로 정합니다(2026-09-26 판 문서는 단순 전송을 21,000으로 적었고, 2026-10-23 판은 「약 104,000」과 에이전트 지갑 「약 283,000」으로 고쳤습니다). 단순 OKRW 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 쓰고, Ethereum처럼 21,000으로 보내면 블록에 들어가 되돌려지며 수수료 0.189 OKRW를 냅니다. 가스 21,000으로 부른 `eth_call`은 통과해 이 경우도 잡지 못합니다. 추정값의 125%로 보내도 쓴 가스는 같았습니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json), 재현: `pnpm a:probe-send-gas`
-- 보낸 뒤 실패한 tx의 receipt에는 revert 데이터가 없습니다. `pnpm explain <tx 해시>`가 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 사유, 계열, 걸린 정책(전역 또는 컨트랙트)을 출력합니다. 시점마다 얻는 데이터와 정책을 가르는 순서는 [가이드 6절](integration-guide.md#오류-데이터를-얻는-시점)에 있습니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T050841Z.json)
+- 보낸 뒤 실패한 tx의 receipt에는 revert 데이터가 없습니다. `pnpm explain <tx 해시>`가 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 사유, 계열, 걸린 정책(전역 또는 컨트랙트)을 출력합니다. 시점마다 얻는 데이터와 정책을 가르는 순서는 [가이드 6절](integration-guide.md#오류-데이터를-얻는-시점)에 있습니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T071511Z.json)
 - 권고: 사전 검사는 `eth_estimateGas`로 하고, `AnyOfRejected` 안의 자식 사유까지 풀어 사용자에게 보여 줍니다.
 
 ## 7. 지급이 실패하면 다시 보내도 되나요? 두 번 지급될 위험은 없나요?
@@ -118,7 +118,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 | 차폐 금액 상한 | 노트 하나에 약 18.45 OKRW. 1,000만 원을 차폐하려면 노트 542,102개와 일괄 지급 27,106번(20건씩)이 필요합니다 | `[Docs Only]` [IPrivacy.deposit](https://docs.maroo.io/apis/contract/contract-privacy-deposit/), 계산 |
 | 참조 구현의 상태 | Clairveil은 `PUBLICATION_READY_EXPERIMENTAL`이고, 공식 trusted setup, 외부 ZK·보안 감사, 서명된 산출물 배포, 감사 키 보관을 범위 밖으로 둡니다 | `[Docs Only]` [Clairveil CHANGELOG v0.4.0](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/CHANGELOG.md) |
 | 규제기관 열람 | 관찰자 노드 열람 기능이 체인에 아직 없습니다 | `[Docs Only]` 2번 답 |
-| 테스트넷 Privacy 실행 | 외부 개발자가 유효한 증명을 만들 proving 재료(테스트넷 검증 키와 짝인 proving 키나 prover)가 공개되지 않았습니다. 이 레포가 만든 deposit 요청은 요청 검증 단계(`SDKInvalidRequest`)에서 처음 막힙니다. 차폐 상태 조회는 Cosmos REST에서 응답하고, 공식 SDK의 예치 준비는 그 주소로 증명 공급자까지 갑니다. 공개된 성공 예치의 calldata는 본인 인증 증명이 없는 지갑에서 Privacy 컨트랙트 정책(`EasNoAttestationReceived`)으로 막힙니다 | `[Live Testnet]` [최초 실패 계층 기록](evidence/live/probe-first-failure-20260925T193314Z.json), [감시 기록](evidence/live/watch-privacy/2026-10-23.json) |
+| 테스트넷 Privacy 실행 | 외부 개발자가 유효한 증명을 만들 proving 재료(테스트넷 검증 키와 짝인 proving 키나 prover)가 공개되지 않았습니다. 이 레포가 만든 deposit 요청은 요청 검증 단계(`SDKInvalidRequest`)에서 처음 막힙니다. 차폐 상태 조회는 Cosmos REST에서 응답하고, 공식 SDK의 예치 준비는 그 주소로 증명 공급자까지 갑니다. 공개된 성공 예치의 calldata는 본인 인증 증명이 없는 지갑에서 Privacy 컨트랙트 정책(`EasNoAttestationReceived`)으로 막힙니다 | `[Live Testnet]` [최초 실패 계층 기록](evidence/live/probe-first-failure-20261023T071333Z.json), [감시 기록](evidence/live/watch-privacy/2026-10-23.json) |
 | 기관 KYB | 테스트넷에 기관용 KYB 스키마와 발급자가 없습니다 | `[Live Testnet]` 5번 답 |
 | 금고 회수 권한 | 이 레포의 금고는 협력사가 청구하기 전이면 구매 기업이 언제든 `recall`로 몫을 되돌릴 수 있습니다. 프로덕션에서는 청구 기간이나 타임락을 둡니다 | `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) 8단계, 권고 |
 | 출시 전 관문 | Clairveil 운영 가이드의 최소 메인넷 관문(10개)과 위협 모델의 다운스트림 보안 관문(9개)이 남아 있습니다 | `[Docs Only]` [운영 가이드 11절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-operations-guide.md), [위협 모델 8절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md) |

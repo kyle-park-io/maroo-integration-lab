@@ -2,9 +2,9 @@
   "project": "Track A 기록으로 만든 예시 제출물",
   "track": 1,
   "sources": [
-    "track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json",
-    "track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json",
-    "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
+    "track-a-explain/evidence/live/pcl-kyb-gate-20261023T071331Z.json",
+    "track-a-explain/evidence/live/probe-first-failure-20261023T071333Z.json",
+    "track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md"
   ],
   "items": [
     {
@@ -13,10 +13,10 @@
       "network": "clairveil-local",
       "call": "transfer-batch",
       "input": "협력사 A 송장 12, 8",
-      "txHash": "45CFD39B40C333C81D9FB0AB026F0308C12EFBD6DA4D5330F381793CBA29D942",
+      "txHash": "815055DFA009EFF3495288716D103C590A62A71B0ACEBC181E5C65EB0632687A",
       "expected": "성공",
       "actual": "code 0",
-      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md"
     },
     {
       "requirement": "R1",
@@ -24,10 +24,10 @@
       "network": "clairveil-local",
       "call": "withdraw",
       "input": "협력사 A 12, 같은 블록 0 노트 예치",
-      "txHash": "3B2EB48FE77B38814DA830DDCA697F671081FADE5FEE97C7CAD0BAD9A9BB8A72",
+      "txHash": "A60455D647933DEACB29AFC57323FA8A83078E5E53C781DBB02FF490381D24C7",
       "expected": "성공",
       "actual": "code 0",
-      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md"
     },
     {
       "requirement": "R2",
@@ -35,66 +35,66 @@
       "network": "clairveil-local",
       "call": "decode-transfer-disclosure",
       "input": "협력사 B 수신자 disclosure",
-      "txHash": "36C936270B358CB6C573206792121E4AB2A5ED4D9B312BACBCD19BAA2B500CBE",
+      "txHash": "45533F99361C1F7F7E7FD5EC2E70D777E1EB1BC96C6DBD2E028771FF98CC1308",
       "expected": "verified=true",
       "actual": "verified=true, amount 15",
-      "evidence": "track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md"
+      "evidence": "track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md"
     },
     {
       "requirement": "R3",
       "label": "[Live Testnet]",
       "network": "maroo-testnet",
       "chainId": 450815,
-      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "target": "0xB35AAF5Aa6E3A4cfe4eEB4FBf16739691DE67640",
       "call": "claim()",
       "input": "호출자: 증명 없는 협력사 B",
-      "txHash": "0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f",
-      "explorer": "https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f",
+      "txHash": "0xae3b9ee11599ee0e7ad245ad43b2089d68763ccd5d69742bee8b4a4df7b18dd4",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0xae3b9ee11599ee0e7ad245ad43b2089d68763ccd5d69742bee8b4a4df7b18dd4",
       "expected": "PCL 거부",
       "actual": "EasNoAttestationReceived(0x9D13c79309Ff62C570CbF32b98C4E4F8943667Bb)",
-      "executedAt": "2026-09-26T00:01:41.904Z"
+      "executedAt": "2026-10-23T07:13:31.152Z"
     },
     {
       "requirement": "R3",
       "label": "[Live Testnet]",
       "network": "maroo-testnet",
       "chainId": 450815,
-      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "target": "0xB35AAF5Aa6E3A4cfe4eEB4FBf16739691DE67640",
       "call": "claim()",
       "input": "호출자: 증명을 색인한 협력사 A",
-      "txHash": "0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d",
-      "explorer": "https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d",
+      "txHash": "0x67adb2cf48e02316a01d43a73e28e77b366c33eecbd5caebb314bf0a710ae2c3",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0x67adb2cf48e02316a01d43a73e28e77b366c33eecbd5caebb314bf0a710ae2c3",
       "expected": "통과",
       "actual": "성공",
-      "executedAt": "2026-09-26T00:01:41.904Z"
+      "executedAt": "2026-10-23T07:13:31.152Z"
     },
     {
       "requirement": "R3",
       "label": "[Live Testnet]",
       "network": "maroo-testnet",
       "chainId": 450815,
-      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "target": "0xB35AAF5Aa6E3A4cfe4eEB4FBf16739691DE67640",
       "call": "claim()",
       "input": "호출자: 증명이 폐기된 협력사 A",
-      "txHash": "0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc",
-      "explorer": "https://explorer-testnet.maroo.io/tx/0x8962c50a48f810d22acd80e5c663e11fc9f5d821a5b28401431580f0ce47f2cc",
+      "txHash": "0x72e87283f4e109732f5d97e2e543b0ad0b8987f1e561602b2f2c13d1aaa1be8d",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0x72e87283f4e109732f5d97e2e543b0ad0b8987f1e561602b2f2c13d1aaa1be8d",
       "expected": "PCL 거부",
       "actual": "EasAttestationRevoked(0x77172C4999b59967a35A7efd079B7B92fA8E5c0A)",
-      "executedAt": "2026-09-26T00:01:41.904Z"
+      "executedAt": "2026-10-23T07:13:31.152Z"
     },
     {
       "requirement": "R4",
       "label": "[Live Testnet]",
       "network": "maroo-testnet",
       "chainId": 450815,
-      "target": "0x50f6026B4261fF312E3Dfe22E61DA4AC32757D8E",
+      "target": "0xB35AAF5Aa6E3A4cfe4eEB4FBf16739691DE67640",
       "call": "fund(address)",
       "input": "협력사 A 몫 100 OKRW",
-      "txHash": "0x8d9b1197ebdc2c799bacdfcb280e5b292d0252d5fcd8038001c5038bb9ea0c0c",
-      "explorer": "https://explorer-testnet.maroo.io/tx/0x8d9b1197ebdc2c799bacdfcb280e5b292d0252d5fcd8038001c5038bb9ea0c0c",
+      "txHash": "0x4d176345dbb4b9760b4c1989d9a862465b599e3f4268dccb9aa3cd2b76809537",
+      "explorer": "https://explorer-testnet.maroo.io/tx/0x4d176345dbb4b9760b4c1989d9a862465b599e3f4268dccb9aa3cd2b76809537",
       "expected": "성공",
       "actual": "성공",
-      "executedAt": "2026-09-26T00:01:41.904Z"
+      "executedAt": "2026-10-23T07:13:31.152Z"
     },
     {
       "requirement": "R5",
@@ -106,7 +106,7 @@
       "input": "빈 요청",
       "expected": "요청 검증 거부",
       "actual": "SDKInvalidRequest()",
-      "executedAt": "2026-09-25T19:33:14.305Z",
+      "executedAt": "2026-10-23T07:13:33.101Z",
       "rpcLog": {
         "method": "eth_estimateGas",
         "params": [],

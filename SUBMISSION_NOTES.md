@@ -271,7 +271,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 
 | 명령 | 하는 일 | 첫 기록 |
 | --- | --- | --- |
-| `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 오류 선택자와 계열, PCL 거부면 전역 정책인지 컨트랙트 정책인지, 통과한 PCL 프록시 호출의 `PolicyCheckPassed`, 다음 행동을 풉니다. B 워크샵 4단계와 C 심사 판정이 같은 코드(`shared/lib/explain.ts`)를 씁니다 | [explain-examples-20261023T050841Z.json](track-a-explain/evidence/live/explain-examples-20261023T050841Z.json) |
+| `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 오류 선택자와 계열, PCL 거부면 전역 정책인지 컨트랙트 정책인지, 통과한 PCL 프록시 호출의 `PolicyCheckPassed`, 다음 행동을 풉니다. B 워크샵 4단계와 C 심사 판정이 같은 코드(`shared/lib/explain.ts`)를 씁니다 | [explain-examples-20261023T071511Z.json](track-a-explain/evidence/live/explain-examples-20261023T071511Z.json) |
 | `pnpm a:probe-global --over-limit` | KYC 증명이 없는 지갑이 건당 한도를 넘는 금액을 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출로 보낼 때 `eth_call`과 `eth_estimateGas`의 결과를 견줍니다(잔액 상태 덮어쓰기) | [probe-global-compare-20261023T042452Z.json](track-a-explain/evidence/live/probe-global-compare-20261023T042452Z.json) |
 | `pnpm a:chain-info` | 테스트넷 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부, Clairveil 조회 경로의 응답 코드를 기록합니다 | [chain-info-20261023T045537Z.json](track-a-explain/evidence/live/chain-info-20261023T045537Z.json) |
 | `pnpm a:local --operator` | 정산 대행사(운영자) 키를 더하고, 금액만 담은 사용자 공개를 대행사에게 보내는 지급 세 건을 실행합니다. 대행사의 협력사별 합계를 감사인 합계와 견줍니다(`[Local]`) | [vendor-settlement-20261023T055418Z.md](track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md) |

@@ -18,9 +18,9 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 확인한 결과입니다. 탐색기 링크를 열면 tx의 성공·실패, 가스 사용량, 거부 사유(예: `EasNoAttestationReceived(address sender)`)가 보입니다. 새로 만든 금고 프록시는 탐색기가 그 주소를 한 번 열기 전까지 사유를 원문과 깨진 글자로만 보여 줍니다([DX 14](SUBMISSION_NOTES.md#dx-feedback)).
 
 - `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 PCL 정책이 `EasNoAttestationReceived`로 거부했고, 증명을 색인한 뒤의 청구는 통과했습니다([A 금고 흐름 기록](track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json), 탐색기의 [거부 tx](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)와 [통과 tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)).
-- `[Live Testnet]` Privacy 예치 요청은 전역 정책 거부 없이 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다. tx를 보내지 않고 `eth_call`과 `eth_estimateGas`로 확인했고, 유효한 증명을 만들 재료가 공개되지 않아 차폐 정산 전체는 Clairveil 로컬에서 돌렸습니다([A 진단 기록](track-a-explain/evidence/live/probe-first-failure-20260925T193314Z.json)).
+- `[Live Testnet]` Privacy 예치 요청은 전역 정책 거부 없이 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다. tx를 보내지 않고 `eth_call`과 `eth_estimateGas`로 확인했고, 유효한 증명을 만들 재료가 공개되지 않아 차폐 정산 전체는 Clairveil 로컬에서 돌렸습니다([A 진단 기록](track-a-explain/evidence/live/probe-first-failure-20261023T071333Z.json)).
 - `[Local]` 협력사 B에게 보낸 15는 협력사 B, 구매 기업, 감사인이 각자 키로 풀었고, 제3자가 읽는 지급 tx에는 금액 필드가 없습니다([A 로컬 기록](track-a-explain/evidence/local/vendor-settlement-20260926T041658Z.md)).
-- `[Live Testnet]` `[Local]` 워크샵 1\~5단계와 단계별 성공 기준이 `pnpm b:smoke` 한 번에 91초 만에 통과했습니다([B 세션 기록](track-b-enable/evidence/session-20260926T000329Z.md)).
+- `[Live Testnet]` `[Local]` 워크샵 1\~5단계, 선택 연습(통제된 열람), 단계별 성공 기준이 `pnpm b:smoke` 한 번에 108초 만에 통과했습니다(2026-10-23, [B 세션 기록](track-b-enable/evidence/session-20261023T071723Z.md)).
 - `[Live Testnet]` 에이전트 한도 5 OKRW에서 3 OKRW 결제는 성공하고 8 OKRW 결제는 `ExceededAgentTransferLimit`로 거부됐습니다. 자동 판정이 이 기록으로 요건 R1\~R4를 통과시켰습니다([C 판정 결과](track-c-activate/evidence/track2-example/evidence.judge.json), 탐색기의 [3 OKRW 결제](https://explorer-testnet.maroo.io/tx/0xfbfe489ff4545f5d701310ab3f3153cefc15efc22d91813fc69ab89042650787)와 [8 OKRW 거부](https://explorer-testnet.maroo.io/tx/0x006c9bae7cb92d04b2b9ba8f835ef81914ff81b91a5af2c51971b58a3c8856b9)).
 - `[Live Testnet]` 문서와 다르게 동작한 곳 19건을 재현 명령, owner와 함께 [SUBMISSION_NOTES.md](SUBMISSION_NOTES.md#발견한-차이)에 적었습니다. 2026-10-23 판 문서에서는 13건이 고쳐졌고 3건이 일부 고쳐졌습니다. PCL 정책에 거부된 tx는 2026-09-26 판 문서와 달리 블록에 남아 가스 한도의 절반을 냈고([기록](track-a-explain/evidence/live/reject-gas-20260926T171444Z.json), 탐색기에 [150,000 / 300,000, 50%](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)로 보임), 2026-09-26 판 문서대로 에이전트 한도를 숫자 문자열로 쓰면 한도 안 결제까지 막혔습니다([기록](track-c-activate/evidence/live/agent-limit-20260926T044056Z.json)).
 
@@ -157,9 +157,9 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 | A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 4(자기 협력사 지갑으로 옮기는 2 포함) |
 | A | `pnpm a:audit-access --top-up`(`pnpm a:local` 뒤) | 20초 안팎 | `[확인] access: 증명자 규제기관, 요청 증명을 가리킴, 되돌릴 수 없음, 탐색기 색인됨(ok)` | 기록 네 건 수수료 약 12. 처음에는 KYB 발급자 지갑이 역할 지갑 셋에 가스로 약 70을 옮깁니다 |
 | A | `pnpm explain --examples` | 3초 안팎 | 사례마다 `종류`(예: `PCL 정책 위반`, `가스 부족`, `대상 컨트랙트 로직`)와 `걸린 정책`, `다음 행동` 줄 | 없음(조회) |
-| B | `pnpm b:smoke` | 91초 | `모두 통과. 91초` | 2단계가 약 260 |
+| B | `pnpm b:smoke` | 2분 안팎(2026-10-23에 108초, 선택 연습 포함) | `모두 통과. 108초` | 2단계가 약 260 |
 | B | `pnpm b:step 1` \~ `pnpm b:step 5` | 워크샵 75분 | 단계마다 예상 결과와 성공 기준을 먼저 보이고, 실패하면 트러블슈팅 번호를 안내 | 2단계가 약 260 |
-| C | `pnpm c:agent-limit`. 구매 기업 지갑에 에이전트가 없으면 `pnpm c:grounding --write`로 먼저 등록합니다(tx 한 건) | 20초 안팎(등록 제외) | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 31(구매 기업과 에이전트 지갑의 합계, 한도 안 결제 3 포함, [2026-10-23 기록](track-c-activate/evidence/live/agent-limit-20261023T044944Z.json)). 에이전트 지갑 잔액이 모자라면 구매 기업이 가스용 30을 먼저 옮깁니다 |
+| C | `pnpm c:agent-limit`. 구매 기업 지갑에 에이전트가 없으면 `pnpm c:grounding --write`로 먼저 등록합니다(tx 한 건) | 20초 안팎(등록 제외) | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 31(구매 기업과 에이전트 지갑의 합계, 한도 안 결제 3 포함, [2026-10-23 기록](track-c-activate/evidence/live/agent-limit-20261023T071452Z.json)). 에이전트 지갑 잔액이 모자라면 구매 기업이 가스용 30을 먼저 옮깁니다 |
 | C | `pnpm c:app`(`pnpm c:agent-limit` 뒤) | 서버 시작 1초 안팎, 결제 한 건의 영수증 2\~3초 | `에이전트 한도 결제 앱: http://127.0.0.1:5175`, 화면 전표의 승인과 거절 도장 | 결제 한 건에 가스비 약 4.4와 결제 금액 |
 | C | `pnpm c:judge <evidence.json> --track 2` | 5초 안 | `✓ R4 ExceededAgentTransferLimit 거부` | 없음(조회) |
 

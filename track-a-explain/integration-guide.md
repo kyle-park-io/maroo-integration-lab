@@ -28,8 +28,8 @@
 
 | 범위 | 상태 | 라벨 | 근거 |
 | --- | --- | --- | --- |
-| Privacy 프리컴파일의 정책, 요구 증명, 요청 모양 조회 | 실행함 | `[Live Testnet]` | [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
-| Privacy 예치가 처음 막히는 층 진단 | 전역 정책 거부 없이 요청 검증(`SDKInvalidRequest`)에서 막힘 | `[Live Testnet]` eth_call과 eth_estimateGas, 거부 경로 증거 | [진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
+| Privacy 프리컴파일의 정책, 요구 증명, 요청 모양 조회 | 실행함 | `[Live Testnet]` | [조회 기록](evidence/live/inspect-privacy-boundary-20261023T071335Z.json) |
+| Privacy 예치가 처음 막히는 층 진단 | 전역 정책 거부 없이 요청 검증(`SDKInvalidRequest`)에서 막힘 | `[Live Testnet]` eth_call과 eth_estimateGas, 거부 경로 증거 | [진단 기록](evidence/live/probe-first-failure-20261023T071333Z.json) |
 | 보내기 전 정책 검사 방법 | PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않고 `eth_estimateGas`에서 나옵니다. PCL 프록시 호출은 두 방법 모두 거부합니다 | `[Live Testnet]` | [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json), [faucet 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
 | OKRW 지급과 KYB 관문을 건 정산 금고 | 실행함. 증명 없음, 색인 전, 폐기 뒤 청구는 거부되고 색인 뒤 청구는 통과. 정책 관리자와 업그레이드 권한이 다른 주소 | `[Live Testnet]` 상태 변경 tx 18건 | [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 | 차폐 정산 전체(예치, 일괄 지급, 스캔, 해독, 인출) | 실행함 | `[Local]` Clairveil v0.4.0 | [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) |
@@ -37,7 +37,7 @@
 | Privacy 컨트랙트 정책(4층) | 공개된 성공 예치의 calldata를 본인 인증 증명이 없는 지갑에서 부르면 `EasNoAttestationReceived`로 막히고, 증명이 있는 지갑은 정책을 지납니다 | `[Live Testnet]` eth_call과 eth_estimateGas | 6절, [공개 tx 시뮬레이션 기록](evidence/live/probe-public-privacy-20261023T064628Z.json) |
 | Privacy 준비 상태 감시 | `pnpm a:watch-privacy`가 조회 경로, proving 재료, 4층 시험, SDK 예치 준비, Privacy tx 수, 문서 변경, Clairveil 릴리스를 기록합니다. GitHub Actions가 하루 한 번 돌립니다 | `[Live Testnet]` 조회 | [첫 기록](evidence/live/watch-privacy/2026-10-23.json) |
 | 테스트넷 노드와 Clairveil의 관계 | 노드(`marood` 0.10.0)가 빌드 의존성으로 `github.com/DELIGHT-LABS/clairveil v0.3.0`을 밝힙니다 | `[Live Testnet]` | [노드 정보 기록](evidence/live/chain-info-20261023T045537Z.json) |
-| 실패한 tx의 사유와 걸린 정책 판별 | `pnpm explain`이 오류 선택자로 계열을 정하고 전역 정책인지 컨트랙트 정책인지 가립니다. 이 레포가 겪은 실패 다섯 계열을 모두 맞게 풀었습니다 | `[Live Testnet]` 조회 | [해석 기록](evidence/live/explain-examples-20261023T050841Z.json) |
+| 실패한 tx의 사유와 걸린 정책 판별 | `pnpm explain`이 오류 선택자로 계열을 정하고 전역 정책인지 컨트랙트 정책인지 가립니다. 이 레포가 겪은 실패 다섯 계열을 모두 맞게 풀었습니다 | `[Live Testnet]` 조회 | [해석 기록](evidence/live/explain-examples-20261023T071511Z.json) |
 | 규제기관의 관찰자 노드 열람 | 체인에 구현되지 않았습니다 | `[Docs Only]` | [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/) |
 | 감사 키를 나눠 맡긴 통제된 열람(3절 시제품) | 실행함. 두 역할이 승인한 tx의 감사 공개만 열렸고, 요청, 승인, 열람의 해시가 EAS 증명 네 건으로 남았습니다 | 해독 `[Local]`, 기록 `[Live Testnet]` | [열람 기록](evidence/live/audit-access-20261023T054254Z.json) |
 
@@ -122,7 +122,7 @@ Clairveil은 Cosmos SDK 체인에 차폐 풀을 넣는 공개 참조 구현입�
 
 0. 테스트넷 노드의 Cosmos REST 노드 정보(`/cosmos/base/tendermint/v1beta1/node_info`)가 앱 `marood` 0.10.0의 빌드 의존성으로 `github.com/DELIGHT-LABS/clairveil v0.3.0`을 밝힙니다. 2026-10-23에 처음 확인했고, 제출 때는 이 근거가 없었습니다. `[Live Testnet]` [노드 정보 기록](evidence/live/chain-info-20261023T045537Z.json), 재현: `pnpm a:chain-info`
 1. Maroo `IPrivacy` ABI의 함수 9개와 이벤트 5개는 ClairveilJS가 들고 있는 정식 EVM Privacy 계약 v0.3.1과 함수 선택자, 이벤트 서명, 정규화한 ABI의 sha256(`ee29aa6a…cb31b`)까지 같습니다. ClairveilJS의 EVM 전송 모듈은 이 계약을 가진 체인을 대상으로 만들어졌습니다. `[코드 대조]` [대조 기록](evidence/code/abi-compare-20260926T040350Z.json), 재현: `pnpm a:abi-compare`
-2. Maroo `IPrivacy`의 전송 요청 필드 17개는 Clairveil v0.4.0 `MsgTransfer`의 18개에서 `creator` 하나를 뺀 것과 같습니다. EVM에서는 `msg.sender`가 `creator` 자리를 대신합니다. `[Live Testnet]` ABI 대조, [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
+2. Maroo `IPrivacy`의 전송 요청 필드 17개는 Clairveil v0.4.0 `MsgTransfer`의 18개에서 `creator` 하나를 뺀 것과 같습니다. EVM에서는 `msg.sender`가 `creator` 자리를 대신합니다. `[Live Testnet]` ABI 대조, [조회 기록](evidence/live/inspect-privacy-boundary-20261023T071335Z.json)
 3. clairveil-samples의 EVM 설정 예시가 쓰는 Privacy 프리컴파일 주소 `0x1000…000b`가 Maroo 테스트넷 주소와 같습니다. `[Docs Only]` [`.env.evm.example`](https://github.com/DELIGHT-LABS/clairveil-samples/blob/8321dedc231372679cfbea4314d080ecaea2e3f5/.env.evm.example)
 4. Clairveil v0.5.x의 전송 메시지(`privacy/v2`)는 출력마다 `outputs` 항목을 두고 감사 정보를 `audit` 하나로 묶는 모양으로 바뀌었습니다. Maroo 테스트넷 ABI는 v0.4.0 모양과 맞습니다. `[Docs Only]` [v0.5.1 `tx.proto`](https://github.com/DELIGHT-LABS/clairveil/blob/v0.5.1/proto/clairveil/privacy/v2/tx.proto), `[Live Testnet]` ABI 대조
 
@@ -238,7 +238,7 @@ sequenceDiagram
 | ⑧ | 감사인 | 지급마다 붙은 감사 disclosure를 감사 비밀키로 풉니다 | 없음 | 없음 | 없음 |
 
 - Privacy 프리컴파일은 상태를 바꾸는 모든 호출에서 먼저 전역 정책을, 이어서 자기 주소에 묶인 컨트랙트 정책을 평가합니다. 어느 쪽이든 호출을 거부할 수 있습니다. `[Docs Only]` [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/)
-- 테스트넷 Privacy 프리컴파일의 컨트랙트 정책은 `And(EAS_POLICY, DENYLIST_POLICY)`입니다. 호출자는 개인 본인 인증 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있고 차단 목록에 없어야 합니다. 이 정책은 관리자 `0x58eC…804F`만 바꿀 수 있어서, 도입 기관이 Privacy 호출에 자기 KYB 조건을 직접 걸 수는 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
+- 테스트넷 Privacy 프리컴파일의 컨트랙트 정책은 `And(EAS_POLICY, DENYLIST_POLICY)`입니다. 호출자는 개인 본인 인증 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있고 차단 목록에 없어야 합니다. 이 정책은 관리자 `0x58eC…804F`만 바꿀 수 있어서, 도입 기관이 Privacy 호출에 자기 KYB 조건을 직접 걸 수는 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20261023T071335Z.json)
 - PCL은 호출한 계정을 평가합니다. 차폐 지급에서 받는 협력사는 증명 안에 숨어 있으므로 체인은 지급하는 순간 협력사 자격을 볼 수 없습니다. 협력사 자격은 ①의 체인 밖 확인과, 협력사가 직접 부르는 ⑦에서 확인됩니다. 투명 경로의 금고가 `claim()`에 정책을 거는 이유도 같습니다.
 - 로컬 실행에서 전송 하나는 입력 노트 두 개를 씁니다. 노트 하나로 보낼 때는 금액 0인 노트를 짝으로 두어야 해서, 구매 기업은 0 노트 셋을 함께 예치했습니다. `[Local]` [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) 1절
 
@@ -392,7 +392,7 @@ revert 데이터의 앞 4바이트(오류 선택자)로 계열을 가릅니다. 
 | 데이터 없는 되돌림 | revert 데이터와 노드 메시지가 모두 없는 경우 | 원인을 확인한 뒤 | 직전 블록 상태로 다시 시뮬레이션해 통과하면 같은 블록의 앞선 tx나 실행 뒤 전역 정책 재검사를 의심합니다 |
 | 결과 불명 | 응답 시간 초과, receipt 없음 | 기존 tx 해시를 확인한 뒤 | 같은 노트로 새 tx를 만들기 전에 대사합니다 |
 
-이 레포가 겪은 실패 다섯 계열과 통과한 tx 하나를 `pnpm explain --examples`가 차례로 풉니다. 협력사 B의 증명 없는 청구와 한도 5 OKRW 에이전트의 8 OKRW 결제는 컨트랙트 정책 위반, 가스 한도 21,000 이체는 가스 부족, 구매 기업의 2,000,001 OKRW 이체 시뮬레이션은 전역 정책의 `AnyOfRejected`, 빈 Privacy 예치는 `SDKInvalidRequest()`, 협력사 A의 `fund()`는 금고의 `NotBuyer()`로 나왔습니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T050841Z.json)
+이 레포가 겪은 실패 다섯 계열과 통과한 tx 하나를 `pnpm explain --examples`가 차례로 풉니다. 협력사 B의 증명 없는 청구와 한도 5 OKRW 에이전트의 8 OKRW 결제는 컨트랙트 정책 위반, 가스 한도 21,000 이체는 가스 부족, 구매 기업의 2,000,001 OKRW 이체 시뮬레이션은 전역 정책의 `AnyOfRejected`, 빈 Privacy 예치는 `SDKInvalidRequest()`, 협력사 A의 `fund()`는 금고의 `NotBuyer()`로 나왔습니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T071511Z.json)
 
 ### 오류 데이터를 얻는 시점
 
@@ -416,7 +416,7 @@ revert 데이터의 앞 4바이트(오류 선택자)로 계열을 가릅니다. 
 3. 사유가 `AnyOfRejected`로 감싸이지 않았는데 전역 정책에서 그 템플릿이 `Or` 안에만 있으면 컨트랙트 정책입니다. 전역 정책의 `Or` 자식이 거부하면 `AnyOfRejected`로 감싸여 나오기 때문입니다.
 4. 템플릿이 한 정책에만 있으면 그 정책입니다. 두 정책 모두에 있으면 「전역 또는 컨트랙트 정책」으로 출력하고, 보내는 주소만 바꿔 같은 호출을 시뮬레이션해 가립니다.
 
-통과한 프록시 tx는 receipt에 PCL 주소가 낸 `PolicyCheckPassed(address,address)` 이벤트가 있습니다. 프록시의 `postCall`이 성공할 때 PCL이 이 이벤트를 냅니다. `[Docs Only]` [이중 트랙 모델](https://docs.maroo.io/concepts/compliance/pcl-dual-track-model/) 협력사 A의 정상 청구 tx에서 이 이벤트를 확인했고, C 트랙의 판정 명령은 프록시를 거쳐 통과한 tx마다 이 이벤트가 있는지 확인합니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T050841Z.json)
+통과한 프록시 tx는 receipt에 PCL 주소가 낸 `PolicyCheckPassed(address,address)` 이벤트가 있습니다. 프록시의 `postCall`이 성공할 때 PCL이 이 이벤트를 냅니다. `[Docs Only]` [이중 트랙 모델](https://docs.maroo.io/concepts/compliance/pcl-dual-track-model/) 협력사 A의 정상 청구 tx에서 이 이벤트를 확인했고, C 트랙의 판정 명령은 프록시를 거쳐 통과한 tx마다 이 이벤트가 있는지 확인합니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T071511Z.json)
 
 - 협력사 자격을 갱신할 때는 새 증명을 발급한 뒤 색인까지 해야 합니다. 폐기한 옛 증명이 색인돼 있으면, 새 증명을 색인하기 전의 청구는 `EasAttestationRevoked`로 거부됩니다. `[Live Testnet]` [두 번째 금고 실행 기록](../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json)
 - 증명이 폐기돼 청구할 수 없게 된 몫은 구매 기업이 `recall(supplier)`로 돌려받습니다. 2026-09-26 실행에서 폐기된 협력사 A 몫과 청구되지 않은 협력사 B 몫을 회수해 두 몫이 0이 됐습니다. `recall`은 협력사가 청구하기 전이면 언제든 부를 수 있으므로, 프로덕션에서는 8절처럼 청구 기간이나 타임락을 둡니다. `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) 8단계, 권고
@@ -425,7 +425,7 @@ revert 데이터의 앞 4바이트(오류 선택자)로 계열을 가릅니다. 
 
 ### 테스트넷 Privacy의 최초 실패 계층
 
-예치 요청을 `eth_call`과 `eth_estimateGas`로만 불러 어느 층에서 처음 막히는지 봤습니다. 2026-09-25에는 이 레포가 만든 요청(빈 요청, 모양만 갖춘 요청)을 썼고, 2026-10-23에는 테스트넷에 공개된 성공 예치의 calldata(유효한 증명 포함)를 다른 지갑에서 불렀습니다. 거부 경로 증거이고, Privacy 연동이 성공했다는 뜻은 없습니다. `[Live Testnet]` [진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json), [공개 tx 시뮬레이션 기록](evidence/live/probe-public-privacy-20261023T064628Z.json)
+예치 요청을 `eth_call`과 `eth_estimateGas`로만 불러 어느 층에서 처음 막히는지 봤습니다. 2026-09-25에는 이 레포가 만든 요청(빈 요청, 모양만 갖춘 요청)을 썼고, 2026-10-23에는 테스트넷에 공개된 성공 예치의 calldata(유효한 증명 포함)를 다른 지갑에서 불렀습니다. 거부 경로 증거이고, Privacy 연동이 성공했다는 뜻은 없습니다. `[Live Testnet]` [진단 기록](evidence/live/probe-first-failure-20261023T071333Z.json), [공개 tx 시뮬레이션 기록](evidence/live/probe-public-privacy-20261023T064628Z.json)
 
 | 층 | 확인 방법 | 테스트넷 결과 | 다음 층으로 가는 데 필요한 것 |
 | --- | --- | --- | --- |
@@ -501,8 +501,8 @@ PoC를 시작하기 전에 Maroo에 확인할 항목은 6절의 proving 재료, 
 
 | 파일 | 라벨 | 내용 |
 | --- | --- | --- |
-| [inspect-privacy-boundary-20260925T192735Z.json](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) | `[Live Testnet]` | Privacy 정책 결합 방식, 요구 스키마, 예치 eth_call 결과, 요청 필드 대조 |
-| [probe-first-failure-20260925T193314Z.json](evidence/live/probe-first-failure-20260925T193314Z.json) | `[Live Testnet]` | 요청 모양별 최초 실패 계층(eth_call, eth_estimateGas) |
+| [inspect-privacy-boundary-20261023T071335Z.json](evidence/live/inspect-privacy-boundary-20261023T071335Z.json) | `[Live Testnet]` | Privacy 정책 결합 방식, 요구 스키마, 예치 eth_call 결과, 요청 필드 대조 |
+| [probe-first-failure-20261023T071333Z.json](evidence/live/probe-first-failure-20261023T071333Z.json) | `[Live Testnet]` | 요청 모양별 최초 실패 계층(eth_call, eth_estimateGas) |
 | [probe-global-policy-20260925T190841Z.json](evidence/live/probe-global-policy-20260925T190841Z.json) | `[Live Testnet]` | `eth_call`과 `eth_estimateGas`의 전역 정책 평가 차이 |
 | [doc-claims-20260926T051350Z.json](evidence/live/doc-claims-20260926T051350Z.json) | `[Live Testnet]` | 문서 문장과 체인 동작 대조 |
 | [vendor-settlement-20260925T181924Z.md](evidence/local/vendor-settlement-20260925T181924Z.md) | `[Local]` | 차폐 정산 단계별 tx, 역할별 해독 결과, 공개 필드 |
