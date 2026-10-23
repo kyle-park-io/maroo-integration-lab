@@ -11,6 +11,7 @@
 //   4층 시험: 가장 최근 성공한 공개 예치의 calldata 를 본인 인증 증명 없는 지갑에서 부른 사유와 걸린 정책(pnpm explain 과 같은 코드)
 //   Privacy 프리컴파일로 간 tx 수와 함수별 성공 수(탐색기 API)
 //   Maroo 문서의 Privacy 페이지 내용 해시(sitemap), Clairveil 최신 릴리스, @maroo-chain 패키지 최신 판
+//   Clairveil 릴리스 압축(.tar.gz)의 모든 파일 sha256 을 회로 설정의 테스트넷 검증 키와 대조(같은 파일이 있으면 준비됨으로 판정)
 // 판정은 shared/lib/privacy-watch.ts 에 있다. GitHub Actions(.github/workflows/watch-privacy.yml)가 하루 한 번 같은 명령을 돌린다.
 
 import "../../shared/lib/install-recipe-errors.ts";
@@ -18,6 +19,7 @@ import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { gunzipSync } from "node:zlib";
 import { encodeFunctionData, parseAbiItem, toFunctionSelector, toHex, type AbiFunction, type Hex } from "viem";
 import { iPrivacyAbi } from "@maroo-chain/contracts/abi/precompiles/privacy/IPrivacy";
 import { ROOT } from "../../shared/lib/paths.ts";
@@ -25,7 +27,7 @@ import { EXPLORER, PRIVACY, REST, RPC, labValue, publicClient as pub } from "../
 import { explainCall } from "../../shared/lib/explain-chain.ts";
 import { summarizeChainInfo } from "../../shared/lib/chain-info.ts";
 import { classifyRevert } from "../../shared/lib/explain.ts";
-import { changesSince, countBySelector, readiness, recordFile, type WatchRecord } from "../../shared/lib/privacy-watch.ts";
+import { changesSince, countBySelector, matchVerifyingKeys, readiness, recordFile, tarFiles, type KeyMatch, type WatchRecord } from "../../shared/lib/privacy-watch.ts";
 
 const save = !process.argv.includes("--no-save");
 const DIR = path.join(ROOT, "track-a-explain/evidence/live/watch-privacy");
@@ -124,7 +126,27 @@ const docs = await tryOr("Maroo 문서 Privacy 페이지", async () => {
   return out;
 }, undefined as Record<string, string> | undefined);
 const gh: Record<string, string> = process.env.GITHUB_TOKEN ? { authorization: `Bearer ${process.env.GITHUB_TOKEN}` } : {};
-const clairveilLatest = await tryOr("Clairveil 릴리스", async () => (await getJson("https://api.github.com/repos/DELIGHT-LABS/clairveil/releases?per_page=1", gh))[0]?.tag_name as string, undefined as string | undefined);
+const releases = await tryOr("Clairveil 릴리스", async () => (await getJson("https://api.github.com/repos/DELIGHT-LABS/clairveil/releases?per_page=100", gh)) as { tag_name: string; assets: { name: string; browser_download_url: string }[] }[], []);
+const clairveilLatest = releases[0]?.tag_name as string | undefined;
+// 릴리스 압축(.tar.gz)의 파일을 테스트넷 검증 키의 sha256 과 견준다. proving 재료가 Clairveil 릴리스로 나오면 여기서 잡힌다.
+const verifyingKeys = (provingMaterial as { verifyingKeys?: Record<string, string> } | undefined)?.verifyingKeys;
+let releaseArchives: WatchRecord["releaseArchives"];
+if (verifyingKeys && Object.keys(verifyingKeys).length && releases.length) {
+  const archives: string[] = [], failed: string[] = [], matches: KeyMatch[] = [];
+  let files = 0;
+  for (const rel of releases) for (const a of rel.assets.filter((x) => x.name.endsWith(".tar.gz"))) {
+    const ok = await tryOr(`릴리스 압축 ${a.name}`, async () => {
+      const r = await fetch(a.browser_download_url, { signal: AbortSignal.timeout(60_000) });
+      if (!r.ok) throw new Error(`응답 ${r.status}`);
+      const list = tarFiles(gunzipSync(Buffer.from(await r.arrayBuffer())));
+      files += list.length;
+      matches.push(...matchVerifyingKeys(a.name, list, verifyingKeys));
+      return true;
+    }, false);
+    (ok ? archives : failed).push(a.name);
+  }
+  releaseArchives = { archives, files, matches, ...(failed.length ? { failed } : {}) };
+}
 const npm: Record<string, string> = {};
 for (const p of ["@maroo-chain/viem", "@maroo-chain/contracts"]) {
   const v = await tryOr(p, async () => (await getJson(`https://registry.npmjs.org/${p.replace("/", "%2f")}`))["dist-tags"].latest as string, undefined as string | undefined);
@@ -133,7 +155,7 @@ for (const p of ["@maroo-chain/viem", "@maroo-chain/contracts"]) {
 
 const record: WatchRecord & Record<string, unknown> = {
   checkedAt: new Date().toISOString(), label: "[Live Testnet] 조회와 eth_estimateGas, tx 없음",
-  node, privacyRest, provingMaterial, firstFailure, sdkProbe, layer4, precompileTx, docs, clairveilLatest, npm,
+  node, privacyRest, provingMaterial, releaseArchives, firstFailure, sdkProbe, layer4, precompileTx, docs, clairveilLatest, npm,
 };
 const prevFile = fs.existsSync(DIR) ? fs.readdirSync(DIR).filter((f) => f.endsWith(".json") && f !== `${record.checkedAt.slice(0, 10)}.json`).sort().pop() : undefined;
 const prev = prevFile ? (JSON.parse(fs.readFileSync(path.join(DIR, prevFile), "utf8")) as WatchRecord) : undefined;
@@ -145,6 +167,7 @@ record.changesSince = { previous: prevFile ?? null, changes };
 console.log(`노드              ${node.app}, Clairveil ${node.clairveil ?? "?"}`);
 for (const [p, s] of Object.entries(privacyRest)) console.log(`조회 경로         ${p}  ${s}`);
 console.log(`proving 재료      ${provingMaterial ? `manifest_available ${provingMaterial.manifestAvailable}, 파일 이름이 있는 산출물 ${provingMaterial.artifactFiles}개, 회로 묶음 ${provingMaterial.activeSet}` : "읽지 못함"}`);
+console.log(`릴리스 압축       ${releaseArchives ? `${releaseArchives.archives.length}개, 파일 ${releaseArchives.files}개, 검증 키와 같은 파일 ${releaseArchives.matches.length}개${releaseArchives.failed ? `(받지 못한 압축 ${releaseArchives.failed.length}개)` : ""}` : "견주지 못함"}`);
 console.log(`빈 예치 요청      ${firstFailure.text}`);
 console.log(`4층 시험         ${layer4 ? `${layer4.text}(${layer4.scope === "contract" ? "컨트랙트 정책" : layer4.scope})` : "읽지 못함"}`);
 console.log(`공식 SDK 예치 준비 ${"stoppedAt" in (sdkProbe ?? {}) ? (sdkProbe as { stoppedAt: string }).stoppedAt : (sdkProbe as { skipped: string }).skipped}`);

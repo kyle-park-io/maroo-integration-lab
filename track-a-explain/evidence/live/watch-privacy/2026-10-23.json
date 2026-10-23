@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-10-23T06:47:12.159Z",
+  "checkedAt": "2026-10-23T07:41:40.980Z",
   "label": "[Live Testnet] 조회와 eth_estimateGas, tx 없음",
   "node": {
     "app": "marood 0.10.0 (71dcd931be)",
@@ -31,6 +31,21 @@
       "joinsplit": "2d8da7dd22513c5da32bc7a6241a2e266a9e4e1e0915e09613123b878a4b2420",
       "batch-joinsplit-16x32-v1": "5c3514475be2d19b4c16a342c24532ba86444bbb4ccc7a5d7dcfe5b695c507d5"
     }
+  },
+  "releaseArchives": {
+    "archives": [
+      "clairveil-handoff-v0.6.1.tar.gz",
+      "clairveil-source-v0.6.1.tar.gz",
+      "clairveil-handoff-v0.5.3.tar.gz",
+      "clairveil-source-v0.5.3.tar.gz",
+      "clairveil-handoff-v0.5.2.tar.gz",
+      "clairveil-handoff-v0.5.1.tar.gz",
+      "clairveil-handoff-v0.4.0.tar.gz",
+      "clairveil-handoff-v0.3.1.tar.gz",
+      "clairveil-handoff-v0.2.0.tar.gz"
+    ],
+    "files": 2233,
+    "matches": []
   },
   "firstFailure": {
     "family": "sdk",
@@ -126,7 +141,7 @@
       "4층 시험: 공개된 성공 예치의 calldata를 본인 인증 증명 없는 지갑에서 부르면 EasNoAttestationReceived(Privacy 컨트랙트 정책)로 막힙니다."
     ],
     "reasons": [
-      "테스트넷 검증 키와 짝인 proving 재료가 공개되지 않았습니다(회로 설정의 manifest_available 이 false 이고 산출물 파일 이름이 비어 있음). 외부에서 만든 증명은 5층(증명 검증)을 지나지 못합니다.",
+      "테스트넷 검증 키와 짝인 proving 재료가 공개되지 않았습니다(회로 설정의 manifest_available 이 false 이고 산출물 파일 이름이 비어 있음). Clairveil 릴리스 압축 9개(파일 2233개)에도 테스트넷 검증 키와 sha256 이 같은 파일이 없습니다. 외부에서 만든 증명은 5층(증명 검증)을 지나지 못합니다.",
       "조회 경로 /clairveil/privacy/v1/privacy_scan의 응답이 501입니다.",
       "조회 경로 /clairveil/privacy/v1/commitment_paths_at_root의 응답이 501입니다."
     ],
