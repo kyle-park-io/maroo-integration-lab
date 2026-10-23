@@ -243,7 +243,8 @@ export const SCOPE_LABEL: Record<Scope["scope"], string> = { global: "전역 정
 // PCL 거부가 전역 정책인지 컨트랙트 정책인지. 사유만으로는 가릴 수 없어(EAS_POLICY 는 양쪽에 걸 수 있다)
 // 대상이 PCL 프록시인지, 프록시와 전역에 묶인 템플릿이 사유와 맞는지로 가린다.
 export function decideScope(x: { isProxy: boolean; contract: string[]; global: string[]; reason: string[]; globalBare?: string[]; wrapped?: boolean }): Scope {
-  if (!x.isProxy) return { scope: "global", note: "대상이 PCL 프록시가 아니라 컨트랙트 정책은 걸릴 수 없습니다." };
+  // 정책 인식 프리컴파일(Privacy 등)은 PCL 프록시가 아니어도 자기 주소에 묶인 컨트랙트 정책을 스스로 평가한다
+  if (!x.isProxy && x.contract.length === 0) return { scope: "global", note: "대상이 PCL 프록시가 아니고 대상 주소에 묶인 컨트랙트 정책도 없어 전역 정책의 거부입니다." };
   const inContract = x.reason.some((t) => x.contract.includes(t));
   // 감싸이지 않은 사유는 전역 정책의 Or 안에서는 나올 수 없다(그 자리면 AnyOfRejected 로 감싸인다)
   const inGlobal = x.wrapped === false && x.globalBare ? x.reason.some((t) => x.globalBare!.includes(t)) : x.reason.some((t) => x.global.includes(t));
@@ -297,7 +298,9 @@ export function formatExplanation(e: Explanation): string[] {
     const at = e.call.selector ? `${e.call.selectorName ?? "호출한 함수"}(${e.call.selector})` : "이 호출";
     const where = e.target.isProxy
       ? `${short(e.call.to)}: PCL 프록시(${e.target.kind}), ${at}에 묶인 정책 ${e.target.bound.length ? e.target.bound.join(", ") : "없음"}`
-      : `${short(e.call.to)}: PCL 프록시가 아님`;
+      : e.target.bound.length
+        ? `${short(e.call.to)}: 자기 주소의 정책을 스스로 평가하는 정책 인식 프리컴파일, ${at}에 묶인 정책 ${e.target.bound.join(", ")}`
+        : `${short(e.call.to)}: PCL 프록시가 아님`;
     if (e.scope) row("걸린 정책", `${SCOPE_LABEL[e.scope.scope]}. 대상 ${where}. ${e.scope.note}`);
     else if (!e.decoded) row("대상", where);
   }

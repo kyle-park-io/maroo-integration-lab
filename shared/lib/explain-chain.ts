@@ -39,9 +39,10 @@ function selectorName(abi: Abi, selector?: Hex): string | undefined {
 async function readPolicies(to: Address, selector?: Hex) {
   const proxy = (await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "pclProxy", args: [to] })) as { kind: number };
   const isProxy = Number(proxy.kind) !== 0;
-  const contractSets = isProxy
-    ? (((await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "contractPolicies", args: [to] })) as { policies: readonly PolicySet[] }).policies ?? [])
-    : [];
+  // 프록시가 아니어도 정책 인식 프리컴파일(Privacy 등)은 자기 주소에 정책이 묶여 있다. 묶인 정책이 없는 주소는 조회가 되돌려진다.
+  const contractSets = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "contractPolicies", args: [to] })
+    .then((r) => ((r as { policies: readonly PolicySet[] }).policies ?? []))
+    .catch(() => [] as readonly PolicySet[]);
   const bound = contractSets.filter((p) => p.selector === "0x" || (selector && p.selector.toLowerCase() === selector.toLowerCase()));
   const globalSets = ((await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "globalPolicies" })) as { policies: readonly PolicySet[] }).policies ?? [];
   const templates = (sets: readonly PolicySet[]) => [...new Set(sets.flatMap((p) => [...templatesIn(p)]))];

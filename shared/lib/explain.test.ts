@@ -194,3 +194,10 @@ test("가스 한도 없이도 되돌려지거나 사유 데이터가 있으면 �
   const policy = classifyRevert({ data: "0x472e017e" as Hex, extraAbi: [{ type: "error", name: "NotBuyer", inputs: [] }] as Abi });
   assert.equal(refineByUncappedReplay(policy, true, { gasUsed: 1n, gasLimit: 2n }).family, policy.family);
 });
+
+test("정책 인식 프리컴파일(Privacy)은 PCL 프록시가 아니어도 자기 주소에 묶인 컨트랙트 정책으로 거부할 수 있다", () => {
+  // 2026-10-23: 공개된 성공 예치의 calldata 를 구매 기업 지갑에서 보내면 감싸이지 않은 EasNoAttestationReceived 로 막혔다.
+  // 테스트넷 전역 정책의 EAS_POLICY 는 Or 안에만 있어 감싸이지 않고 나올 수 없고, Privacy 주소에는 And(EAS_POLICY, DENYLIST_POLICY)가 묶여 있다.
+  const s = decideScope({ isProxy: false, contract: ["EAS_POLICY", "DENYLIST_POLICY"], global: ["EAS_POLICY", "PERIODIC_VOLUME_POLICY"], globalBare: [], reason: ["EAS_POLICY"], wrapped: false });
+  assert.equal(s.scope, "contract");
+});
