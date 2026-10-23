@@ -23,6 +23,8 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 
 ## 네트워크와 패키지
 
+테스트넷에 연결하고 프리컴파일을 부를 때 쓰는 값이다. 값 칸은 2026-09-26에 테스트넷과 패키지에서 확인한 값이다.
+
 | 항목 | 값 |
 | --- | --- |
 | RPC, chain ID, 탐색기 | `https://rpc-testnet.maroo.io`, 450815, `https://explorer-testnet.maroo.io` |
@@ -32,6 +34,8 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 | 패키지 | `@maroo-chain/contracts` 0.0.9(ABI), `@maroo-chain/viem` 0.4.0(공식 SDK, 판을 고정한다), viem 2.56.8 |
 
 ## 검증한 규칙
+
+상황마다 할 것과 하지 말 것을 한 줄에 적었다. 근거 칸의 라벨은 어디서 확인했는지이고, 명령을 돌리면 같은 결과를 다시 확인할 수 있다.
 
 | 상황 | 할 것 | 하지 말 것 | 근거 |
 | --- | --- | --- | --- |
