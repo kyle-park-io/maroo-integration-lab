@@ -23,6 +23,7 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 | 트랙 2. 규칙 안의 에이전트 결제 | [tracks/2-agent-payments.md](tracks/2-agent-payments.md) | 필수 15항목. 기기가 결제하는 갈래 포함 |
 | 트랙 3. 자격으로 여는 원화 결제 | [tracks/3-credentialed-krw-payments.md](tracks/3-credentialed-krw-payments.md) | 필수 15항목 |
 | 기술 근거 | [grounding/check-track-requirements.ts](grounding/check-track-requirements.ts), [evidence.md](evidence.md) | 세 트랙 요건이 기대는 기능을 테스트넷에서 조회하고 시뮬레이션한 기록 |
+| 트랙 2 레퍼런스 앱 | [agent-limit-app/](agent-limit-app/), [트랙 2 17절](tracks/2-agent-payments.md#17-화면이-있는-레퍼런스-앱-live-testnet) | 소유자가 한도를 정하고 에이전트가 결제를 요청하는 웹 앱. 거부 해석기의 결과를 사유마다 다른 사용자 문구로 보여 주고, 보냈는지 모르는 결제는 다시 읽기 전까지 새 결제를 받지 않습니다 |
 | 심사 자동 판정 | [judge/check-evidence.ts](judge/check-evidence.ts), [예시](evidence.md#5-심사-자동-판정-예시-live-testnet-조회) | 참가자의 `evidence.json`을 테스트넷에서 다시 확인해 요건별로 판정. 적힌 거부 사유가 실제와 다르면 실패로 표시. Track A 기록으로 만든 예시에서 트랙 1 요건 R1\~R5 통과 |
 | 워크스루 영상 | [영상](https://youtu.be/5-wrJeVAnDQ) | 트랙을 나눈 이유, Flagship 최소 연동 요건과 심사 기준, 피상적 연동을 거르는 방법, 5\~8분 |
 
@@ -38,7 +39,7 @@ Maroo 해커톤에 참가할 빌더가 무엇을 만들고, 어떤 primitive를 
 | 심사 기준과 배점, 프로젝트 예시, 참고 자료 | 11\~13절 | 11\~13절 | 11\~13절 |
 | 무효 연동 사례, 보안·프라이버시·프로덕션 주의 사항 | 14\~15절 | 14\~15절 | 14\~15절 |
 | Flagship 추가 항목 | 16\~26절 | 해당 없음 | 해당 없음 |
-| 이 레포가 직접 채운 예시 | 24절(`pnpm c:judge-example`) | 16절(`pnpm c:agent-limit`) | 없음 |
+| 이 레포가 직접 채운 예시 | 24절(`pnpm c:judge-example`) | 16절(`pnpm c:agent-limit`), 17절 레퍼런스 앱(`pnpm c:app`) | 없음 |
 
 ## 실행
 
@@ -50,6 +51,7 @@ pnpm c:grounding --write    # 구매 기업 지갑으로 에이전트 등록 tx 
 pnpm c:judge evidence.json --track 1   # 제출물 증거 판정. tx 없음
 pnpm c:judge-example                   # Track A 기록으로 만든 예시 제출물을 판정
 pnpm c:agent-limit                     # [Live Testnet] 트랙 2 요건 R1~R4 실증. 약 30 OKRW
+pnpm c:app                             # [Live Testnet] 트랙 2 레퍼런스 앱, http://127.0.0.1:5175. 결제 한 건에 가스비 약 4.4 OKRW
 ```
 
 Flagship의 15분 첫 성공 경로는 [트랙 1의 21절](tracks/1-private-settlement.md#21-15분-첫-성공-경로-local)에 있고, 기준 구현은 Track A의 `pnpm a:local`입니다.

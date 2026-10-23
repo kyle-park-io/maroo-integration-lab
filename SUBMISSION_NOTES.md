@@ -267,7 +267,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 
 ## 제출 뒤 더한 것
 
-제출한 뒤에 더한 명령입니다. 열은 명령, 하는 일, 첫 기록입니다. `pnpm a:audit-access`만 테스트넷에 tx(EAS 증명)를 보내고, 나머지는 조회와 시뮬레이션만 합니다.
+제출한 뒤에 더한 명령입니다. 열은 명령, 하는 일, 첫 기록입니다. `pnpm a:audit-access`와 `pnpm c:app`은 테스트넷에 tx를 보내고, 나머지는 조회와 시뮬레이션만 합니다.
 
 | 명령 | 하는 일 | 첫 기록 |
 | --- | --- | --- |
@@ -275,6 +275,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | `pnpm a:probe-global --over-limit` | KYC 증명이 없는 지갑이 건당 한도를 넘는 금액을 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출로 보낼 때 `eth_call`과 `eth_estimateGas`의 결과를 견줍니다(잔액 상태 덮어쓰기) | [probe-global-compare-20261023T042452Z.json](track-a-explain/evidence/live/probe-global-compare-20261023T042452Z.json) |
 | `pnpm a:chain-info` | 테스트넷 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부, Clairveil 조회 경로의 응답 코드를 기록합니다 | [chain-info-20261023T045537Z.json](track-a-explain/evidence/live/chain-info-20261023T045537Z.json) |
 | `pnpm a:local --operator` | 정산 대행사(운영자) 키를 더하고, 금액만 담은 사용자 공개를 대행사에게 보내는 지급 세 건을 실행합니다. 대행사의 협력사별 합계를 감사인 합계와 견줍니다(`[Local]`) | [vendor-settlement-20261023T055418Z.md](track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md) |
+| `pnpm c:app`, `pnpm c:app-record` | 트랙 2 레퍼런스 웹 앱. 소유자가 에이전트 한도를 저장하고 에이전트가 결제를 요청하면 `eth_estimateGas`로 먼저 검사하고, 거부 해석기의 결과를 사유마다 다른 사용자 문구로 보여 줍니다. 서명은 서버가 하고, 보냈는지 모르는 결제는 다시 읽기 전까지 새 결제를 받지 않습니다(`[Live Testnet]`) | [agent-app-20261023T062617Z.json](track-c-activate/evidence/live/agent-app-20261023T062617Z.json) |
 | `pnpm a:audit-access`, `pnpm b:audit-drill` | 로컬 감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나누고, 요청한 역할을 뺀 두 역할이 승인한 tx의 감사 disclosure만 부분값으로 엽니다(`[Local]`). A 명령은 요청, 승인, 열람의 해시를 EAS 증명으로 남기고(`[Live Testnet]`), B 명령은 참가자가 요청 범위를 읽고 승인할지 정하는 연습입니다 | [audit-access-20261023T054254Z.json](track-a-explain/evidence/live/audit-access-20261023T054254Z.json) |
 
 ## 제출 뒤 고친 것

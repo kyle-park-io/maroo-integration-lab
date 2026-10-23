@@ -35,6 +35,8 @@
     "b:smoke": "node track-b-enable/demo/smoke.ts",
     "b:audit-drill": "node track-b-enable/demo/audit-drill.ts",
     "c:judge": "node track-c-activate/judge/check-evidence.ts",
+    "c:app": "node track-c-activate/agent-limit-app/server.ts",
+    "c:app-record": "node track-c-activate/agent-limit-app/record.ts",
     "a:probe-kyc": "node track-a-explain/recipe/probe-kyc-holder.ts",
     "c:judge-example": "node track-c-activate/judge/example-from-track-a.ts",
     "a:abi-compare": "node track-a-explain/recipe/compare-privacy-abi.ts",

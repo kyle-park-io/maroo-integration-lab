@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>에이전트 한도 결제</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gothic+A1:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap top-row">
+      <h1 class="brand">에이전트 한도 결제</h1>
+      <p class="conn" id="conn">Maroo 테스트넷에 연결하는 중입니다.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="intro">
+      <p>AI 에이전트가 소유자가 정한 한도 안에서 협력사 대금을 OKRW로 결제합니다. 결제마다 Maroo 테스트넷의 PCL이 먼저 검사하고, 한도를 넘으면 거절한 이유와 다음에 할 일을 전표에 남깁니다.</p>
+      <p class="quiet">서명은 이 앱의 서버가 레포 밖 역할 키로 합니다. 브라우저에 지갑 창은 뜨지 않습니다.</p>
+    </section>
+
+    <div class="banner" id="banner" role="alert" hidden>
+      <p id="banner-text"></p>
+      <button type="button" class="btn" id="banner-retry">화면 다시 읽기</button>
+    </div>
+
+    <div class="board">
+      <section class="sheet owner" aria-labelledby="owner-h">
+        <h2 id="owner-h">소유자: 에이전트 한도</h2>
+        <p class="who">구매 기업 지갑이 에이전트 <span id="agent-id">…</span>의 TransferLimit를 정합니다.</p>
+
+        <div class="limit" aria-live="polite">
+          <p class="limit-num"><span id="limit-value">…</span><span class="unit">OKRW</span></p>
+          <p class="limit-note" id="limit-note"></p>
+        </div>
+
+        <figure class="ruler" aria-hidden="true">
+          <div class="ruler-track">
+            <div class="ruler-req" id="ruler-req"></div>
+            <div class="ruler-limit" id="ruler-limit" hidden><span>한도</span></div>
+          </div>
+          <figcaption class="ruler-cap" id="ruler-cap">결제를 요청하면 금액이 한도 자 위에 표시됩니다.</figcaption>
+        </figure>
+
+        <form class="row" id="limit-form" novalidate>
+          <label for="limit-input">새 한도(OKRW)</label>
+          <div class="field">
+            <input id="limit-input" name="amount" inputmode="decimal" autocomplete="off" value="5">
+            <button class="btn ink" type="submit" id="limit-btn">한도 저장하기</button>
+          </div>
+          <button type="button" class="link" id="limit-legacy">옛 문서 형식(숫자 문자열)으로 저장해 형식 오류 확인하기</button>
+          <p class="form-msg" id="limit-msg" role="status"></p>
+        </form>
+
+        <form class="row" id="topup-form" novalidate>
+          <label for="topup-input">에이전트 지갑에 넣을 OKRW</label>
+          <div class="field">
+            <input id="topup-input" name="amount" inputmode="decimal" autocomplete="off" value="10">
+            <button class="btn" type="submit" id="topup-btn">에이전트 지갑에 OKRW 넣기</button>
+          </div>
+          <p class="form-msg" id="topup-msg" role="status"></p>
+        </form>
+
+        <dl class="bal">
+          <div><dt>구매 기업 지갑 잔고</dt><dd id="bal-owner">…</dd></div>
+          <div><dt>에이전트 지갑 잔고</dt><dd id="bal-agent">…</dd></div>
+        </dl>
+      </section>
+
+      <section class="agent" aria-labelledby="agent-h">
+        <h2 id="agent-h">에이전트: 협력사 A 대금 결제</h2>
+        <p class="who">에이전트 지갑이 정산 금고의 fund()로 협력사 A 몫을 넣습니다. 보내기 전에 eth_estimateGas로 PCL 검사를 먼저 받습니다.</p>
+
+        <form class="request" id="pay-form" novalidate>
+          <div class="request-grid">
+            <div>
+              <label for="pay-input">결제 금액(OKRW)</label>
+              <input id="pay-input" name="amount" inputmode="decimal" autocomplete="off" value="3">
+            </div>
+            <div>
+              <label for="gas-input">가스 한도(선택)</label>
+              <input id="gas-input" name="gas" inputmode="numeric" autocomplete="off" placeholder="비우면 추정값의 125%">
+            </div>
+          </div>
+          <button class="btn ink wide" type="submit" id="pay-btn">협력사 A 몫 결제 요청하기</button>
+          <p class="form-msg" id="pay-msg" role="status"></p>
+        </form>
+
+        <div class="pending" id="pending" hidden>
+          <p id="pending-text"></p>
+          <p><a id="pending-link" target="_blank" rel="noopener">이 결제 거래를 블록 탐색기에서 보기</a></p>
+          <button type="button" class="btn ink" id="recheck-btn">결제 기록 다시 읽기</button>
+          <p class="form-msg" id="recheck-msg" role="status"></p>
+        </div>
+
+        <h3 class="slips-h">전표</h3>
+        <ol class="slips" id="slips" aria-live="polite"></ol>
+        <p class="empty" id="empty">아직 전표가 없습니다. 결제를 요청하면 PCL 판정을 찍은 전표가 이 목록의 맨 위에 쌓입니다.</p>
+      </section>
+    </div>
+
+    <section class="facts" aria-labelledby="facts-h">
+      <h2 id="facts-h">연결 정보</h2>
+      <dl id="facts"></dl>
+      <div class="reload">
+        <button type="button" class="btn" id="reload-btn">화면 다시 읽기</button>
+        <p class="form-msg" id="reload-msg" role="status"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap foot-row">
+      <p>maroo-integration-lab, 트랙 C 에이전트 한도 레퍼런스 앱</p>
+      <p><a href="https://explorer-testnet.maroo.io" target="_blank" rel="noopener">Maroo 테스트넷 탐색기</a></p>
+    </div>
+  </footer>
+
+  <script src="/app.js" type="module"></script>
+</body>
+</html>
