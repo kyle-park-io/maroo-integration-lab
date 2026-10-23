@@ -102,3 +102,23 @@ test("보냈지만 확인하지 못한 기록은 남은 기록으로 센다", ()
   ];
   assert.deepEqual(pendingRecords(plan, { request: { tx: "0xbb", sent: true } }).map((p) => p.key), ["request", "access"]);
 });
+
+import { approvalReason } from "./audit-access.ts";
+
+test("요청 형식에 문제가 있으면 승인이 둘이어도 열지 않는다", () => {
+  const r = request({ legalBasis: " " });
+  const h = requestHash(r);
+  const d = decide(r, [
+    { requestHash: h, approver: "audit-team", decision: "approve", reason: "", at: "" },
+    { requestHash: h, approver: "external-auditor", decision: "approve", reason: "", at: "" },
+  ], 2);
+  assert.equal(d.open, false);
+  assert.match(d.reason, /법적 근거/);
+});
+
+test("승인과 거절의 이유는 결정과 요청 범위를 함께 쓴다", () => {
+  assert.match(approvalReason("approve", false), /맞/);
+  assert.match(approvalReason("approve", true), /넓지만 승인/);
+  assert.match(approvalReason("reject", true), /넓/);
+  assert.match(approvalReason("reject", false), /맞지만 거절/);
+});

@@ -16,6 +16,7 @@ import { toHex, type Address, type Hex } from "viem";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { EXPLORER, PRIVACY, RPC, addressOf, labValue, publicClient as pub, writeEvidence } from "../../shared/lib/maroo.ts";
 import { FAMILY_LABEL, classifyRevert } from "../../shared/lib/explain.ts";
+import { redactAddress } from "../../shared/lib/redact.ts";
 
 const DEPOSIT = "0xe6eb7771";
 let hash = process.argv.find((a) => /^0x[0-9a-fA-F]{64}$/.test(a)) as Hex | undefined;
@@ -54,7 +55,7 @@ for (const w of who) {
       const res = await rpc(method, [call, block, ...override]);
       const d = res.error ? classifyRevert({ data: res.error.data, rpcMessage: res.error.data ? undefined : res.error.message }) : undefined;
       // 숨기는 지갑의 주소는 사유와 인자에 들어가도 「(비공개)」로 바꾼다
-      const hideAddr = (v: string) => (w.hide ? v.replace(new RegExp(w.from.slice(2), "ig"), "(비공개)").replace(/0x\(비공개\)/g, "(비공개)") : v);
+      const hideAddr = (v: string) => (w.hide ? redactAddress(v, w.from) : v);
       const outcome = hideAddr(d ? `${d.text}` : "통과");
       console.log(`  ${w.label.padEnd(22)} ${blockLabel}  ${method.padEnd(15)} ${outcome}${d ? ` [${FAMILY_LABEL[d.family]}]` : ""}`);
       rows.push({ wallet: w.label, from: w.hide ? "(비공개)" : w.from, block: blockLabel === "직전 블록" ? Number(receipt.blockNumber - 1n) : "latest", method, outcome, family: d?.family, name: d?.name, args: d?.args?.map((a) => hideAddr(String(a))) });

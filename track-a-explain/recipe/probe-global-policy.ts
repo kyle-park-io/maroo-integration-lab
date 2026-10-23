@@ -20,7 +20,7 @@ import { encodeFunctionData, getAddress, parseEther, toHex, type Abi, type Hex }
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { RPC, addressOf, decodeRaw, writeEvidence } from "../../shared/lib/maroo.ts";
-import { conclude, type ProbeRow } from "./global-policy-compare.ts";
+import { conclude, rowFromReply, type ProbeRow } from "./global-policy-compare.ts";
 
 const FAUCET = "0x5336F019Bd8E9E0064be7330833dc883a8a6c94d";
 const LIVE = path.join(ROOT, "track-a-explain/evidence/live");
@@ -79,7 +79,7 @@ if (process.argv[2] === "--over-limit") {
       const r = await rpc(method, method === "eth_call" ? [c.tx, "latest", override] : [c.tx, "latest", override]);
       const row = printRow(c.label, method, r);
       results.push({ target: c.target, to: c.tx.to, ...row });
-      rows.push({ target: c.target, method, rejected: Boolean(r.error) });
+      rows.push(rowFromReply(c.target, method, r));
     }
   }
   const verdict = conclude(rows);

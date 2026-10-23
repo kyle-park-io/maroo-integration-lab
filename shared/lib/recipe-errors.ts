@@ -2,7 +2,7 @@
 // 레시피 파일 맨 위에서 installRecipeErrors() 를 부르면, 최상위 await 에서 난 오류까지 여기서 받는다.
 // 전체 오류와 스택은 DEBUG=1 로 다시 실행하면 보인다.
 
-export type Failure = { kind: "network" | "balance" | "wallet" | "guided" | "other"; reason: string; next: string; details?: string[] };
+export type Failure = { kind: "network" | "balance" | "wallet" | "guided" | "not-found" | "other"; reason: string; next: string; details?: string[] };
 
 const NETWORK = /fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|socket hang up|HTTP request failed|The request took too long/i;
 const BALANCE = /insufficient (funds|balance)|잔액이 부족/i;
@@ -43,9 +43,17 @@ export function explainFailure(err: unknown, ctx: { rpc: string }): Failure {
       next: "네트워크를 확인한 뒤 같은 명령을 다시 실행합니다. 다른 RPC 주소를 쓰려면 MAROO_RPC_URL 을 지정합니다.",
     };
   }
+  // tx 해시를 이 RPC 에서 찾지 못함(오타, 다른 네트워크의 tx, 아직 블록에 들어가지 않은 tx)
+  if (/TransactionNotFoundError|TransactionReceiptNotFoundError/.test((err as Error)?.name ?? "") || /Transaction (receipt )?with hash .* could not be found/i.test(text)) {
+    return {
+      kind: "not-found",
+      reason: `${firstLine(err).replace(/\.$/, "")}(RPC ${ctx.rpc}).`,
+      next: "해시를 다시 확인합니다. 다른 네트워크의 tx 면 MAROO_RPC_URL 을 그 네트워크의 RPC 로 지정하고, 방금 보낸 tx 면 블록에 들어갈 때까지 몇 초 기다린 뒤 다시 실행합니다.",
+    };
+  }
   // 레시피가 직접 던진 오류가 할 일까지 적었으면 그 안내를 따르게 한다
   if ([firstLine(err), ...restLines(err)].some((l) => /하십시오\.?\s*/.test(l))) {
-    return { kind: "guided", reason: firstLine(err), next: "위 안내대로 한 뒤 같은 명령을 다시 실행합니다.", details: restLines(err) };
+    return { kind: "guided", reason: firstLine(err), next: "위 안내대로 한 뒤 다시 실행합니다.", details: restLines(err) };
   }
   return { kind: "other", reason: firstLine(err), next: "같은 명령을 DEBUG=1 로 다시 실행하면 전체 오류와 스택이 보입니다." };
 }

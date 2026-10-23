@@ -87,7 +87,8 @@ if (record) {
   if (checks.some((c) => !c.ok)) throw new Error("체인 기록을 다시 읽은 결과가 계획과 다릅니다. 위 [어긋남] 줄을 확인하십시오.");
 }
 
-const file = writeEvidence(path.join(ROOT, "track-a-explain/evidence/live"), "audit-access", {
+// 테스트넷에 기록하지 않은 실행(--no-record)은 로컬 결과라 evidence/local 에 남긴다
+const file = writeEvidence(path.join(ROOT, record ? "track-a-explain/evidence/live" : "track-a-explain/evidence/local"), "audit-access", {
   checkedAt: new Date().toISOString(),
   labels: { decrypt: "[Local] Clairveil 로컬 체인(pnpm a:local)의 감사 공개", records: record ? "[Live Testnet] Maroo 테스트넷 EAS 증명" : "기록하지 않음(--no-record)" },
   command: `pnpm a:audit-access ${argv.join(" ")}`.trim(),

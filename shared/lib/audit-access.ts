@@ -53,6 +53,9 @@ export function checkRequest(r: AccessRequest): string[] {
 export type Decision = { open: boolean; approvers: Holder[]; reason: string };
 
 export function decide(r: AccessRequest, approvals: Approval[], threshold: number): Decision {
+  // 요청 자체에 문제가 있으면(법적 근거 없음, 기간 밖 대상 등) 승인 수와 상관없이 열지 않는다
+  const problems = checkRequest(r);
+  if (problems.length) return { open: false, approvers: [], reason: `요청 형식이 맞지 않아 열지 않습니다. ${problems.join(" ")}` };
   const h = requestHash(r);
   const mine = approvals.filter((a) => a.requestHash === h);
   const rejecters = [...new Set(mine.filter((a) => a.decision === "reject").map((a) => a.approver))];
@@ -99,4 +102,10 @@ export function pendingRecords(plan: RecordPlan[], state: RecordState): RecordPl
     }
   }
   return plan.filter((p) => !state[p.key]?.uid);
+}
+
+// 승인이나 거절에 남기는 이유. 결정과 요청 범위(사건보다 넓은지)를 함께 쓴다.
+export function approvalReason(decision: "approve" | "reject", wide: boolean): string {
+  if (decision === "approve") return wide ? "요청 범위가 사건보다 넓지만 승인함" : "요청 범위가 사건과 맞음";
+  return wide ? "요청 범위가 사건보다 넓음" : "요청 범위가 사건과 맞지만 거절함";
 }

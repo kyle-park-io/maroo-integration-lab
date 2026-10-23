@@ -32,6 +32,8 @@ jobs:
           (cd vendor/clairveiljs && npm ci --ignore-scripts --no-audit --no-fund)
       - name: Watch
         id: watch
+        # shell: bash adds pipefail, so a crash in the watch script fails the job instead of being hidden by tee
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: pnpm a:watch-privacy | tee watch.txt

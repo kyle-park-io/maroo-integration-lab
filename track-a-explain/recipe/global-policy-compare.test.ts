@@ -27,3 +27,14 @@ test("프록시 호출이 eth_call 에서 통과하고 eth_estimateGas 에서만
   ]);
   assert.ok(lines.some((l) => l.includes("PCL 프록시 호출도 eth_call에서는 통과")), lines.join("\n"));
 });
+
+import { rowFromReply } from "./global-policy-compare.ts";
+
+test("revert 데이터가 있는 오류만 거부로 세고, RPC 오류는 판정하지 않는다", () => {
+  assert.equal(rowFromReply("plain", "eth_call", { result: "0x" }).rejected, false);
+  assert.equal(rowFromReply("proxy", "eth_estimateGas", { error: { message: "execution reverted", data: "0xbca5593e00" } }).rejected, true);
+  const busy = rowFromReply("proxy", "eth_estimateGas", { error: { message: "request rate exceeded" } });
+  assert.equal(busy.rejected, false);
+  assert.match(busy.failed ?? "", /rate/);
+  assert.match(conclude([busy, row("plain", "eth_call", false)]).join("\n"), /판정하지 못/);
+});

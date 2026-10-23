@@ -2,13 +2,23 @@
 // 같은 금액을 PCL 프록시를 거치지 않는 이체(plain)와 PCL 프록시 호출(proxy)로 보내 보고,
 // eth_call 과 eth_estimateGas 가 각각 거부했는지로 문장을 만든다. 체인을 부르지 않는다.
 
-export type ProbeRow = { target: "plain" | "proxy"; method: "eth_call" | "eth_estimateGas"; rejected: boolean; outcome?: string };
+// failed: 거부가 아니라 RPC 오류(revert 데이터 없음, 요청 한도 등)로 판정할 수 없는 행
+export type ProbeRow = { target: "plain" | "proxy"; method: "eth_call" | "eth_estimateGas"; rejected: boolean; outcome?: string; failed?: string };
+
+// RPC 응답 하나를 행으로. revert 데이터가 있는 오류만 정책 거부로 센다.
+export function rowFromReply(target: ProbeRow["target"], method: ProbeRow["method"], r: { result?: string; error?: { message: string; data?: string } }): ProbeRow {
+  if (!r.error) return { target, method, rejected: false };
+  if (r.error.data && r.error.data !== "0x") return { target, method, rejected: true };
+  return { target, method, rejected: false, failed: r.error.message };
+}
 
 const NAME = { plain: "PCL 프록시를 거치지 않는 이체", proxy: "PCL 프록시 호출" } as const;
 // 이름 끝 받침에 맞춘 보조사. 이체는 받침이 없고 호출은 받침이 있다.
 const TOPIC = { plain: `${NAME.plain}는`, proxy: `${NAME.proxy}은` } as const;
 
 export function conclude(rows: ProbeRow[]): string[] {
+  const failed = rows.filter((r) => r.failed);
+  if (failed.length) return [`RPC 오류로 판정하지 못했습니다(${failed.map((r) => `${NAME[r.target]} ${r.method}: ${r.failed}`).join("; ")}). 잠시 뒤 다시 실행합니다.`];
   const of = (target: ProbeRow["target"], method: ProbeRow["method"]) => rows.find((r) => r.target === target && r.method === method)?.rejected;
   if (rows.every((r) => !r.rejected)) {
     return ["두 경우 모두 eth_call과 eth_estimateGas가 통과해, 이번 조건에서는 전역 정책의 평가 차이를 확인하지 못했습니다."];

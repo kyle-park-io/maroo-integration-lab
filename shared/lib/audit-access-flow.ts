@@ -15,6 +15,7 @@ import path from "node:path";
 import { type Hex } from "viem";
 import { ROOT } from "./paths.ts";
 import {
+  approvalReason,
   HOLDERS, HOLDER_LABEL, checkRequest, decide, inScope, recordHash, requestHash,
   type AccessRequest, type Approval, type Holder, type RecordPlan, type Target,
 } from "./audit-access.ts";
@@ -117,7 +118,7 @@ export async function runLocalAccess(o: FlowOptions): Promise<FlowResult> {
 
   const approve = (approver: Holder): Approval => {
     const decision = o.decisions[approver] ?? "approve";
-    return { requestHash: rh, approver, decision, reason: decision === "approve" ? "요청 범위가 사건과 맞음" : "요청 범위가 사건보다 넓음", at: now() };
+    return { requestHash: rh, approver, decision, reason: approvalReason(decision, o.scenario === "wide"), at: now() };
   };
   const partialsDir = path.join(o.caseDir, "partials");
   fs.mkdirSync(partialsDir, { recursive: true, mode: 0o700 });

@@ -49,7 +49,7 @@ test("모르는 오류는 첫 줄만 이유로 쓰고 전체 오류를 보는 �
 test("레시피가 할 일까지 적은 오류는 그 안내를 따르라고 한다", () => {
   const f = explainFailure(new Error("구매 기업이 소유한 에이전트가 없습니다. pnpm c:grounding --write 로 먼저 등록하십시오."), { rpc: RPC });
   assert.equal(f.kind, "guided");
-  assert.equal(f.next, "위 안내대로 한 뒤 같은 명령을 다시 실행합니다.");
+  assert.equal(f.next, "위 안내대로 한 뒤 다시 실행합니다.");
 });
 
 test("레시피가 여러 줄로 적은 안내는 첫 줄을 이유로, 나머지 줄을 자세한 내용으로 보여 준다", () => {
@@ -66,4 +66,13 @@ test("레시피가 여러 줄로 적은 안내는 첫 줄을 이유로, 나머�
 test("스택 줄은 자세한 내용에 넣지 않는다", () => {
   const f = explainFailure(new Error("첫 줄\n    at foo (bar.ts:1:1)"), { rpc: RPC });
   assert.deepEqual(f.details ?? [], []);
+});
+
+test("찾지 못한 tx 해시는 해시와 RPC 를 확인하라고 한다", () => {
+  const err = Object.assign(new Error('Transaction with hash "0xabc" could not be found.\n\nVersion: viem@2.56.8'), { name: "TransactionNotFoundError" });
+  const f = explainFailure(err, { rpc: "https://rpc-testnet.maroo.io" });
+  assert.equal(f.kind, "not-found");
+  assert.match(f.reason, /0xabc/);
+  assert.match(f.next, /MAROO_RPC_URL/);
+  assert.doesNotMatch(f.next, /DEBUG/);
 });
