@@ -26,6 +26,8 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 
 ## 읽는 사람별 입구
 
+읽는 사람의 역할마다 먼저 열 문서와 걸리는 시간을 모은 표입니다. 마지막 열은 그 문서를 읽고 나서 정할 수 있는 일입니다.
+
 | 읽는 사람 | 먼저 볼 곳 | 시간 | 읽고 나서 정할 수 있는 것 |
 | --- | --- | --- | --- |
 | 이 제출물을 처음 보는 리뷰어 | 위 한눈에 보기, [기관 연동 가이드](track-a-explain/integration-guide.md) 0절, [Track A 증거](track-a-explain/evidence.md) | 5분 | 어느 트랙부터 깊이 볼지 |
@@ -33,7 +35,7 @@ Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출�
 | 기관의 사업·컴플라이언스 담당(개발자가 아닌 평가자 포함) | [요약 장표 13장](slides/maroo-integration-lab-summary.pdf), 같은 가이드 0절의 네 질문 표, [FAQ 9](track-a-explain/faq.md#9-지금-이-구조로-실제-협력사-대금을-처리할-수-있나요) | 10분 | 내부 보안·컴플라이언스 검토에 올릴 범위와 아직 체인에 없는 것(규제기관 열람, 테스트넷 Privacy 상태 변경) |
 | 워크샵을 여는 DevRel·진행자(Track B) | [Track B README](track-b-enable/README.md), [진행자 가이드](track-b-enable/facilitator-guide.md) | 15분 | 75분 워크샵 일정과 사전 준비(바이너리 빌드 108초, 참가자당 OKRW 1,000과 이체 수수료 약 0.94 OKRW) |
 | 해커톤을 설계하는 팀(Track C) | [트랙 포트폴리오](track-c-activate/portfolio.md), [트랙 2의 16절](track-c-activate/tracks/2-agent-payments.md#16-요건을-직접-채운-예시-live-testnet) | 15분 | 세 트랙 구성, 트랙별 최소 연동 요건, 심사 자동 판정(`pnpm c:judge`)을 행사에 쓸지 |
-| AI 에이전트로 Maroo를 연동하는 개발자 | 에이전트 스킬([Claude Code용](.claude/skills/maroo-integration/SKILL.md), [Codex용](.agents/skills/maroo-integration/SKILL.md), 같은 파일), [AGENTS.md](AGENTS.md), [시험 기록](track-a-explain/evidence/code/skill-check-20260927.md)(두 도구 모두 새 클론에서 스스로 스킬을 열고 답함) | 5분 | 자기 에이전트나 사내 개발 도구에 이 규칙을 넣을지 |
+| AI 에이전트로 Maroo를 연동하는 개발자 | 에이전트 스킬([Claude Code용](.claude/skills/maroo-integration/SKILL.md), [Codex용](.agents/skills/maroo-integration/SKILL.md), 같은 파일), [AGENTS.md](AGENTS.md), [시험 기록](track-a-explain/evidence/code/skill-check-20260927.md)(두 도구 모두 새 클론에서 스스로 스킬을 열고 답한 기록) | 5분 | 자기 에이전트나 사내 개발 도구에 이 규칙을 넣을지 |
 | Maroo 문서·제품 팀 | [SUBMISSION_NOTES의 차이와 DX 피드백](SUBMISSION_NOTES.md#발견한-차이), [문서 개선 노트](track-a-explain/documentation-improvement-notes.md) | 30분 | 재현 명령과 owner가 붙은 문서 차이 19건, DX 피드백 14건의 처리 순서 |
 
 제출물을 네 질문으로 보면 이렇습니다. 무엇을 확인했나: 위 결과 목록의 기록과 [증거 라벨](#증거-라벨). 무엇이 달랐나: [발견한 차이](SUBMISSION_NOTES.md#발견한-차이) 19건. 어디까지 검증했나: [직접 검증한 것과 문서로만 확인한 것](SUBMISSION_NOTES.md#직접-검증한-것과-문서로만-확인한-것). 다음에 무엇을 확인하나: [다음에 확인할 것](SUBMISSION_NOTES.md#다음에-확인할-것).
@@ -85,6 +87,8 @@ A에서 찾은 것이 B와 C로 넘어간 곳입니다.
 
 ## 실행
 
+처음 실행하는 사람이 순서대로 따라 할 수 있게 준비물부터 트랙별 명령까지 적었습니다. 첫 표는 실행에 필요한 도구와 확인한 판입니다.
+
 | 도구 | 확인한 판 |
 | --- | --- |
 | Node.js | 24.19 (24 이상 필요, TypeScript를 바로 실행. `.nvmrc`에 24) |
@@ -128,6 +132,8 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 
 ### 5. 트랙별 실행
 
+트랙마다 실행 명령, 걸린 시간, 성공하면 보이는 줄, 쓰는 테스트넷 OKRW를 한 행에 적은 표입니다.
+
 | 트랙 | 명령 | 걸린 시간 | 성공하면 보이는 줄 | 쓰는 테스트넷 OKRW |
 | --- | --- | --- | --- | --- |
 | A | `pnpm a:kyb-gate` | 37초 | `[예상대로 거부] 5) 협력사 B claim, 증명 없음 : EasNoAttestationReceived(…)`, `[성공] 6d) 협력사 A claim, 증명과 색인 뒤` | 구매 기업 250(가스 보충 120, 협력사 A가 받는 100, 나머지는 가스), 발급자 8 |
@@ -135,7 +141,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 | A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 4(자기 협력사 지갑으로 옮기는 2 포함) |
 | B | `pnpm b:smoke` | 91초 | `모두 통과. 91초` | 2단계가 약 260 |
 | B | `pnpm b:step 1` \~ `pnpm b:step 5` | 워크샵 75분 | 단계마다 예상 결과와 성공 기준을 먼저 보이고, 실패하면 트러블슈팅 번호를 안내 | 2단계가 약 260 |
-| C | `pnpm c:agent-limit` | 20초 안팎 | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 30(처음 한 번은 에이전트 지갑에 가스용 30을 더 보냄) |
+| C | `pnpm c:agent-limit` | 20초 안팎 | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 30. 처음 한 번은 에이전트 지갑에 보낼 가스용 30이 더 듭니다 |
 | C | `pnpm c:judge <evidence.json> --track 2` | 5초 안 | `✓ R4 ExceededAgentTransferLimit 거부` | 없음(조회) |
 
 - 역할 지갑 파일 형식은 [testnet.env.example](testnet.env.example)에 있습니다. 실제 키는 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에만 두고 레포에 올리지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
@@ -145,14 +151,16 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 
 ## 증거 라벨
 
+이 레포의 결과마다 어느 환경에서 얻은 증거인지 라벨로 구분합니다. 표는 라벨과 그 뜻입니다.
+
 | 라벨 | 뜻 |
 | --- | --- |
-| `[Live Testnet]` | Maroo 테스트넷(chain ID 450815)에서 직접 실행하거나 조회한 결과. tx 해시, 탐색기 링크, 기록 파일이 있음 |
-| 시뮬레이션 | 테스트넷 상태로 `eth_call`이나 `eth_estimateGas`만 부르고 tx는 보내지 않은 결과. `[Live Testnet]` 옆에 호출 방법을 함께 적었고, 유효한 증명이 없는 Privacy 호출은 거부 경로 증거로만 씀 |
-| `[Local]` | Clairveil v0.4.0 로컬 체인에서 실행한 결과. Maroo 테스트넷 호환성의 증거가 아님 |
-| `[코드 대조]` | 공개 코드와 패키지(ABI, fixture)를 스크립트로 직접 대조한 결과. 체인을 부르지 않음 |
-| `[Docs Only]` | 문서로만 확인한 내용 |
-| 권고 | 이 레포가 제안하는 설계와 절차. 실행으로 검증하지 않음 |
+| `[Live Testnet]` | Maroo 테스트넷(chain ID 450815)에서 직접 실행하거나 조회한 결과입니다. tx 해시, 탐색기 링크, 기록 파일을 함께 둡니다 |
+| 시뮬레이션 | 테스트넷 상태로 `eth_call`이나 `eth_estimateGas`만 부르고 tx는 보내지 않은 결과입니다. `[Live Testnet]` 옆에 호출 방법을 함께 적었고, 유효한 증명이 없는 Privacy 호출은 거부 경로 증거로만 씁니다 |
+| `[Local]` | Clairveil v0.4.0 로컬 체인에서 실행한 결과입니다. Maroo 테스트넷 호환성은 `[Live Testnet]` 결과로만 말합니다 |
+| `[코드 대조]` | 공개 코드와 패키지(ABI, fixture)를 스크립트로 직접 대조한 결과입니다. 체인은 부르지 않습니다 |
+| `[Docs Only]` | 문서로만 확인한 내용입니다 |
+| 권고 | 이 레포가 제안하는 설계와 절차입니다. 실행으로 검증하지 않았습니다 |
 
 Maroo 테스트넷에서는 OKRW, PCL, EAS 경로를 실행하고 Privacy는 처음 막히는 층(요청 검증, `SDKInvalidRequest`)까지 진단합니다. 외부 개발자가 유효한 Privacy 증명을 만들 회로 산출물과 차폐 상태 조회 경로가 공개되지 않아, 차폐 흐름 전체는 Clairveil 로컬에서 실행합니다. 두 환경의 결과를 한 흐름의 성공으로 합치지 않습니다.
 
@@ -183,6 +191,8 @@ track-c-activate/  포트폴리오, tracks/ 세 트랙, grounding/*.ts, evidence
 - 자세한 목록은 [SUBMISSION_NOTES.md의 Known Limitations](SUBMISSION_NOTES.md#known-limitations)에 있습니다.
 
 ## 외부 코드와 라이선스
+
+이 레포가 내려받거나 의존하는 외부 코드의 목록입니다. 열은 코드, 쓰는 방식, 라이선스 순서입니다.
 
 | 코드 | 쓰는 방식 | 라이선스 |
 | --- | --- | --- |

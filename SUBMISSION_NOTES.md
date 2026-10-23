@@ -35,24 +35,26 @@
 
 ### 발견한 차이
 
+Maroo Docs와 Clairveil 같은 자료가 말하는 내용을 직접 실행해 대조한 차이를 모은 표입니다. 열은 자료, 자료가 말하는 것, 실행 결과, 재현 명령, 이 레포에서 반영한 문서 순서입니다.
+
 | # | 자료 | 자료가 말하는 것 | 실행 결과 | 재현 | 반영한 곳 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Maroo Docs 테스트넷 접근 | KYC 서비스를 "KYC (mock)"으로만 적음 | Privacy 프리컴파일 정책이 `And(EAS_POLICY(bytes32 kakaoIdHash, uint8 version), DENYLIST_POLICY)`라 호출자는 개인 본인 인증 증명이 필요. 카카오 인증을 마친 지갑이 실제로 이 스키마의 증명을 받음 | `pnpm a:inspect`, `pnpm a:probe-kyc` | A 문서 개선 노트 1 |
-| 2 | Maroo Docs 사유 코드 | 사전 검사 방법을 적지 않음 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가 | `pnpm a:probe-global` | A 문서 개선 노트 2, FAQ 6 |
-| 3 | Maroo Docs `deployPclProxy` | 초기화가 필요 없으면 `"0x"`를 넘기라고 적음 | 빈 초기화 데이터는 Transparent, UUPS 모두 `execution reverted` | `pnpm a:doc-claims` | A 문서 개선 노트 3 |
+| 1 | Maroo Docs 테스트넷 접근 | KYC 서비스를 "KYC (mock)"으로만 적은 표기 | Privacy 프리컴파일 정책이 `And(EAS_POLICY(bytes32 kakaoIdHash, uint8 version), DENYLIST_POLICY)`라 호출자는 개인 본인 인증 증명이 필요. 카카오 인증을 마친 지갑이 실제로 이 스키마의 증명을 받은 기록 | `pnpm a:inspect`, `pnpm a:probe-kyc` | A 문서 개선 노트 1 |
+| 2 | Maroo Docs 사유 코드 | 사전 검사 방법의 설명 없음 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가 | `pnpm a:probe-global` | A 문서 개선 노트 2, FAQ 6 |
+| 3 | Maroo Docs `deployPclProxy` | 초기화가 필요 없으면 `"0x"`를 넘기라는 안내 | 빈 초기화 데이터는 Transparent, UUPS 모두 `execution reverted` | `pnpm a:doc-claims` | A 문서 개선 노트 3 |
 | 4 | Maroo Docs `withdraw` | 금액 예시가 `aokrw` | 테스트넷 `mintDenom`은 `atokrw` | `pnpm a:doc-claims` | A 문서 개선 노트 4 |
-| 5 | Maroo Docs 배포 주소, 아키텍처 | 프리컴파일 넷, 주소 표에 Privacy 없음 | Privacy 프리컴파일 `0x…0b`에 정책이 묶여 있음 | `pnpm a:doc-claims` | A 문서 개선 노트 5 |
+| 5 | Maroo Docs 배포 주소, 아키텍처 | 프리컴파일 넷, 주소 표에 Privacy 없음 | Privacy 프리컴파일 `0x…0b`에 정책이 묶여 있는 상태 | `pnpm a:doc-claims` | A 문서 개선 노트 5 |
 | 6 | Clairveil v0.4.0 스모크 스크립트 | 통과로 끝남 | 같은 흐름에서 단독 인출이 `merkle root snapshot re-registration is inconsistent`로 실패. 같은 블록에 잎을 더하는 tx를 넣으면 성공 | `pnpm a:local` | A 문서 개선 노트 6, B T10 |
-| 7 | Maroo Docs PCL 템플릿 | `OKRW_EAS_*` 템플릿 둘은 체인에서 지워졌다 | 테스트넷 `policyTemplate`이 두 ID에 이름과 설명을 돌려줌. 없는 ID는 되돌려짐 | `pnpm c:grounding` | C evidence 3절 |
+| 7 | Maroo Docs PCL 템플릿 | `OKRW_EAS_*` 템플릿 둘은 체인에서 지워졌다 | 테스트넷 `policyTemplate`이 두 ID에 이름과 설명을 돌려주고, 없는 ID는 되돌려지는 응답 | `pnpm c:grounding` | C evidence 3절 |
 | 8 | Maroo Docs 배포 주소 | `OKRW_ERC20` `0xEeee…EEeE` | 코드가 없고 ERC-20 조회가 빈 값 | `pnpm c:grounding` | C evidence 3절 |
 | 9 | Maroo Docs ERC-8004 | `register(...) returns (bytes32 agentId)`, `attest`, `revoke` | 배포된 `PreinstallIdentityRegistry`는 `uint256 agentId`, `register(string)`, `setMetadata`, `setAgentWallet`. `attest`, `revoke` 없음 | 탐색기 검증 소스, `pnpm c:grounding` | C 트랙 2 |
-| 10 | Maroo Docs ERC-8004 | Reputation은 V1에 없음 | `IAgent.getParams`가 ReputationRegistry `0x8004…0002`를 돌려주고 코드가 있음 | `pnpm c:grounding` | C evidence 3절 |
-| 11 | Maroo Docs 전역 정책 | 건당 한도를 체인 설정으로 적지 않음 | 전역 정책에 KYC 증명이 없는 계정의 건당 200만 OKRW 한도(`VOLUME_POLICY`) | `pnpm c:grounding` | C 포트폴리오, 트랙 3 |
-| 12 | Maroo Docs와 Clairveil | 서로를 언급하지 않음 | Maroo `IPrivacy` ABI(함수 9, 이벤트 5)가 ClairveilJS의 정식 EVM Privacy 계약 v0.3.1과 정규화 해시까지 같음. 전송 요청 필드도 Clairveil v0.4.0 `MsgTransfer`와 대응 | `pnpm a:abi-compare`, `pnpm a:inspect` | A 가이드 1절 |
-| 13 | faucet | 요청하면 5,000 tOKRW | 2026-09-25 16:41 UTC부터 실패. faucet 계정이 전역 24시간 한도를 다 썼고 KYC 증명이 없음. `resetAt`(2026-09-26 00:00 UTC) 뒤 22초에 요청해 받음 | `pnpm a:probe-global` | DX 3, B 증거 |
-| 14 | Maroo Docs EAS 연동 | 증명 발급 뒤 색인이 필요하다는 순서와 재발급 때의 동작을 적지 않음 | 새 증명을 색인하기 전에는 PCL이 색인된 옛 증명을 봐서, 폐기된 옛 증명이 있으면 `EasAttestationRevoked`로 거부 | `pnpm a:kyb-gate`를 같은 지갑으로 두 번 | A FAQ 5, B T8 |
-| 15 | Maroo Docs 개발자 도구 | 코드 예시가 `@maroo-chain/contracts` ABI로 직접 인코딩함(2026-09-26 판 63쪽). `@maroo-chain/viem`은 한 쪽에도 나오지 않음 | npm의 `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 작성과 해석, 프록시 배포, 프록시 호출 시뮬레이션, PCL 거부 해석, ERC-8004 레지스트리 액션을 제공. 금고 흐름에 써 보니 직접 인코딩과 calldata가 같음 | `pnpm test:unit`, npm 패키지 | A 가이드 1절, DX 10 |
-| 16 | Maroo Docs `eth_estimateGas` | 단순 전송은 `0x5208`(21,000)을 돌려줌 | 1 OKRW 이체의 추정치가 일반 계정 104,017, 에이전트 지갑 283,560. 21,000으로 보내면 블록에 들어가 되돌려지고 수수료 0.189 OKRW. 가스 21,000 `eth_call`은 통과. ClairveilJS 기본 `evmSendGasLimit`도 21,000 | `pnpm a:probe-send-gas` | A 문서 개선 노트 7, FAQ 6, C 트랙 1 15절 |
+| 10 | Maroo Docs ERC-8004 | Reputation이 V1에 없다는 설명 | `IAgent.getParams`가 ReputationRegistry `0x8004…0002`를 돌려주고 코드가 있는 상태 | `pnpm c:grounding` | C evidence 3절 |
+| 11 | Maroo Docs 전역 정책 | 건당 한도의 체인 설정 설명 없음 | 전역 정책에 KYC 증명이 없는 계정의 건당 200만 OKRW 한도(`VOLUME_POLICY`) | `pnpm c:grounding` | C 포트폴리오, 트랙 3 |
+| 12 | Maroo Docs와 Clairveil | 서로에 대한 언급 없음 | Maroo `IPrivacy` ABI(함수 9, 이벤트 5)가 ClairveilJS의 정식 EVM Privacy 계약 v0.3.1과 정규화 해시까지 같음. 전송 요청 필드도 Clairveil v0.4.0 `MsgTransfer`와 대응 | `pnpm a:abi-compare`, `pnpm a:inspect` | A 가이드 1절 |
+| 13 | faucet | 요청하면 5,000 tOKRW | 2026-09-25 16:41 UTC부터 실패. faucet 계정이 전역 24시간 한도를 다 썼고 KYC 증명이 없음. `resetAt`(2026-09-26 00:00 UTC) 뒤 22초에 요청해 받은 기록 | `pnpm a:probe-global` | DX 3, B 증거 |
+| 14 | Maroo Docs EAS 연동 | 증명 발급 뒤 색인이 필요하다는 순서와 재발급 때의 동작에 대한 설명 없음 | 새 증명을 색인하기 전에는 PCL이 색인된 옛 증명을 봐서, 폐기된 옛 증명이 있으면 `EasAttestationRevoked`로 거부 | `pnpm a:kyb-gate`를 같은 지갑으로 두 번 | A FAQ 5, B T8 |
+| 15 | Maroo Docs 개발자 도구 | 코드 예시가 `@maroo-chain/contracts` ABI로 직접 인코딩함(2026-09-26 판 63쪽). `@maroo-chain/viem`은 한 쪽에도 나오지 않는 상태 | npm의 `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 작성과 해석, 프록시 배포, 프록시 호출 시뮬레이션, PCL 거부 해석, ERC-8004 레지스트리 액션을 제공. 금고 흐름에 써 보니 직접 인코딩과 calldata가 같은 결과 | `pnpm test:unit`, npm 패키지 | A 가이드 1절, DX 10 |
+| 16 | Maroo Docs `eth_estimateGas` | 단순 전송은 `0x5208`(21,000)을 돌려준다는 설명 | 1 OKRW 이체의 추정치가 일반 계정 104,017, 에이전트 지갑 283,560. 21,000으로 보내면 블록에 들어가 되돌려지고 수수료 0.189 OKRW. 가스 21,000 `eth_call`은 통과. ClairveilJS 기본 `evmSendGasLimit`도 21,000 | `pnpm a:probe-send-gas` | A 문서 개선 노트 7, FAQ 6, C 트랙 1 15절 |
 | 17 | Maroo Docs `AGENT_OKRW_TRANSFER_LIMIT_POLICY` | `TransferLimit`은 aokrw 숫자 문자열이고, 메타데이터가 없거나 잘못되면 해석할 수 없는 문자열 사유로 되돌림 | 숫자 문자열은 `AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)`로 한도 안 결제까지 거부. 32바이트 uint256만 동작. 오류는 해석 가능한 `AgentTransferLimitMetadataInvalid(string)` | `pnpm c:agent-limit` | C 트랙 2 R2, 15절, 16절, 판정 스크립트 |
 | 18 | Maroo Docs `IAgent.getAgentIds` | "지갑에 등록된 agent ID" | 연결된 에이전트 지갑 기준. `setAgentWallet` 뒤 소유자 주소로는 빈 목록, 에이전트 지갑으로 `[79]` | `pnpm c:agent-limit` | C 트랙 2 R1 |
 | 19 | Maroo Docs PCL 정책 강제, 아키텍처 | 정책 평가가 거절하면 RPC가 브로드캐스트 전에 막아 가스를 내지 않고 블록에도 들어가지 않음. 비준수 tx는 실행 전에 거절 | PCL 프록시의 컨트랙트 정책(`claim()`의 `EAS_POLICY`, `fund()`의 에이전트 한도) 거부 tx는 블록에 들어가 되돌려지고 가스 한도의 절반을 냄(150,000/300,000, 363,982/727,965) | `pnpm a:kyb-gate` 5·6b·7c, `pnpm c:agent-limit` 4b, `pnpm a:reject-gas` | A 가이드 1절 층 표, 문서 개선 노트 8 |
@@ -60,6 +62,8 @@
 ## Validation
 
 ### 실행 환경
+
+검증을 돌린 머신의 운영체제와 도구 판을 모은 표입니다. 왼쪽 열이 항목이고 오른쪽 열이 확인한 판입니다.
 
 | 항목 | 판 |
 | --- | --- |
@@ -72,19 +76,23 @@
 
 ### 공통
 
+세 트랙이 함께 쓰는 명령과 검사의 결과를 모은 표입니다. 열은 명령 또는 검사와 그 결과입니다.
+
 | 명령 | 결과 |
 | --- | --- |
 | `pnpm bootstrap`(새 클론, 새 지갑) | 109초. Clairveil 고정 커밋 세 개, 금고 컴파일, 바이너리와 회로 산출물(101초), 역할 지갑 여섯 |
-| `pnpm review`(새 클론, 잔액 0) | 19초에 8단계 모두 통과(타입 검사, 금고 테스트, 단위 테스트, 테스트넷 조회 넷, 워크샵 사전 점검). `--local`은 79초에 9단계 모두 통과. 추적 중인 파일은 바뀌지 않음 |
+| `pnpm review`(새 클론, 잔액 0) | 19초에 8단계 모두 통과(타입 검사, 금고 테스트, 단위 테스트, 테스트넷 조회 넷, 워크샵 사전 점검). `--local`은 79초에 9단계 모두 통과. 추적 중인 파일의 변경 없음 |
 | `pnpm test:contracts` | 금고 테스트 6개 통과 |
 | `pnpm typecheck` | 오류 없음 |
-| `pnpm test:unit` | 31개 통과(체인 호출 없음). 정책 해석이 테스트넷 정책 원문에서 SDK 도입 전 해석기의 기록과 같음, 심사 판정 규칙(트랙 1\~3), 워크샵 4단계 분류, revert 사유 해석, 금고 흐름이 `@maroo-chain/viem`으로 만드는 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같음 |
+| `pnpm test:unit` | 31개 통과(체인 호출 없음). 정책 해석이 테스트넷 정책 원문에서 SDK 도입 전 해석기의 기록과 같음, 심사 판정 규칙(트랙 1\~3), 워크샵 4단계 분류, revert 사유 해석, 금고 흐름이 `@maroo-chain/viem`으로 만드는 calldata가 `@maroo-chain/contracts` ABI 직접 인코딩과 같은지 확인 |
 | 에이전트 스킬 시험 | 새 하위 에이전트가 스킬 파일만 읽고 연동 질문 11개에 답함. 8개는 스킬의 규칙과 라벨대로 맞게 답했고, 3개는 "스킬에 없음"으로 답해 짐작하지 않았음(메인넷 RPC, OKRW ERC-20 주소, Privacy 성공 방법). 성공 경로가 지금 없다는 것과 OKRW는 네이티브 value라는 것을 스킬에 더 적음. 2차로 GitHub에서 새로 받은 클론을 에이전트 도구로 열고 처음 보는 개발자의 질문 여섯 개를 새 세션마다 물음. 연동 질문 다섯 개는 모두 스스로 스킬을 불러 13\~37초에 답했고, 레포 소개 질문은 README를 읽고 답함. 여섯 개 모두 답의 방향은 기록과 맞았고, 두 답이 스킬에서 옮긴 부정확한 문장(가스 절반이 적용되는 범위, 금고 흐름 비용)을 담고 있어 스킬을 고침. 3차로 Codex에 같은 여섯 질문을 물음. 루트 AGENTS.md가 없으면 여섯 세션 모두 스킬을 읽지 않았고 가스 질문은 웹의 문서 수치로 틀리게 답함. AGENTS.md를 더하면 여섯 세션 모두 스킬을 읽고 맞게 답했고 시간 중앙값은 95초에서 37초로 줄어 AGENTS.md를 넣음. 4차로 같은 스킬을 Codex가 스스로 찾는 `.agents/skills/`에 두자 AGENTS.md 없이도 여섯 세션 모두 스킬을 열고 맞게 답함. 최종 형태(스킬 두 자리와 AGENTS.md)도 두 질문으로 확인함 [기록](track-a-explain/evidence/code/skill-check-20260927.md) |
 | GitHub Actions `ci` | 2026-09-26 05:01 UTC 첫 실행 35초, 타입 검사, `forge fmt --check`, 금고 테스트 6개, 단위 테스트 24개 모두 통과(에이전트 스킬 검사가 더해져 지금은 31개). 테스트넷 호출 없음 |
 | `pnpm diagrams:check` | Mermaid 다섯 개를 두 테마로 10번 렌더링, 실패 0. 그림을 열어 선이 상자를 가로지르는 곳을 찾아 한 번 고침 |
 | 커밋 전 훅 | 타입 검사, `forge fmt`, `forge test`, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어를 커밋마다 검사 |
 
 ### A
+
+Track A에서 실행한 명령의 기록입니다. 열은 명령, 실행 시각(UTC), 결과, 증거 기록 파일입니다.
 
 | 명령 | 시각(UTC) | 결과 | 기록 |
 | --- | --- | --- | --- |
@@ -104,6 +112,8 @@
 
 ### B
 
+Track B에서 실행한 명령의 기록입니다. 열은 명령, 실행 시각(UTC), 결과, 증거 기록 파일입니다.
+
 | 명령 | 시각(UTC) | 결과 | 기록 |
 | --- | --- | --- | --- |
 | `pnpm b:prepare` | 2026-09-25 19:57 | 바이너리와 회로 산출물 108초 | [evidence.md](track-b-enable/evidence.md) |
@@ -112,6 +122,8 @@
 | `pnpm b:fund --file <주소 파일> --amount 10` | 2026-09-26 04:27 | 구매 기업 지갑에서 자기 협력사 지갑 둘에 사전 검사 통과 뒤 10 OKRW씩 전송 성공. 한 건 수수료 2.55 OKRW(그때 구매 기업 지갑이 에이전트 지갑이라 가스 283,524. 일반 지갑이면 약 0.94 OKRW) | [JSON](track-b-enable/evidence/live/fund-20260926T042738Z.json) |
 
 ### C
+
+Track C에서 실행한 명령의 기록입니다. 열은 명령, 실행 시각(UTC), 결과, 증거 기록 파일입니다.
 
 | 명령 | 시각(UTC) | 결과 | 기록 |
 | --- | --- | --- | --- |
@@ -143,19 +155,21 @@
 | 도구와 검사 | 한 일 | 막거나 찾은 것 |
 | --- | --- | --- |
 | Claude Code 작업 세션 | 조사, 스크립트 작성, 테스트넷과 로컬 실행, 문서 초안. 긴 작업은 목표 조건과 감시 타이머를 두고 이어서 실행 | 실행 결과는 모두 `evidence/` 기록으로 남김 |
-| 문체 훅(직접 관리하는 글쓰기 규칙) | 파일과 명령에 줄표, 문장을 닫는 상투구 같은 표현이 들어가면 쓰기 전에 막음 | 문서와 커밋 메시지의 문장을 여러 번 고치게 함 |
-| 커밋 전 훅 | 타입 검사, `forge fmt --check`, 금고 테스트, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어, 원문 문장 복사 검사 | 원문과 같은 제목, 도구 이름이 들어간 줄을 막음 |
-| 커밋 메시지 훅 | 영어 Conventional Commits, 제목 72자, AI 표시 금지 | 제목 길이와 형식 위반을 막음 |
+| 문체 훅(직접 관리하는 글쓰기 규칙) | 파일과 명령에 줄표, 문장을 닫는 상투구 같은 표현이 들어가면 쓰기 전에 차단하는 규칙 | 문서와 커밋 메시지에 여러 번 들어가려던 줄표와 상투구 |
+| 커밋 전 훅 | 타입 검사, `forge fmt --check`, 금고 테스트, 문체 검사, 개인키와 인증 지갑 주소, 공개 금지어, 원문 문장 복사 검사 | 원문과 같은 제목, 도구 이름이 들어간 줄의 차단 |
+| 커밋 메시지 훅 | 영어 Conventional Commits, 제목 72자, AI 표시 금지 | 제목 길이와 형식 위반의 차단 |
 | 읽기 전용 하위 에이전트 검토 | 제출 전 수치, 라벨, 원문 체크리스트, 읽는 사람별 경로를 독립적으로 검토 | 지적 다섯 가운데 넷 반영(Validation과 알려진 한계에 반영 내용) |
 | 새 클론과 링크 검사 | 빈 폴더에 받아 README 순서대로 실행, 문서 전체의 링크와 앵커, 외부 링크 응답 확인 | 문서 대조 스크립트가 404 페이지로 판정하던 문제를 찾음(아래 표) |
-| 이 레포의 에이전트 스킬 | [`.claude/skills/maroo-integration`](.claude/skills/maroo-integration/SKILL.md). 테스트넷에서 확인한 규칙과 확인 명령을 다음 에이전트가 쓰게 함 | 새 하위 에이전트가 스킬만 읽고 연동 질문 11개에 답하게 하고, 새 클론에서 연 세션에 질문 여섯 개를 물어 확인(Validation) |
+| 이 레포의 에이전트 스킬 | [`.claude/skills/maroo-integration`](.claude/skills/maroo-integration/SKILL.md). 테스트넷에서 확인한 규칙과 확인 명령을 다음 에이전트가 쓸 수 있게 한 스킬 파일 | 새 하위 에이전트가 스킬만 읽고 연동 질문 11개에 답하게 하고, 새 클론에서 연 세션에 질문 여섯 개를 물어 확인(Validation) |
 
 ### AI가 틀렸고 고친 사례
+
+AI가 쓴 문장과 코드에서 나온 오류를 트랙별로 모은 표입니다. 열은 틀린 내용, 발견한 방법, 고친 내용입니다.
 
 | 트랙 | 틀린 것 | 발견 | 고친 것 |
 | --- | --- | --- | --- |
 | A, B | 레시피에 `RPC_PORT`로 로컬 노드 포트를 바꿀 수 있다고 적었지만, 실행기는 CLI가 접속할 포트만 바꾸고 노드는 26657에서 떴습니다 | B 트러블슈팅을 쓰면서 `clairveild start --help`로 노드 시작 인자를 확인 | 노드 시작 인자에 `--rpc.laddr`, `--p2p.laddr`, `--grpc.address`, `--api.address`를 넘기도록 실행기를 고침 |
-| A | 공개 증거 없이 "테스트넷 withdraw 8건 성공", "색인 전 거부 `[Live Testnet]`"을 문서 문장으로 썼습니다 | 커밋 전 검토에서 문장마다 증거 파일을 찾음 | 문장을 지우거나, 확인하는 명령(금고 흐름 6b)을 가리키게 바꿈 |
+| A | 공개 증거 없이 "테스트넷 withdraw 8건 성공", "색인 전 거부 `[Live Testnet]`"을 문서 문장으로 썼습니다 | 커밋 전 검토의 문장별 증거 파일 대조 | 문장을 지우거나, 확인하는 명령(금고 흐름 6b)을 가리키게 바꿈 |
 | A | Clairveil 메인넷 관문 수를 11개로, 금고 흐름 비용을 400 tOKRW로 적었습니다 | Clairveil 운영 가이드를 다시 세고, 비용 계산 근거가 없음을 확인 | 10개로 고치고 비용 문장은 지움 |
 | A | 금고 흐름 기록을 문서에 옮기면서 tx 수를 "22건"으로 적었습니다. 세지 않고 쓴 숫자였습니다 | 쓴 직후 기록 파일에서 tx가 있는 단계를 셈 | 18건으로 고침 |
 | C | 트랙 3 초안에 "색인 전 호출은 거부됩니다 `[Docs Only]`"라고 적었지만, 그 순서는 문서에서 찾을 수 없었습니다 | 커밋 전 라벨 검토 | 라벨을 지우고 금고 흐름 6b 단계가 확인한다고 바꿈 |
@@ -182,22 +196,24 @@
 
 ## DX Feedback
 
+Maroo 문서와 도구를 쓰면서 막힌 지점의 목록입니다. 열은 트랙, 문제, 재현 또는 근거, 영향을 받는 사용자, 심각도와 이유, 제안, 고쳐야 하는 owner입니다.
+
 | # | 트랙 | 문제 | 재현 또는 근거 | 영향을 받는 사용자 | 심각도와 이유 | 제안 | owner |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | A, B | Privacy 호출이 요구하는 증명(개인 본인 인증 스키마)과 정책 구조가 문서에 없고, KYC 서비스는 "mock"으로만 적힘 | `pnpm a:inspect` | Privacy를 처음 부르는 모든 개발자 | 높음. 무엇을 갖춰야 통과하는지 알 수 없어 첫 호출에서 멈춤 | Privacy 개요에 현재 정책, 스키마 UID, 증명을 받는 방법을 적음 | Maroo Docs |
+| 1 | A, B | Privacy 호출이 요구하는 증명(개인 본인 인증 스키마)과 정책 구조가 문서에 없고, KYC 서비스는 "mock"으로만 적힘 | `pnpm a:inspect` | Privacy를 처음 부르는 모든 개발자 | 높음. 무엇을 갖춰야 통과하는지 알 수 없어 첫 호출에서 멈춤 | Privacy 개요에 현재 정책, 스키마 UID, 증명을 받는 방법 추가 | Maroo Docs |
 | 2 | A, B, C | `eth_call`이 전역 정책을 평가하지 않아 `simulateContract`로 사전 검사하면 거부를 놓침 | `pnpm a:probe-global` | 사전 검사를 만드는 백엔드, 지갑 개발자 | 높음. 시뮬레이션은 통과하고 tx는 거부되어 원인을 찾기 어려움 | 사유 코드 문서에 `eth_estimateGas` 사전 검사를 적고, SDK에 전역 정책까지 평가하는 사전 검사 함수를 둠 | Maroo Docs, SDK |
-| 3 | B | faucet이 전역 24시간 한도에 걸리면 모든 요청이 `reverted with the following signature:.`로만 실패 | `pnpm a:probe-global` (2026-09-25 16:41 UTC부터) | 테스트넷을 처음 쓰는 모든 개발자, 워크샵 진행자 | 높음. 원인을 알 수 없고 재시도 말고 할 일이 없음 | faucet 계정에 KYC 증명이나 정책 면제를 두고, 오류에 PCL 사유와 `resetAt`을 보여 줌 | faucet 운영 |
-| 4 | A, C | `deployPclProxy`에 빈 초기화 데이터를 넘기면 되돌려지고, 사유 문자열이 가려짐 | `pnpm a:doc-claims` | 규제 트랙 컨트랙트를 배포하는 개발자 | 중간. 문서대로 하면 실패하지만 초기화 호출을 넣으면 풀림 | 문서 예시를 초기화 호출로 바꾸고 안쪽 사유를 돌려줌 | Maroo Docs, PCL |
-| 5 | A, B | Clairveil v0.4.0 스모크 스크립트가 인출 실패를 통과로 보고함 | `pnpm a:local` | Clairveil로 차폐 흐름을 배우는 개발자 | 중간. 참조 흐름이 동작한다고 믿고 넘어감 | 스크립트가 tx 결과 코드를 확인하고, 인출 스냅샷 조건을 문서에 적음 | Clairveil |
+| 3 | B | faucet이 전역 24시간 한도에 걸리면 모든 요청이 `reverted with the following signature:.`로만 실패 | `pnpm a:probe-global` (2026-09-25 16:41 UTC부터) | 테스트넷을 처음 쓰는 모든 개발자, 워크샵 진행자 | 높음. 원인을 알 수 없고 재시도 말고 할 일이 없는 상태 | faucet 계정에 KYC 증명이나 정책 면제 부여, 오류에 PCL 사유와 `resetAt` 표시 | faucet 운영 |
+| 4 | A, C | `deployPclProxy`에 빈 초기화 데이터를 넘기면 되돌려지고, 사유 문자열이 가려지는 동작 | `pnpm a:doc-claims` | 규제 트랙 컨트랙트를 배포하는 개발자 | 중간. 문서대로 하면 실패하지만 초기화 호출을 넣으면 풀림 | 문서 예시를 초기화 호출로 변경, 안쪽 사유 반환 | Maroo Docs, PCL |
+| 5 | A, B | Clairveil v0.4.0 스모크 스크립트가 인출 실패를 통과로 보고하는 동작 | `pnpm a:local` | Clairveil로 차폐 흐름을 배우는 개발자 | 중간. 참조 흐름이 동작한다고 믿고 넘어감 | 스크립트의 tx 결과 코드 확인, 인출 스냅샷 조건의 문서화 | Clairveil |
 | 6 | C | ERC-8004 IdentityRegistry 호출 스케치가 배포된 컨트랙트와 다름 | 탐색기 검증 소스, `pnpm c:grounding` | 에이전트 개발자 | 중간. 스케치대로 ABI를 만들면 호출이 실패 | 스케치를 배포된 ABI로 바꾸고 `TransferLimit` 메타데이터 예시를 둠 | Maroo Docs |
-| 7 | C | 지웠다고 적힌 `OKRW_EAS_*` 템플릿이 테스트넷에 등록돼 있음 | `pnpm c:grounding` | 정책을 설계하는 개발자 | 낮음. 새 조합 정책으로 같은 규칙을 표현할 수 있음 | 문서와 체인 중 하나를 맞추고, 바뀌는 판을 적음 | Maroo Docs, PCL |
-| 8 | C | 배포 주소 표의 `OKRW_ERC20` 주소에 코드가 없음 | `pnpm c:grounding` | ERC-20 인터페이스로 OKRW를 다루려는 개발자 | 중간. 표를 믿고 호출하면 빈 값을 받음 | 주소를 고치거나 표에서 빼고 네이티브 value 사용을 안내 | Maroo Docs |
+| 7 | C | 지웠다고 적힌 `OKRW_EAS_*` 템플릿이 테스트넷에 등록돼 있는 상태 | `pnpm c:grounding` | 정책을 설계하는 개발자 | 낮음. 새 조합 정책으로 같은 규칙을 표현할 수 있는 상태 | 문서와 체인의 일치, 바뀌는 판 명시 | Maroo Docs, PCL |
+| 8 | C | 배포 주소 표의 `OKRW_ERC20` 주소에 코드가 없는 상태 | `pnpm c:grounding` | ERC-20 인터페이스로 OKRW를 다루려는 개발자 | 중간. 표를 믿고 호출하면 빈 값을 받는 결과 | 주소를 고치거나 표에서 빼고 네이티브 value 사용을 안내 | Maroo Docs |
 | 9 | A | 인출 금액 예시의 단위가 `aokrw`인데 테스트넷은 `atokrw` | `pnpm a:doc-claims` | 인출을 구현하는 개발자 | 중간. 예시를 복사하면 `PrivacyNativeDenomMismatch` | 예시를 `getParams().mintDenom`으로 읽게 바꿈 | Maroo Docs |
-| 10 | A, C | 공식 TypeScript SDK `@maroo-chain/viem`이 Maroo Docs에 없음 | npm 0.4.0(2026-09-17), Maroo Docs 검색 | TypeScript로 PCL 정책과 에이전트를 다루는 개발자 | 중간. 문서만 보면 정책 바이트, 프록시 초기화 데이터, 거부 사유 해석을 직접 짜게 됨. 이 레포도 처음에는 직접 짰음 | PCL, 에이전트, 개발자 도구 쪽에 SDK 설치와 사용 예를 둠 | Maroo Docs |
-| 11 | A, C | 단순 이체 가스 예시와 ClairveilJS 기본 가스 한도가 21,000인데 테스트넷 단순 이체는 일반 계정 약 104,000, 에이전트 지갑 약 284,000을 씀 | `pnpm a:probe-send-gas` | 네이티브 OKRW를 보내는 지갑 개발자, ClairveilJS 사용자, 해커톤 참가자 | 높음. `eth_call` 사전 검사는 통과하고 tx는 사유 없이 되돌려지며 수수료를 냄 | 문서 예시를 테스트넷 값으로 바꾸고 고정 한도 대신 추정값을 쓰라고 적음. ClairveilJS EVM 프로필은 추정값을 씀 | Maroo Docs, ClairveilJS |
-| 12 | C | 에이전트 한도 문서가 `TransferLimit`을 숫자 문자열로 안내하는데 체인은 32바이트 uint256만 받음 | `pnpm c:agent-limit` | 에이전트 결제를 만드는 개발자, 트랙 2 참가자 | 높음. 문서대로 쓰면 한도 안 결제까지 모든 결제가 막히고, 문서가 해석할 수 없다고 한 오류라 사유를 읽으려 하지 않게 됨 | 형식을 `abi.encode(uint256)`로 고치고 `AgentTransferLimitMetadataInvalid(string)` 예시를 둠. SDK 주석은 이미 맞음 | Maroo Docs |
-| 13 | C | `getAgentIds`의 기준 지갑이 문서에 없음 | `pnpm c:agent-limit` | 지갑에서 에이전트를 찾는 화면, 백엔드 | 중간. 에이전트 지갑을 연결하면 소유자 주소로 찾던 화면이 빈 목록을 보여 줌 | "연결된 에이전트 지갑 기준, 연결 전에는 소유자"를 적고 소유자 기준 조회는 `ownerOf`나 이벤트로 안내 | Maroo Docs |
-| 14 | A, B, C | PCL 프록시의 컨트랙트 정책 거부가 블록에 들어가 수수료를 내는데, 문서는 제출 시점에 걸러져 가스를 내지 않는다고 적음 | `pnpm a:reject-gas`(거부 tx 여덟 건의 영수증). 2026-09-27 재실행(가스 한도 125%)의 거부 tx 일곱 건도 모두 50.0% | 규제 트랙 컨트랙트를 운영하는 기관, 워크샵·해커톤 참가자 | 중간. 거부 시험마다 한도의 절반을 수수료로 내고, 자격 없는 청구 시도가 주소와 함께 공개 체인에 남음. 탐색기(Blockscout)는 `deployPclProxy`로 만든 금고 프록시를 생성 때 컨트랙트로 색인하지 않음(생성 tx 없음, 체인에는 코드 3,192바이트). 누가 그 주소를 처음 열기 전까지 일반 계정으로 보고, 그리로 간 거부 tx의 사유를 원문(`0xbca5593e…`)과 깨진 글자로 보여 줌. 주소를 한 번 열면 몇 초 안에 EIP-1967 프록시로 바뀌고 사유가 `EasNoAttestationReceived(address sender)`처럼 풀림. 이 레포 문서와 기록의 tx 95건 가운데 거부 16건을 이렇게 확인했고, 일반 배포 tx로 만든 구현은 처음부터 컨트랙트로 잡힘 | 사전 거절이 전역 정책에만 해당한다고 적고, 컨트랙트 정책은 `eth_estimateGas` 사전 검사를 안내. 탐색기가 프리컴파일이 만든 컨트랙트를 생성 시점에 색인함(내부 생성 추적) | Maroo Docs, PCL, 탐색기 |
+| 10 | A, C | 공식 TypeScript SDK `@maroo-chain/viem`이 Maroo Docs에 없는 상태 | npm 0.4.0(2026-09-17), Maroo Docs 검색 | TypeScript로 PCL 정책과 에이전트를 다루는 개발자 | 중간. 문서만 보면 정책 바이트, 프록시 초기화 데이터, 거부 사유 해석을 직접 짜야 하는 상황. 이 레포의 첫 판도 직접 짠 코드 | PCL, 에이전트, 개발자 도구 쪽에 SDK 설치와 사용 예를 둠 | Maroo Docs |
+| 11 | A, C | 단순 이체 가스 예시와 ClairveilJS 기본 가스 한도가 21,000인데 테스트넷 단순 이체는 일반 계정 약 104,000, 에이전트 지갑 약 284,000을 쓰는 상태 | `pnpm a:probe-send-gas` | 네이티브 OKRW를 보내는 지갑 개발자, ClairveilJS 사용자, 해커톤 참가자 | 높음. `eth_call` 사전 검사는 통과하고 tx는 사유 없이 되돌려지며 수수료를 내는 결과 | 문서 예시를 테스트넷 값으로 바꾸고 고정 한도 대신 추정값을 쓰라는 안내. ClairveilJS EVM 프로필의 추정값 사용 | Maroo Docs, ClairveilJS |
+| 12 | C | 에이전트 한도 문서가 `TransferLimit`을 숫자 문자열로 안내하는데 체인은 32바이트 uint256만 받는 상태 | `pnpm c:agent-limit` | 에이전트 결제를 만드는 개발자, 트랙 2 참가자 | 높음. 문서대로 쓰면 한도 안 결제까지 모든 결제가 막히고, 문서가 해석할 수 없다고 한 오류라 사유를 읽으려 하지 않게 되는 결과 | 형식을 `abi.encode(uint256)`로 고치고 `AgentTransferLimitMetadataInvalid(string)` 예시를 둠. SDK 주석은 이미 맞는 상태 | Maroo Docs |
+| 13 | C | `getAgentIds`의 기준 지갑에 대한 문서 설명 없음 | `pnpm c:agent-limit` | 지갑에서 에이전트를 찾는 화면, 백엔드 | 중간. 에이전트 지갑을 연결하면 소유자 주소로 찾던 화면이 빈 목록을 보여 주는 결과 | "연결된 에이전트 지갑 기준, 연결 전에는 소유자"를 적고 소유자 기준 조회는 `ownerOf`나 이벤트로 안내 | Maroo Docs |
+| 14 | A, B, C | PCL 프록시의 컨트랙트 정책 거부가 블록에 들어가 수수료를 내는데, 문서는 제출 시점에 걸러져 가스를 내지 않는다는 설명 | `pnpm a:reject-gas`(거부 tx 여덟 건의 영수증). 2026-09-27 재실행(가스 한도 125%)의 거부 tx 일곱 건도 모두 50.0% | 규제 트랙 컨트랙트를 운영하는 기관, 워크샵·해커톤 참가자 | 중간. 거부 시험마다 한도의 절반을 수수료로 내고, 자격 없는 청구 시도가 주소와 함께 공개 체인에 남음. 탐색기(Blockscout)는 `deployPclProxy`로 만든 금고 프록시를 생성 때 컨트랙트로 색인하지 않음(생성 tx 없음, 체인에는 코드 3,192바이트). 누가 그 주소를 처음 열기 전까지 일반 계정으로 보고, 그리로 간 거부 tx의 사유를 원문(`0xbca5593e…`)과 깨진 글자로 보여 줌. 주소를 한 번 열면 몇 초 안에 EIP-1967 프록시로 바뀌고 사유가 `EasNoAttestationReceived(address sender)`처럼 풀림. 이 레포 문서와 기록의 tx 95건 가운데 거부 16건을 이렇게 확인했고, 일반 배포 tx로 만든 구현은 처음부터 컨트랙트로 잡힘 | 사전 거절이 전역 정책에만 해당한다고 적고, 컨트랙트 정책은 `eth_estimateGas` 사전 검사를 안내. 탐색기가 프리컴파일이 생성한 컨트랙트의 생성 시점 색인(내부 생성 추적) | Maroo Docs, PCL, 탐색기 |
 
 ### A
 
@@ -241,7 +257,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | 확인할 것 | 지금 상태 | 확인 방법 | 풀어야 하는 쪽 |
 | --- | --- | --- | --- |
 | 테스트넷 Privacy 정상 경로에 필요한 재료 네 가지(회로 버전과 proving 산출물, 차폐 상태 조회 경로, 성공한 예시 입력, prover 엔드포인트) | 공개되지 않음. 예치 요청이 `SDKInvalidRequest()`, ClairveilJS 예치 준비가 회로 설정 조회에서 멈춤 | 공개되면 `pnpm a:probe`, `pnpm a:probe-sdk`를 다시 실행해 3층과 5층을 넘는지 | Maroo |
-| Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지 | 두 지갑 모두 요청 검증에서 먼저 막혀 가릴 수 없음 | 유효한 요청을 만들 수 있게 되면 본인 인증 증명이 없는 지갑으로 같은 요청 | Maroo, 이 레포 |
+| Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지 | 두 지갑 모두 요청 검증에서 먼저 막혀 가릴 수 없는 상태 | 유효한 요청을 만들 수 있게 되면 본인 인증 증명이 없는 지갑으로 같은 요청 | Maroo, 이 레포 |
 | Clairveil v0.4.0 인출 스냅샷 조건이 Maroo 테스트넷에도 있는지 | 로컬에서만 재현(단독 인출 실패, 같은 블록 우회) | 테스트넷 Privacy 정상 경로가 열린 뒤 인출 한 번 | Maroo |
 | 에이전트 한도의 전역 범위 귀속(다른 컨트랙트가 에이전트의 호출을 옮길 때) | 컨트랙트 범위, 직접 보낸 경우만 확인 | 전역 정책 설정 권한이 필요해 Maroo 쪽 시험이 필요 | Maroo |
 | 관찰자 노드(규제기관 열람)와 차폐 금액 상한의 일정 | 문서에 미구현, 노트 하나 약 18.45 OKRW | Maroo 로드맵 확인 | Maroo |

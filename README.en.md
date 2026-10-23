@@ -10,6 +10,8 @@ A 13-slide visual summary (Korean) is in [slides/](slides/) as PNGs and one PDF.
 
 ## Tracks
 
+One row per track: who it is for, where to start reading, the command to run, and the evidence it produced.
+
 | Track | Folder | Audience | Start here | Commands | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | A Explain (Primary) | [track-a-explain/](track-a-explain/) | Tech lead at an institution evaluating Maroo | [Integration guide](track-a-explain/integration-guide.md), section 0 | `pnpm a:inspect`, `a:probe`, `a:kyb-gate`, `a:local` | [evidence.md](track-a-explain/evidence.md) |
@@ -50,6 +52,8 @@ State-changing testnet flows (`pnpm a:kyb-gate`, `pnpm b:step 2`, `pnpm c:agent-
 Building with an AI agent: opening the repo in Claude Code loads the [`.claude/skills/maroo-integration`](.claude/skills/maroo-integration/SKILL.md) skill, and opening it in Codex loads the identical [`.agents/skills/maroo-integration`](.agents/skills/maroo-integration/SKILL.md) copy (a unit test keeps the two files identical). It carries the rules this repo verified on testnet (pre-checks, gas limits, proxy deployment, attestation indexing order, the agent limit format), the places where the docs differ, and the commands to check them, and tells the agent not to guess anything outside that table. Tools that load neither folder are pointed to it by the root [AGENTS.md](AGENTS.md). In a six-question test, Codex with neither the skill folder nor AGENTS.md never opened the skill and repeated the docs' 21,000 gas figure; with either one, it opened the skill in all six sessions and answered correctly.
 
 ## Evidence labels
+
+Every result in this repository carries one of these labels so that local results are never read as testnet results.
 
 | Label | Meaning |
 | --- | --- |
