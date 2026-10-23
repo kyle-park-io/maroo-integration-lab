@@ -51,3 +51,19 @@ test("레시피가 할 일까지 적은 오류는 그 안내를 따르라고 한
   assert.equal(f.kind, "guided");
   assert.equal(f.next, "위 안내대로 한 뒤 같은 명령을 다시 실행합니다.");
 });
+
+test("레시피가 여러 줄로 적은 안내는 첫 줄을 이유로, 나머지 줄을 자세한 내용으로 보여 준다", () => {
+  const msg = "기록을 보내기 전에 멈췄습니다. 이번 실행에서 보낸 기록은 없습니다.\n규제기관 지갑(0x213d)의 잔액이 0 OKRW로, 기록 2건에 필요한 12 OKRW보다 적습니다.\n모자란 가스를 KYB 발급자 지갑에서 채우려면 --top-up 을 붙여 다시 실행하십시오.";
+  const f = explainFailure(new Error(msg), { rpc: RPC });
+  assert.equal(f.kind, "guided");
+  assert.equal(f.reason, "기록을 보내기 전에 멈췄습니다. 이번 실행에서 보낸 기록은 없습니다.");
+  assert.deepEqual(f.details, [
+    "규제기관 지갑(0x213d)의 잔액이 0 OKRW로, 기록 2건에 필요한 12 OKRW보다 적습니다.",
+    "모자란 가스를 KYB 발급자 지갑에서 채우려면 --top-up 을 붙여 다시 실행하십시오.",
+  ]);
+});
+
+test("스택 줄은 자세한 내용에 넣지 않는다", () => {
+  const f = explainFailure(new Error("첫 줄\n    at foo (bar.ts:1:1)"), { rpc: RPC });
+  assert.deepEqual(f.details ?? [], []);
+});

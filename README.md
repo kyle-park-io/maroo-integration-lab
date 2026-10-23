@@ -34,7 +34,7 @@ Maroo를 처음 붙이는 개발자가 먼저 묻는 질문마다 20초 안에 �
 | --- | --- | --- |
 | 이 거부는 금고 코드가 했는가, PCL이 했는가 | revert 데이터의 오류 선택자로 가립니다. `EasNoAttestationReceived`(`0xbca5593e`)처럼 IPcl에 있는 오류면 PCL이 거부했고, `NotBuyer()`처럼 금고 ABI에 있는 오류면 금고 코드가 거부했습니다. 받는 주소가 PCL 프록시인지는 `IPcl.pclProxy`로 확인합니다 | `pnpm explain <tx 해시>`, `pnpm explain --examples`. [A 가이드 6절](track-a-explain/integration-guide.md#6-판정과-실패-진단) |
 | 제3자는 협력사 A가 12를 받은 것을 알 수 있는가 | 지급 tx에서는 알 수 없습니다. 지급 tx에는 금액과 받는 주소 필드가 없습니다. 다만 예치 12와 인출 12가 공개되어 같은 금액으로 두 거래를 이어 볼 수 있습니다 `[Local]` | `pnpm a:local`. [A 가이드 3절](track-a-explain/integration-guide.md#3-누가-무엇을-보는가) |
-| 감사인과 협력사는 무엇이 다르고, 감사 키는 누가 갖는가 | 협력사는 자기에게 온 지급만, 감사인은 그 기간의 모든 지급을 풉니다 `[Local]`. 감사 비밀키 하나로 모든 지급이 풀리므로 보관 주체와 열람 승인 절차가 필요하고, Clairveil은 그 결정을 Clairveil을 가져다 체인을 운영하는 회사(여기서는 Maroo)가 하도록 남겨 둡니다 | `pnpm a:local`. [A 가이드 4절](track-a-explain/integration-guide.md#4-키와-서비스의-책임) |
+| 감사인과 협력사는 무엇이 다르고, 감사 키는 누가 갖는가 | 협력사는 자기에게 온 지급만, 감사인은 그 기간의 모든 지급을 풉니다 `[Local]`. 감사 비밀키 하나로 모든 지급이 풀리므로 보관 주체와 열람 승인 절차가 필요하고, Clairveil은 그 결정을 Clairveil을 가져다 체인을 운영하는 회사(여기서는 Maroo)가 하도록 남겨 둡니다. 감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나눠 두 역할이 승인한 tx만 여는 시제품을 만들었습니다 `[Local]` | `pnpm a:local`, `pnpm a:audit-access --no-record`. [A 가이드 3절](track-a-explain/integration-guide.md#통제된-열람-시제품pnpm-aaudit-access), [4절](track-a-explain/integration-guide.md#4-키와-서비스의-책임) |
 | `SDKInvalidRequest`는 정책 거부인가 | 아닙니다. 모든 프리컴파일이 함께 쓰는 인자 없는 요청 검증 오류라, 형식, 자산 등록, 증명 검증 가운데 어디서 막혔는지는 가릴 수 없습니다. 이 레포의 예치 요청은 Privacy 정책을 평가하는 단계까지 가지 못했습니다 | `pnpm a:probe`, `pnpm explain --examples`. [A 가이드 6절](track-a-explain/integration-guide.md#테스트넷-privacy의-최초-실패-계층) |
 | 로컬 결과를 테스트넷 성공으로 적으면 안 되는 이유 | 로컬 검증 키는 setup이 돌 때마다 새로 만드는 키라 Maroo의 키와 같을 수 없고, 전송과 인출 증명은 체인 도메인과 Merkle root에도 묶입니다. 판도 다릅니다. 테스트넷 노드는 Clairveil v0.3.0에 의존하고, 이 레포의 로컬 체인은 v0.4.0입니다 | `pnpm a:chain-info`. [A 가이드 1절](track-a-explain/integration-guide.md#clairveil과-maroo-xprivacy의-관계) |
 | Maroo가 말하는 Verifiable Privacy는 Clairveil의 Privacy와 무엇이 다른가 | Clairveil의 Privacy는 금액과 거래 관계를 가리고 그 계산이 맞다는 것을 증명하며, 감사 키를 가진 사람은 모든 지급을 풉니다. Maroo 문서의 Verifiable Privacy는 여기에 규제 기관이 법이 정한 범위 안에서만 데이터에 접근하는 열람 경로(관찰자 노드)를 더한 모델이고, 그 열람 프로토콜은 아직 체인에 없다고 문서가 적습니다 | Maroo 문서 [「검증 가능한 프라이버시」](https://docs.maroo.io/concepts/privacy/verifiable-privacy/). [A 가이드 8절](track-a-explain/integration-guide.md#8-프로덕션-전에-남은-것) |
@@ -131,7 +131,7 @@ pnpm install
 pnpm bootstrap
 ```
 
-Clairveil 고정 커밋 세 개를 `vendor/`에 받고, 금고를 컴파일하고, Clairveil 바이너리와 회로 산출물을 `.work/prebuilt/`에 빌드하고(101초), 역할 지갑 여섯 개를 레포 밖 파일에 만듭니다. 모두 109초 걸렸습니다. 성공하면 마지막 줄이 `준비를 마쳤습니다. 다음 명령은 pnpm review 입니다(키와 잔액 없이 실행됩니다).`입니다. 워크샵 참가자가 쓰는 `pnpm b:prepare`와 같은 코드입니다.
+Clairveil 고정 커밋 세 개를 `vendor/`에 받고, 금고를 컴파일하고, Clairveil 바이너리와 회로 산출물을 `.work/prebuilt/`에 빌드하고(101초), 역할 지갑 아홉 개를 레포 밖 파일에 만들고, 통제된 열람에 쓰는 Go 도구 두 개를 `.work/audit-tools/`에 빌드합니다(2026-10-23에 8초). 도구 빌드를 더하기 전의 측정으로 모두 109초 걸렸습니다. 성공하면 마지막 줄이 `준비를 마쳤습니다. 다음 명령은 pnpm review 입니다(키와 잔액 없이 실행됩니다).`입니다. 워크샵 참가자가 쓰는 `pnpm b:prepare`와 같은 코드입니다.
 
 ### 3. 한 번에 확인 (20초, 키와 잔액 없이)
 
@@ -155,6 +155,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 | A | `pnpm a:kyb-gate` | 37초 | `[예상대로 거부] 5) 협력사 B claim, 증명 없음 : EasNoAttestationReceived(…)`, `[성공] 6d) 협력사 A claim, 증명과 색인 뒤` | 구매 기업 250(가스 보충 120, 협력사 A가 받는 100, 나머지는 가스), 발급자 8 |
 | A | `pnpm a:local` | 1분 안팎(2단계 뒤, 2026-10-23에 61초). 2단계 없이 처음 돌리면 Clairveil 빌드를 포함해 약 4분 | `기록: track-a-explain/evidence/local/vendor-settlement-<시각>.md` | 없음(로컬) |
 | A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 4(자기 협력사 지갑으로 옮기는 2 포함) |
+| A | `pnpm a:audit-access --top-up`(`pnpm a:local` 뒤) | 20초 안팎 | `[확인] access: 증명자 규제기관, 요청 증명을 가리킴, 되돌릴 수 없음, 탐색기 색인됨(ok)` | 기록 네 건 수수료 약 12. 처음에는 KYB 발급자 지갑이 역할 지갑 셋에 가스로 약 70을 옮깁니다 |
 | A | `pnpm explain --examples` | 3초 안팎 | 사례마다 `종류`(예: `PCL 정책 위반`, `가스 부족`, `대상 컨트랙트 로직`)와 `걸린 정책`, `다음 행동` 줄 | 없음(조회) |
 | B | `pnpm b:smoke` | 91초 | `모두 통과. 91초` | 2단계가 약 260 |
 | B | `pnpm b:step 1` \~ `pnpm b:step 5` | 워크샵 75분 | 단계마다 예상 결과와 성공 기준을 먼저 보이고, 실패하면 트러블슈팅 번호를 안내 | 2단계가 약 260 |
@@ -192,6 +193,7 @@ shared/            세 트랙이 함께 쓰는 코드
   contracts/       SettlementVault.sol (PCL 프록시 뒤에 두는 정산 금고)
   test/            금고 Foundry 테스트
   lib/             테스트넷 도구, KYB 금고 흐름, 로컬 차폐 정산 실행기, 정책 해석
+  clairveil-ext/   Clairveil 고정 커밋 모듈 안에서 빌드하는 감사 키 임계 도구(Go)
 track-a-explain/   가이드, 레시피, FAQ, 문서 개선 노트, recipe/*.ts, evidence/
 track-b-enable/    참가자·진행자 가이드, 트러블슈팅, demo/*.ts, evidence/
 track-c-activate/  포트폴리오, tracks/ 세 트랙, grounding/*.ts, evidence/

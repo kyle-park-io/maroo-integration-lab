@@ -23,7 +23,8 @@
 | `pnpm install`, `pnpm bootstrap` | 설치와 준비(2분 안팎). Clairveil 고정 커밋을 `vendor/`에 받아 빌드하고, 역할 지갑을 레포 밖에 만듭니다 |
 | `pnpm review` | 키와 잔액 없이 20초 안팎에 확인합니다. 테스트넷에는 조회만 합니다 |
 | `pnpm explain <tx 해시>` | 실패한 tx가 무엇에 막혔는지(오류 선택자, 계열, 전역 정책인지 컨트랙트 정책인지, 다음 행동) 풉니다. tx 없이 호출을 확인할 때는 `--from`, `--to`, `--sig`, `--args`, `--value`를 씁니다 |
-| `pnpm a:kyb-gate`, `pnpm b:step 2`, `pnpm c:agent-limit` | 테스트넷에 tx를 보내고 테스트넷 OKRW를 씁니다. 사용자가 원할 때만 돌립니다 |
+| `pnpm a:audit-access --no-record`, `pnpm test:go` | 감사 키 몫으로 요청한 tx의 감사 disclosure만 여는 로컬 열람과, 그 Go 도구의 테스트입니다. `pnpm a:local`의 실행 폴더와 `vendor/clairveil`이 있어야 합니다 |
+| `pnpm a:kyb-gate`, `pnpm a:audit-access`, `pnpm b:step 2`, `pnpm c:agent-limit` | 테스트넷에 tx를 보내고 테스트넷 OKRW를 씁니다. 사용자가 원할 때만 돌립니다 |
 
 ## 지키는 것
 

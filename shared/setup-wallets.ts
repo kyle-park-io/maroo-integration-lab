@@ -18,6 +18,9 @@ const ROLES = [
   ["SUPPLIER_B", "증명이 없는 협력사"],
   ["UPGRADE_OWNER", "금고 프록시의 업그레이드 권한. 서명하지 않는다"],
   ["AGENT", "에이전트 지갑(Track C 트랙 2). 구매 기업이 소유한 에이전트에 연결된다"],
+  ["AUDIT_TEAM", "내부 감사팀. 감사 키 몫 하나를 갖고 열람 요청을 승인하거나 거절한다(pnpm a:audit-access)"],
+  ["EXTERNAL_AUDITOR", "외부감사인. 감사 키 몫 하나를 갖는다"],
+  ["REGULATOR", "규제기관. 감사 키 몫 하나를 갖고 열람을 요청한다"],
 ] as const;
 
 const file = process.env.MAROO_LAB_ENV ?? path.join(os.homedir(), ".config/maroo-integration-lab/testnet.env");
@@ -41,7 +44,7 @@ const env = Object.fromEntries(
   fs.readFileSync(file, "utf8").split("\n").filter((l) => l.includes("=")).map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1).trim()]),
 );
 console.log("");
-for (const [role, desc] of ROLES) console.log(`${role.padEnd(14)} ${env[`${role}_ADDRESS`] ?? "(없음)"}  ${desc}`);
+for (const [role, desc] of ROLES) console.log(`${role.padEnd(17)} ${env[`${role}_ADDRESS`] ?? "(없음)"}  ${desc}`);
 console.log("\n구매 기업과 KYB 발급자에게 테스트넷 OKRW 를 받습니다(한 번에 5,000 tOKRW):");
 for (const role of ["BUYER", "ISSUER"]) {
   console.log(`curl -X POST https://faucet.maroo.io/api/agent/sendToken -H 'content-type: application/json' -d '{"address":"${env[`${role}_ADDRESS`]}","chain":"MAROO_TESTNET"}'`);

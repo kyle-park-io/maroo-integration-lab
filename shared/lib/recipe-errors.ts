@@ -2,7 +2,7 @@
 // 레시피 파일 맨 위에서 installRecipeErrors() 를 부르면, 최상위 await 에서 난 오류까지 여기서 받는다.
 // 전체 오류와 스택은 DEBUG=1 로 다시 실행하면 보인다.
 
-export type Failure = { kind: "network" | "balance" | "wallet" | "guided" | "other"; reason: string; next: string };
+export type Failure = { kind: "network" | "balance" | "wallet" | "guided" | "other"; reason: string; next: string; details?: string[] };
 
 const NETWORK = /fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|socket hang up|HTTP request failed|The request took too long/i;
 const BALANCE = /insufficient (funds|balance)|잔액이 부족/i;
@@ -20,6 +20,8 @@ function textOf(err: unknown): string {
 }
 
 const firstLine = (err: unknown) => String((err as { message?: string })?.message ?? err).split("\n")[0];
+// 첫 줄 뒤에 레시피가 적은 줄. 스택 줄(at ...)은 뺀다.
+const restLines = (err: unknown) => String((err as { message?: string })?.message ?? err).split("\n").slice(1).filter((l) => l.trim() && !/^\s+at /.test(l));
 
 export function explainFailure(err: unknown, ctx: { rpc: string }): Failure {
   const text = textOf(err);
@@ -42,8 +44,8 @@ export function explainFailure(err: unknown, ctx: { rpc: string }): Failure {
     };
   }
   // 레시피가 직접 던진 오류가 할 일까지 적었으면 그 안내를 따르게 한다
-  if (/하십시오\.?\s*/.test(firstLine(err))) {
-    return { kind: "guided", reason: firstLine(err), next: "위 안내대로 한 뒤 같은 명령을 다시 실행합니다." };
+  if ([firstLine(err), ...restLines(err)].some((l) => /하십시오\.?\s*/.test(l))) {
+    return { kind: "guided", reason: firstLine(err), next: "위 안내대로 한 뒤 같은 명령을 다시 실행합니다.", details: restLines(err) };
   }
   return { kind: "other", reason: firstLine(err), next: "같은 명령을 DEBUG=1 로 다시 실행하면 전체 오류와 스택이 보입니다." };
 }
@@ -52,6 +54,7 @@ export function installRecipeErrors(ctx: { rpc: string }) {
   const handle = (err: unknown) => {
     const f = explainFailure(err, ctx);
     console.error(`\n실패: ${f.reason}`);
+    for (const line of f.details ?? []) console.error(`  ${line}`);
     console.error(`다음 할 일: ${f.next}`);
     if (process.env.DEBUG) console.error(err);
     process.exit(1);

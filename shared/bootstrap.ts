@@ -7,6 +7,7 @@
 //   1. Clairveil 고정 커밋 받기(vendor/ 의 세 레포 가운데 하나라도 없을 때)
 //   2. 금고 컨트랙트 컴파일(out/ 이 없을 때)
 //   3. Clairveil 바이너리와 회로 산출물을 .work/prebuilt/ 에 빌드(없거나 커밋이 다를 때)
+//   3b. 감사 키 임계 도구를 .work/audit-tools/ 에 빌드(pnpm a:audit-access, pnpm b:audit-drill 이 쓴다)
 //   4. 역할 지갑 만들기(지갑 파일이 없거나 역할이 빠졌을 때)
 
 import { execFileSync } from "node:child_process";
@@ -15,6 +16,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { PREBUILT_DIR, ROOT } from "./lib/paths.ts";
 import { buildClairveil } from "./lib/local-vendor-settlement.ts";
+import { buildAuditTools } from "./lib/audit-threshold.ts";
 
 export function bootstrap() {
   const run = (cmd: string, args: string[]) => execFileSync(cmd, args, { cwd: ROOT, stdio: "inherit" });
@@ -41,6 +43,9 @@ export function bootstrap() {
     buildClairveil(PREBUILT_DIR, path.join(PREBUILT_DIR, "log"));
     console.log(`   ${path.relative(ROOT, PREBUILT_DIR)} 에 만들었습니다(${Math.round((Date.now() - started) / 1000)}초)`);
   }
+
+  console.log("3b) 감사 키 임계 도구");
+  console.log(`   ${path.relative(ROOT, buildAuditTools().dir)}`);
 
   console.log("4) 역할 지갑");
   run("node", ["shared/setup-wallets.ts"]);

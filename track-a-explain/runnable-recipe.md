@@ -17,6 +17,7 @@
 | Maroo 테스트넷 | `pnpm a:reject-gas` | 정책에 거부된 tx의 영수증(상태, 쓴 가스와 한도의 비율, 수수료) | `[Live Testnet]` 조회 |
 | Maroo 테스트넷 | `pnpm a:doc-claims` | 문서 개선 노트의 근거가 되는 문서 문장과 체인 동작 | `[Live Testnet]` 조회와 eth_call |
 | Clairveil 로컬 | `pnpm a:local` | 차폐 정산 전체 흐름, 역할마다 볼 수 있는 것, 제3자에게 공개되는 것 | `[Local]` |
+| Clairveil 로컬과 Maroo 테스트넷 | `pnpm a:audit-access` | 감사 키를 세 역할의 2-of-3 몫으로 나눠 두 역할이 승인한 tx의 감사 공개만 열고, 요청, 승인, 열람의 해시를 EAS 증명으로 남김 | 해독 `[Local]`, 기록 `[Live Testnet]` |
 
 ## 1. 준비
 
@@ -47,7 +48,7 @@ pnpm test:contracts   # 금고 규칙 테스트 6개
 pnpm setup:wallets
 ```
 
-- 역할 여섯 개(구매 기업, KYB 발급자, 협력사 A, 협력사 B, 업그레이드 권한, Track C의 에이전트 지갑)의 테스트넷 전용 지갑을 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에 만듭니다. 레포 안에는 키가 들어가지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
+- 역할 아홉 개(구매 기업, KYB 발급자, 협력사 A, 협력사 B, 업그레이드 권한, Track C의 에이전트 지갑, 8절 통제된 열람의 내부 감사팀, 외부감사인, 규제기관)의 테스트넷 전용 지갑을 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에 만듭니다. 레포 안에는 키가 들어가지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
 - 화면에 나온 faucet 명령 두 줄로 구매 기업과 KYB 발급자가 각각 5,000 tOKRW를 받습니다. 정산 금고 흐름은 구매 기업 잔액이 1,000 tOKRW 이상일 때 시작합니다.
 - faucet이 `Transaction failed … reverted with the following signature:.`로 실패하면 faucet 계정이 테스트넷 전역 정책의 24시간 한도에 걸렸을 수 있습니다. `pnpm a:probe-global`로 사유와 `resetAt`(한도가 풀리는 시각, UTC 초)을 확인하고, 그 시각이 지난 뒤 다시 요청합니다(6절).
 
@@ -238,3 +239,29 @@ tx         0xa4c7…557f   블록 19111569   reverted   가스 150,000 / 300,000
 | `RPC_PORT` | `26657` | 로컬 체인 RPC 포트 |
 | `CHAIN_ID` | `vendor-settlement-local-1` | 로컬 체인 ID |
 | `VENDOR_SETTLEMENT_WORK_DIR` | `.work/vendor-<시각>` | 로컬 실행 폴더 |
+
+## 8. 통제된 열람 시제품
+
+감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나누고, 요청과 두 승인이 있을 때 요청한 tx의 감사 공개만 엽니다. 해독은 5절의 로컬 실행 결과로 하고(`[Local]`), 요청, 승인, 열람의 해시는 Maroo 테스트넷 EAS 증명으로 남깁니다(`[Live Testnet]`). 설계와 한계는 [가이드 3절](integration-guide.md#통제된-열람-시제품pnpm-aaudit-access)에 있습니다.
+
+```bash
+pnpm a:local                       # 5절. 감사 공개가 든 로컬 실행 폴더를 만듭니다
+pnpm a:audit-access --no-record    # 로컬 열람만. 키와 OKRW 없이 10초 안팎
+pnpm a:audit-access --top-up       # 테스트넷 기록까지 20초 안팎. 역할 지갑의 가스를 KYB 발급자 지갑에서 채웁니다
+```
+
+- 역할 지갑 셋(`AUDIT_TEAM`, `EXTERNAL_AUDITOR`, `REGULATOR`)은 `pnpm setup:wallets`가 만듭니다. 지갑 파일이 이미 있으면 빠진 역할만 더합니다.
+- 처음 실행할 때 Go 도구 두 개를 `.work/audit-tools/`에 빌드합니다(이 머신에서 약 20초). `pnpm bootstrap`이 미리 빌드합니다. 도구 소스는 `shared/clairveil-ext/audit-threshold/`에 있고, 고정 커밋의 `vendor/clairveil` 모듈 안에서 `go build -overlay`로 빌드해 vendor 폴더에는 파일을 쓰지 않습니다. 도구 테스트는 `pnpm test:go`입니다.
+- 몫과 부분값 파일은 `.work/audit-access/<시각>/`에 권한 600으로 남습니다. 화면과 증거 파일에는 몫 공개값만 나옵니다.
+- 테스트넷 비용: 2026-10-23 실행에서 기록 한 건의 수수료는 약 3.03 OKRW였습니다. 노드는 보내기 전에 선결제 상한(가스 한도 × 최대 수수료, 같은 날 8.57 OKRW)만큼 잔액을 요구해서, 스크립트는 기록 한 건에 10 OKRW를 잡고 모자라면 `--top-up`으로 채웁니다. `[Live Testnet]` [열람 기록](evidence/live/audit-access-20261023T054254Z.json)
+- 성공 기준: 로컬 확인 줄 13개와 체인 확인 줄 4개가 모두 `[확인]`이고 `[어긋남]`이 없습니다. 체인 확인은 증명자, 요청 증명을 가리키는 `refUID`, 되돌릴 수 없음, 탐색기 색인을 다시 읽은 결과입니다.
+
+실행 중 만나는 증상마다 원인과 할 일을 모았습니다.
+
+| 증상 | 원인 | 할 일 |
+| --- | --- | --- |
+| `감사 공개가 든 로컬 실행 폴더가 없습니다` | 5절의 로컬 실행을 하지 않았습니다 | `pnpm a:local` |
+| `기록을 보내기 전에 멈췄습니다. 이번 실행에서 보낸 기록은 없습니다.`와 지갑별 잔액 줄 | 역할 지갑의 OKRW가 기록 예산보다 적습니다 | `--top-up`을 붙여 다시 실행 |
+| `기록이 중간에 멈췄습니다`와 `--resume` 안내 | 기록 도중 RPC가 끊기거나 실행을 멈췄습니다 | 원인을 고친 뒤 안내된 `pnpm a:audit-access --resume .work/audit-access/<시각>`. 이미 남긴 기록은 다시 보내지 않습니다 |
+| `테스트넷 RPC(…)에 연결하지 못했습니다` | RPC에 닿지 않습니다 | 네트워크를 확인하거나 `MAROO_RPC_URL`로 다른 주소 지정 |
+| `이미 남긴 기록 …의 내용이 다릅니다` | 사건 폴더의 계획 파일이 처음 실행과 달라졌습니다 | `--resume` 없이 새 사건으로 다시 실행 |

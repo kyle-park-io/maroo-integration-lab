@@ -22,6 +22,7 @@ Clairveil에서는 모든 자산 이동에 감사 disclosure가 들어갑니다.
 - 일괄 지급 tx는 CLI의 `--tx-hash` 해독이 첫 메시지만 풉니다. 메시지마다 감사 암호문을 꺼내 따로 넘겨야 모든 송장이 확인됩니다. `[Local]`
 - Maroo Docs는 규제기관의 관찰자 노드 열람 기능이 아직 체인에 구현되지 않았다고 적습니다. Maroo에서 감사 비밀키를 누가 보관하는지는 문서에 없습니다. `[Docs Only]` [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/)
 - 마루 라이트페이퍼 5.6.2는 규제기관과 감사 주체의 열람에 「다중 승인(임계/분산) + 역할 분리」를 기본 원칙으로 두고, 요청과 승인과 열람을 모두 기록하라고 적습니다. 로컬 실행의 감사 키는 한 주체가 혼자 기간 전체를 풀 수 있는 키 하나였습니다. 라이트페이퍼의 네 시야와 이 사례의 대응은 [가이드 3절](integration-guide.md#maroo가-말하는-verifiable-privacy와-이-사례)에 있습니다. `[Docs Only]` [마루 라이트페이퍼](https://litepaper.maroo.io/) v1.0 5.6.2, `[Local]`
+- 이 레포의 통제된 열람 시제품은 로컬 감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나눕니다. 요청한 역할을 뺀 두 역할이 승인하면 그 둘이 요청한 암호문에만 부분값을 내고, 감사 비밀키를 다시 만들지 않은 채 그 tx의 감사 공개만 엽니다. 요청, 승인, 열람의 해시는 테스트넷 EAS 증명으로 남깁니다. 해독 `[Local]`, 기록 `[Live Testnet]` [열람 기록](evidence/live/audit-access-20261023T054254Z.json), 재현: `pnpm a:audit-access`, 한계: [가이드 3절](integration-guide.md#통제된-열람-시제품pnpm-aaudit-access)
 - 권고: PoC에서 감사 키 보관 주체(내부 감사팀, 외부감사인, 규제기관)와 교체 주기를 정합니다. Clairveil도 감사 비밀키의 보관, 접근 통제, 교체, 사고 대응을 도입하는 조직의 책임으로 둡니다. `[Docs Only]` [위협 모델 13행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md#L13)
 
 ## 3. 협력사에게는 송장 내용을 보여 주고, 다른 사람에게는 숨길 수 있나요?
