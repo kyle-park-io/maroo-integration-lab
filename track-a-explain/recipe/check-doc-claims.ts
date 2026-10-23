@@ -10,6 +10,7 @@ import { encodeAbiParameters, encodeFunctionData, type Abi, type Hex } from "vie
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { OKRW, PCL, PRIVACY, publicClient as pub, rawEthCall, decodeRaw, writeEvidence } from "../../shared/lib/maroo.ts";
+import { preflightClaims } from "./doc-claims-preflight.ts";
 
 const DOCS = "https://docs.maroo.io";
 // 2026-09-23 레시피 검증 때 배포된 구현. 초기화 데이터만 바꿔 deployPclProxy 를 시뮬레이션한다.
@@ -91,13 +92,22 @@ record("empty-initializer", {
   ethCall: sims,
 });
 
-// 5. 사전 검사 방법이 문서에 있는지(eth_call 은 전역 정책을 평가하지 않는다)
-const reasons = await pageText("/concepts/compliance/pcl-reason-codes/");
+// 5. 보내기 전 사전 검사를 문서가 어떻게 적는지. 시뮬레이션 가이드, ReasonCode, Contract API 세 페이지를 읽는다.
+//    체인 쪽 근거는 a:probe-global --over-limit 기록이다. PCL 프록시를 거치지 않는 이체는 eth_call 에서 전역 정책
+//    거부가 나오지 않고, PCL 프록시 호출은 eth_call 에서도 거부된다.
+const preflightPages = {
+  simulation: "/guides/integration/simulating-pcl-checks/",
+  reasonCodes: "/concepts/compliance/pcl-reason-codes/",
+  contractApi: "/apis/contract/",
+};
 record("preflight-method", {
-  docsPage: `${DOCS}/concepts/compliance/pcl-reason-codes/`,
-  mentionsEstimateGas: count(reasons.toLowerCase(), "estimategas") > 0,
-  mentionsEthCall: count(reasons.toLowerCase(), "eth_call") > 0,
-  chainEvidence: "probe-global-policy 기록: 같은 전송이 eth_call 은 통과, eth_estimateGas 는 전역 정책으로 거부",
+  docsPages: Object.values(preflightPages).map((p) => `${DOCS}${p}`),
+  ...preflightClaims({
+    simulation: await pageText(preflightPages.simulation),
+    reasonCodes: await pageText(preflightPages.reasonCodes),
+    contractApi: await pageText(preflightPages.contractApi),
+  }),
+  chainEvidence: "probe-global-compare 기록: 같은 금액을 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출로 eth_call, eth_estimateGas 에 견줌",
 });
 
 const file = writeEvidence(path.join(ROOT, "track-a-explain/evidence/live"), "doc-claims", {
