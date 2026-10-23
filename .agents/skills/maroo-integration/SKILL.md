@@ -49,7 +49,7 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 | 에이전트 지갑 연결 | `setAgentWallet`은 새 지갑이 EIP-712(`AgentWalletSet(agentId, newWallet, owner, deadline)`)로 서명하고 소유자가 보낸다. 마감은 체인 블록 시각 + 300초 안 | 마감을 5분 넘게 잡는다(`deadline too far`) | `[Live Testnet]` `pnpm c:agent-limit` 1단계 |
 | 지갑에서 에이전트 찾기 | `IAgent.getAgentIds(에이전트 지갑)`. 기준은 연결된 에이전트 지갑이다 | 연결 뒤 소유자 주소로 찾는다(빈 목록). 소유자는 `ownerOf`로 본다 | `[Live Testnet]` `pnpm c:agent-limit` |
 | 에이전트 한도 | `setMetadata(agentId, "TransferLimit", numberToHex(한도, { size: 32 }))`. 32바이트 big-endian uint256, 단위 `atokrw` | 2026-09-26 판 문서대로 숫자 문자열을 쓴다. `AgentTransferLimitMetadataInvalid`로 한도 안 결제까지 모두 막힌다(2026-10-23 판 문서는 32바이트 `abi.encode(uint256)`로 고쳤다) | `[Live Testnet]` `pnpm c:agent-limit` 3단계 |
-| 거부 사유 읽기 | revert 데이터를 `Abis.errors`(SDK)나 `IPcl` 오류 ABI로 푼다. `AnyOfRejected` 안의 자식 사유까지 푼다 | `PclViolation.from`이 null이면 통과로 본다(해석되지 않았다는 뜻일 뿐) | `[Live Testnet]`, `[Docs Only]` SDK README |
+| 거부 사유 읽기 | `pnpm explain <tx 해시>`로 푼다. 이 명령은 revert 데이터를 `IPcl`, `IPrivacy`, 대상 컨트랙트 ABI로 풀어 계열을 정하고, `AnyOfRejected` 안의 자식 사유까지 풀고, `pclProxy`와 묶인 정책으로 전역 정책인지 컨트랙트 정책인지 가린다. 코드에서는 같은 일을 `shared/lib/explain.ts`가 한다 | `PclViolation.from`이 null이면 통과로 본다(해석되지 않았다는 뜻일 뿐) | `[Live Testnet]`, `[Docs Only]` SDK README |
 | Privacy 호출 | 지금은 외부에서 테스트넷 Privacy 상태 변경을 성공시킬 방법이 없다. 유효한 증명을 만들 재료(현재 verifier와 맞는 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력, prover 엔드포인트)가 공개되지 않았다. 예치 요청은 요청 검증 `SDKInvalidRequest()`에서 처음 막힌다. 차폐 흐름은 Clairveil v0.4.0 로컬에서 검증한다 | 무효한 증명을 담은 tx를 보내 연동 성공처럼 적는다. 비공개 구성 요소나 엔드포인트를 짐작한다. 로컬 결과를 테스트넷 성공으로 적는다 | `[Live Testnet]` `pnpm a:probe`, `[Local]` `pnpm a:local` |
 | Privacy 호출 자격 | Privacy 정책은 `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY)`. 호출자에게 개인 본인 인증 증명이 필요하고, 기관용 KYB 스키마는 없다 | Privacy 정책을 바꿀 수 있다고 본다(관리자 한 주소만 바꾼다) | `[Live Testnet]` `pnpm a:inspect` |
 | OKRW 전송 | 네이티브 value로 보낸다(`{ to, value }`). 금고 입금도 `fund()`에 value를 싣는다 | 문서 배포 주소 표의 `OKRW_ERC20`(`0xEeee…EEeE`)을 ERC-20으로 부른다. 그 주소에는 코드가 없다 | `[Live Testnet]` `pnpm c:grounding` |
@@ -93,6 +93,7 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 | `pnpm a:reject-gas` | 정책에 걸린 tx의 영수증(상태, 쓴 가스와 한도의 비율, 수수료) | 없음 |
 | `pnpm a:kyb-gate` | PCL 프록시 금고와 KYB 증명의 거부·통과 흐름 전체 | 구매 기업 약 250 OKRW(협력사 A가 받는 100, 잔액이 30 아래인 협력사 두 지갑에 60씩 보충). 발급자 지갑까지 비어 있으면 약 310 OKRW |
 | `pnpm c:agent-limit` | 에이전트 지갑 연결, `TransferLimit` 형식, 한도 안·초과 결제 | 약 30 OKRW |
+| `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 계열, 걸린 정책, 다음 행동 | 없음 |
 | `pnpm c:judge <evidence.json> --track N` | 제출 증거를 테스트넷에서 다시 확인해 판정 | 없음 |
 | `pnpm a:local [--extras]` | Clairveil v0.4.0 로컬 차폐 정산 전체 | 로컬 |
 

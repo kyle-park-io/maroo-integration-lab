@@ -265,6 +265,16 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | 문서 차이 19건의 반영 | 2026-09-26 문서 미러 기준으로 적었고, 2026-10-23에 문서 전체를 다시 받아 견주었더니 13건이 고쳐졌고 3건이 일부 고쳐졌으며 3건은 마루 문서 대상이 아님([상태 열](#발견한-차이)) | `pnpm a:doc-claims`(1\~5번), `pnpm a:probe-send-gas`, `pnpm c:agent-limit`를 다시 실행해 문서 문장과 체인 동작 대조 | Maroo Docs |
 | 실제 참가자와의 워크샵, 실제 해커톤 참가자의 트랙 2 제출 | 이 머신의 실행 시간으로만 설계 | 파일럿 워크샵 한 번, `pnpm c:judge`로 참가자 제출물 판정 | 운영진 |
 
+## 제출 뒤 더한 것
+
+제출한 뒤에 더한 명령입니다. 열은 명령, 하는 일, 첫 기록입니다. 모두 테스트넷에는 조회와 시뮬레이션만 합니다.
+
+| 명령 | 하는 일 | 첫 기록 |
+| --- | --- | --- |
+| `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 오류 선택자와 계열, PCL 거부면 전역 정책인지 컨트랙트 정책인지, 통과한 PCL 프록시 호출의 `PolicyCheckPassed`, 다음 행동을 풉니다. B 워크샵 4단계와 C 심사 판정이 같은 코드(`shared/lib/explain.ts`)를 씁니다 | [explain-examples-20261023T050841Z.json](track-a-explain/evidence/live/explain-examples-20261023T050841Z.json) |
+| `pnpm a:probe-global --over-limit` | KYC 증명이 없는 지갑이 건당 한도를 넘는 금액을 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출로 보낼 때 `eth_call`과 `eth_estimateGas`의 결과를 견줍니다(잔액 상태 덮어쓰기) | [probe-global-compare-20261023T042452Z.json](track-a-explain/evidence/live/probe-global-compare-20261023T042452Z.json) |
+| `pnpm a:chain-info` | 테스트넷 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부, Clairveil 조회 경로의 응답 코드를 기록합니다 | [chain-info-20261023T045537Z.json](track-a-explain/evidence/live/chain-info-20261023T045537Z.json) |
+
 ## 제출 뒤 고친 것
 
 제출한 상태는 태그 [`submission-2026-09-28`](https://github.com/kyle-park-io/maroo-integration-lab/releases/tag/submission-2026-09-28)(커밋 `5ce0185`)에 그대로 있습니다. 그 뒤에 찾아 고친 것을 고친 날짜순으로 적습니다. 열은 고친 날짜, 틀린 것, 찾은 방법, 고친 것입니다.

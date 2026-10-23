@@ -9,6 +9,7 @@
 | Maroo 테스트넷 | `pnpm a:probe-global` | 같은 전송을 `eth_call`과 `eth_estimateGas`로 불렀을 때 전역 정책의 평가 차이. `--over-limit`는 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출을 견줍니다 | `[Live Testnet]` 조회 |
 | Maroo 테스트넷 | `pnpm a:probe-kyc` | 카카오 본인 인증 증명이 있는 지갑과 없는 지갑에서 deposit이 처음 막히는 층 비교 | `[Live Testnet]` eth_call, 거부 경로 증거 |
 | Maroo 테스트넷 | `pnpm a:chain-info` | 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부 | `[Live Testnet]` Cosmos REST 조회 |
+| Maroo 테스트넷 | `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 오류 선택자, 계열, 전역 정책인지 컨트랙트 정책인지, 통과한 프록시 호출의 `PolicyCheckPassed`, 다음 행동 | `[Live Testnet]` 조회 |
 | 코드 대조 | `pnpm a:abi-compare` | Maroo `IPrivacy` ABI와 ClairveilJS 정식 EVM Privacy 계약(v0.3.1)의 선택자, 이벤트, 정규화 해시 | `[코드 대조]`, 체인 호출 없음 |
 | SDK와 테스트넷 조회 | `pnpm a:probe-sdk` | 공식 SDK(ClairveilJS)의 EVM 예치 준비가 Maroo 설정에서 어느 조회에 멈추는지 | `[코드 대조]`, 테스트넷 조회, tx 없음 |
 | Maroo 테스트넷 | `pnpm a:kyb-gate` | OKRW 이체, 정산 금고 배포, `claim()`의 KYB 정책 거부와 통과, 증명 폐기 뒤 거부, 회수 | `[Live Testnet]` 상태 변경 tx |
@@ -189,7 +190,29 @@ pnpm a:local
 
 ## 6. 오류가 나면
 
-실행 중 만나는 증상마다 원인과 할 일을 모았습니다.
+실패한 tx는 해시 하나로 풀 수 있습니다. 거부 해석기는 tx가 블록에 들어간 직전 상태로 같은 호출을 다시 시뮬레이션해 revert 데이터를 얻고, 오류 선택자로 계열을 정하고, PCL 거부면 대상이 PCL 프록시인지와 묶인 정책으로 전역 정책인지 컨트랙트 정책인지 가립니다. tx 없이 호출만 확인할 때는 `--from`, `--to`, `--sig`, `--args`, `--value`로 넘기고, 잔액이 없어도 `--balance`로 잔액을 부풀려 시뮬레이션합니다.
+
+```bash
+pnpm explain 0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f
+pnpm explain --from BUYER --to SUPPLIER_A --value 2000001 --balance 20000000
+pnpm explain --examples      # 이 레포가 겪은 실패 다섯 계열과 통과 tx 하나, 3초 안팎
+```
+
+첫 명령의 출력입니다. 2026-10-23 13:08 KST에 돌렸습니다 `[Live Testnet]` [기록](evidence/live/explain-examples-20261023T050841Z.json).
+
+```text
+tx         0xa4c7…557f   블록 19111569   reverted   가스 150,000 / 300,000 (50.0%)
+사유       EasNoAttestationReceived(0x9D13…67Bb)   선택자 0xbca5593e
+종류       PCL 정책 위반
+걸린 정책  컨트랙트 정책. 대상 0x50f6…7D8E: PCL 프록시(Transparent), claim()(0x4e71d92d)에 묶인 정책 EAS_POLICY(schema 0x1268f1…fbbc). 전역 정책에도 같은 템플릿이 있지만 Or 조합 안에만 있어, 그 자리에서 거부되면 AnyOfRejected로 감싸여 나옵니다. 사유가 감싸이지 않고 나왔으므로 컨트랙트 정책의 거부입니다.
+참고       사유는 직전 블록 상태로 다시 시뮬레이션해 얻었습니다. 같은 블록의 앞선 tx가 상태를 바꿨으면 실제 사유와 다를 수 있습니다.
+다음 행동  보내는 주소에 이 정책이 요구하는 스키마의 색인된 증명이 없습니다(주소 0x9D13…67Bb). 증명을 발급하고 indexAttestation으로 색인한 뒤 다시 보냅니다.
+```
+
+- 금고의 `NotBuyer()` 같은 컨트랙트 오류는 `pnpm bootstrap`이 `out/`에 만든 금고 ABI로 풉니다. 다른 컨트랙트의 오류는 `--abi <ABI나 forge 산출물 JSON>`으로 넘깁니다. ABI에 없는 오류는 원시 데이터를 그대로 남기고 「해석되지 않음」으로 적습니다.
+- 계열과 판별 순서는 [가이드 6절](integration-guide.md#6-판정과-실패-진단)에 있습니다.
+
+아래는 실행 중 만나는 증상마다 원인과 할 일을 모은 표입니다.
 
 | 증상 | 원인 | 할 일 |
 | --- | --- | --- |

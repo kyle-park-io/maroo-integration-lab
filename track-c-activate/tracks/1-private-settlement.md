@@ -265,7 +265,7 @@ pnpm a:local
 
 - 거부를 tx로 남기지 못하면 `txHash` 대신 `eth_estimateGas` 요청과 응답 원문을 `rpcLog`에 넣습니다.
 - 테스트넷 tx 항목에는 `target`이 꼭 있어야 하고, `expected`에는 "거부", "통과", "성공" 가운데 하나가 들어가야 합니다. 둘 중 하나라도 빠지면 자동 판정은 그 항목을 실패로 봅니다. 받는 주소와 영수증 상태를 확인할 기준이 없는 항목이 요건을 채우지 못하게 하려는 것입니다.
-- 자동 판정은 `pnpm c:judge <evidence.json> --track 1`([판정 스크립트](../judge/check-evidence.ts))이 합니다. tx 해시로 영수증 상태, 받는 주소, value를 확인하고, 거부 항목은 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 `actual`의 사유와 대조합니다. `target`에 대해 `IPcl.contractPolicies`를 불러 정책이 묶였는지, 정책의 선택자가 호출한 함수와 같은지도 확인합니다.
+- 자동 판정은 `pnpm c:judge <evidence.json> --track 1`([판정 스크립트](../judge/check-evidence.ts))이 합니다. tx 해시로 영수증 상태, 받는 주소, value를 확인하고, 거부 항목은 거부 해석기(`pnpm explain`과 같은 코드)로 직전 블록 상태의 재시뮬레이션 사유를 `actual`과 대조하고, 오류 계열과 걸린 정책을 확인합니다. 전역 정책에서 난 거부는 제출물이 건 정책의 증거로 인정하지 않습니다. 통과 항목은 대상이 PCL 프록시이면 영수증에 `PolicyCheckPassed`가 있는지 확인합니다. `target`에 대해 `IPcl.contractPolicies`를 불러 정책이 묶였는지, 정책의 선택자가 호출한 함수와 같은지도 확인합니다.
 - 로컬 항목은 `txHash` 자리에 로컬 체인 tx 해시를 넣고 라벨을 `[Local]`로 둡니다. 자동 판정은 로컬 항목을 건너뛰고 재현 확인에서 봅니다.
 
 ## 24. 심사 과정 예시
