@@ -21,6 +21,7 @@ Clairveil에서는 모든 자산 이동에 감사 disclosure가 들어갑니다.
 - 근거: `[Local]` [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) 2절
 - 일괄 지급 tx는 CLI의 `--tx-hash` 해독이 첫 메시지만 풉니다. 메시지마다 감사 암호문을 꺼내 따로 넘겨야 모든 송장이 확인됩니다. `[Local]`
 - Maroo Docs는 규제기관의 관찰자 노드 열람 기능이 아직 체인에 구현되지 않았다고 적습니다. Maroo에서 감사 비밀키를 누가 보관하는지는 문서에 없습니다. `[Docs Only]` [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/)
+- 마루 라이트페이퍼 5.6.2는 규제기관과 감사 주체의 열람에 「다중 승인(임계/분산) + 역할 분리」를 기본 원칙으로 두고, 요청과 승인과 열람을 모두 기록하라고 적습니다. 로컬 실행의 감사 키는 한 주체가 혼자 기간 전체를 풀 수 있는 키 하나였습니다. 라이트페이퍼의 네 시야와 이 사례의 대응은 [가이드 3절](integration-guide.md#maroo가-말하는-verifiable-privacy와-이-사례)에 있습니다. `[Docs Only]` [마루 라이트페이퍼](https://litepaper.maroo.io/) v1.0 5.6.2, `[Local]`
 - 권고: PoC에서 감사 키 보관 주체(내부 감사팀, 외부감사인, 규제기관)와 교체 주기를 정합니다. Clairveil도 감사 비밀키의 보관, 접근 통제, 교체, 사고 대응을 도입하는 조직의 책임으로 둡니다. `[Docs Only]` [위협 모델 13행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md#L13)
 
 ## 3. 협력사에게는 송장 내용을 보여 주고, 다른 사람에게는 숨길 수 있나요?
@@ -48,7 +49,7 @@ Clairveil에서는 모든 자산 이동에 감사 disclosure가 들어갑니다.
 | --- | --- | --- | --- |
 | 협력사 지갑의 노트 키(지출, 보기) | 협력사 | 잃으면 받은 대금을 쓸 수 없고, 새면 받은 내역이 보입니다 | Clairveil 레퍼런스는 지갑 파일을 평문 JSON(권한 0600)으로 두고, 프로덕션은 저장 시 암호화하라고 적습니다 `[Docs Only]` [위협 모델 96행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md#L96) |
 | 구매 기업의 계정 키와 노트 키 | 구매 기업 | 대금 재원을 잃거나 지급 내역이 보입니다 | 같음 |
-| 감사 epoch 비밀키 | Maroo 문서에 없습니다 | 해당 기간의 모든 감사 내용이 보입니다 | 2번 답 |
+| 감사 epoch 비밀키 | Maroo 문서에 없습니다. Clairveil 검증 보고서는 HSM, KMS, 임계 보관을 감사인이나 급여 운영자의 외부 운영 책임으로 둡니다 | 해당 기간의 모든 감사 내용이 보입니다 | 2번 답, `[Docs Only]` [검증 보고서 356행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-batch-joinsplit-16x32-publication-validation-report.md#L356) |
 | KYB 증명 발급 키 | 발급 기관 | 자격 없는 협력사에 증명이 나가거나, 정상 협력사의 증명을 폐기할 수 없습니다 | 5번 답 |
 | 금고의 PCL 정책 관리 권한 | 구매 기업의 컴플라이언스 담당 | 정책이 바뀌거나 떼어질 수 있습니다 | [금고 흐름 스크립트](recipe/pcl-kyb-gate.ts) |
 | 금고의 업그레이드 권한(ProxyAdmin 소유자) | 정책 관리와 다른 주체 | 금고 로직이 바뀌어 협력사 몫이 빠져나갈 수 있습니다 | 8번 답 |
@@ -84,6 +85,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 - 위 계정(faucet)은 24시간 한도를 다 썼고 증명이 없어 거부됐고, 한도 창은 `resetAt`(2026-09-26 00:00 UTC)에 풀립니다. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json), 재현: `pnpm a:probe-global`
 - 사유 코드와 인자는 [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)에 정의돼 있습니다. `[Docs Only]`
 - 가스 한도도 `eth_estimateGas` 값으로 정합니다(2026-09-26 판 문서는 단순 전송을 21,000으로 적었고, 2026-10-23 판은 「약 104,000」과 에이전트 지갑 「약 283,000」으로 고쳤습니다). 단순 OKRW 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 쓰고, Ethereum처럼 21,000으로 보내면 블록에 들어가 되돌려지며 수수료 0.189 OKRW를 냅니다. 가스 21,000으로 부른 `eth_call`은 통과해 이 경우도 잡지 못합니다. 추정값의 125%로 보내도 쓴 가스는 같았습니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json), 재현: `pnpm a:probe-send-gas`
+- 보낸 뒤 실패한 tx의 receipt에는 revert 데이터가 없습니다. `pnpm explain <tx 해시>`가 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 사유, 계열, 걸린 정책(전역 또는 컨트랙트)을 출력합니다. 시점마다 얻는 데이터와 정책을 가르는 순서는 [가이드 6절](integration-guide.md#오류-데이터를-얻는-시점)에 있습니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T050841Z.json)
 - 권고: 사전 검사는 `eth_estimateGas`로 하고, `AnyOfRejected` 안의 자식 사유까지 풀어 사용자에게 보여 줍니다.
 
 ## 7. 지급이 실패하면 다시 보내도 되나요? 두 번 지급될 위험은 없나요?

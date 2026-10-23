@@ -14,7 +14,7 @@
 
 ## 읽는 순서
 
-1. [기관 연동 가이드](integration-guide.md) 0절에서 독자 상황, 네 질문의 답, 지금 되는 것과 남은 것을 봅니다.
+1. [기관 연동 가이드](integration-guide.md) 0절에서 독자 상황, 일곱 질문의 답, 지금 되는 것과 남은 것을 봅니다.
 2. 가이드 1\~4절에서 구조, 흐름, 가시성, 키와 책임을 봅니다.
 3. [실행 레시피](runnable-recipe.md)로 직접 실행하고, [증거 목록](evidence.md)과 결과를 대조합니다.
 4. [기관 FAQ](faq.md)와 [문서 개선 노트](documentation-improvement-notes.md)를 봅니다.
