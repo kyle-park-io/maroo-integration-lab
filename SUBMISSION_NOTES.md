@@ -267,13 +267,14 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 
 ## 제출 뒤 더한 것
 
-제출한 뒤에 더한 명령입니다. 열은 명령, 하는 일, 첫 기록입니다. 모두 테스트넷에는 조회와 시뮬레이션만 합니다.
+제출한 뒤에 더한 명령입니다. 열은 명령, 하는 일, 첫 기록입니다. `pnpm a:audit-access`만 테스트넷에 tx(EAS 증명)를 보내고, 나머지는 조회와 시뮬레이션만 합니다.
 
 | 명령 | 하는 일 | 첫 기록 |
 | --- | --- | --- |
 | `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 오류 선택자와 계열, PCL 거부면 전역 정책인지 컨트랙트 정책인지, 통과한 PCL 프록시 호출의 `PolicyCheckPassed`, 다음 행동을 풉니다. B 워크샵 4단계와 C 심사 판정이 같은 코드(`shared/lib/explain.ts`)를 씁니다 | [explain-examples-20261023T050841Z.json](track-a-explain/evidence/live/explain-examples-20261023T050841Z.json) |
 | `pnpm a:probe-global --over-limit` | KYC 증명이 없는 지갑이 건당 한도를 넘는 금액을 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출로 보낼 때 `eth_call`과 `eth_estimateGas`의 결과를 견줍니다(잔액 상태 덮어쓰기) | [probe-global-compare-20261023T042452Z.json](track-a-explain/evidence/live/probe-global-compare-20261023T042452Z.json) |
 | `pnpm a:chain-info` | 테스트넷 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부, Clairveil 조회 경로의 응답 코드를 기록합니다 | [chain-info-20261023T045537Z.json](track-a-explain/evidence/live/chain-info-20261023T045537Z.json) |
+| `pnpm a:audit-access`, `pnpm b:audit-drill` | 로컬 감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나누고, 요청한 역할을 뺀 두 역할이 승인한 tx의 감사 disclosure만 부분값으로 엽니다(`[Local]`). A 명령은 요청, 승인, 열람의 해시를 EAS 증명으로 남기고(`[Live Testnet]`), B 명령은 참가자가 요청 범위를 읽고 승인할지 정하는 연습입니다 | [audit-access-20261023T054254Z.json](track-a-explain/evidence/live/audit-access-20261023T054254Z.json) |
 
 ## 제출 뒤 고친 것
 

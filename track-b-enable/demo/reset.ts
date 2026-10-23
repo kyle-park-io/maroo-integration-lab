@@ -1,6 +1,6 @@
 // 워크샵 초기화. 남은 로컬 노드를 끄고 로컬 실행 폴더를 지운다.
 //
-//   pnpm b:reset            # 로컬 노드 종료, .work/vendor-* 삭제
+//   pnpm b:reset            # 로컬 노드 종료, .work/vendor-* 와 선택 연습의 .work/audit-drill(감사 키 몫 파일) 삭제
 //   pnpm b:reset --all      # 위에 더해 .work/prebuilt 도 삭제(다음 3단계에서 다시 빌드)
 //
 // 지갑 파일, vendor/, 기록(evidence/)은 건드리지 않는다. 테스트넷 상태는 되돌릴 수 없고,
@@ -35,6 +35,11 @@ for (const d of runs) {
 }
 for (const d of runs) fs.rmSync(path.join(work, d), { recursive: true, force: true });
 console.log(`로컬 실행 폴더 ${runs.length}개 삭제, 노드 ${stopped}개 종료`);
+const drill = path.join(work, "audit-drill");
+if (fs.existsSync(drill)) {
+  fs.rmSync(drill, { recursive: true, force: true });
+  console.log(".work/audit-drill(선택 연습의 감사 키 몫과 부분값) 삭제");
+}
 if (process.argv.includes("--all")) {
   fs.rmSync(PREBUILT_DIR, { recursive: true, force: true });
   console.log(".work/prebuilt 삭제");

@@ -43,11 +43,13 @@
 
 ## 2. Clairveil 로컬 `[Local]`
 
-Clairveil v0.4.0 로컬 체인에서 실행한 3단계의 기록입니다. 결과 열이 그 실행에서 확인한 동작입니다.
+Clairveil v0.4.0 로컬 체인에서 실행한 3단계와 선택 연습의 기록입니다. 결과 열이 그 실행에서 확인한 동작입니다.
 
 | 단계 | 기록 | 실행 시각 | 결과 |
 | --- | --- | --- | --- |
 | 3단계 차폐 정산 | [vendor-settlement-20260925T195750Z.md](evidence/local/vendor-settlement-20260925T195750Z.md) | 2026-09-25 19:57 | 미리 빌드한 바이너리로 61초. 예치 여섯 건, 협력사 A 일괄 지급, 협력사 B 수신자 암호화 지급, 스캔, 역할별 해독(`verified=true`), 단독 인출 실패(code 1)와 같은 블록 우회 인출 성공 |
+| 선택 연습, 기본 요청 거절 | [audit-drill-20261023T055007Z.json](evidence/local/audit-drill-20261023T055007Z.json) | 2026-10-23 05:50 | `pnpm b:audit-drill --decide reject`. 협력사 B 사건에 협력사 A 지급 두 건까지 넣은 요청을 외부감사인이 거절해 아무것도 열리지 않았습니다. 승인 하나와 부분값 하나로 열리지 않는 확인도 들었습니다 |
+| 선택 연습, 좁은 요청 승인 | [audit-drill-20261023T055008Z.json](evidence/local/audit-drill-20261023T055008Z.json) | 2026-10-23 05:50 | `pnpm b:audit-drill --narrow --decide approve`. 협력사 B 지급 한 건만 열림(금액 15, 체인 disclosure 해시와 일치). 협력사 A 두 건은 같은 부분값으로 복호되지 않았습니다 |
 
 ## 3. 사전 준비와 검증
 

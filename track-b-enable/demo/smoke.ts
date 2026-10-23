@@ -2,7 +2,7 @@
 //
 //   pnpm b:smoke
 //
-// b:check, 1단계, 3단계, 4단계, 5단계를 멈춤 없이 차례로 실행하고 성공 기준을 확인한다.
+// b:check, 1단계, 3단계, 선택 연습(b:audit-drill), 4단계, 5단계를 멈춤 없이 차례로 실행하고 성공 기준을 확인한다.
 // 구매 기업 잔액이 1,000 OKRW 이상이면 2단계(테스트넷 tx)도 실행한다.
 
 import { spawnSync } from "node:child_process";
@@ -42,6 +42,13 @@ if (run("3단계", ["track-b-enable/demo/step.ts", "3"])) {
   const md = fs.readFileSync(newest(LOCAL_DIR, "vendor-settlement-")!, "utf8");
   checks.push({ name: "3단계 협력사 B 해독", ok: /협력사 B \| B 지급 tx의 수신자 disclosure \| verified=true/.test(md), detail: "기록 2절" });
   checks.push({ name: "3단계 인출 성공", ok: /0 노트 예치와 같은 블록 \| `[0-9A-F]+` \| \d+ \| 성공/.test(md), detail: "기록 1절" });
+}
+// 선택 연습: 넓은 요청을 거절하면 아무것도 열리지 않고, 좁은 요청을 승인하면 협력사 B 지급 한 건만 열린다
+for (const [args, want] of [[["--decide", "reject"], 0], [["--narrow", "--decide", "approve"], 1]] as const) {
+  if (run(`선택 연습 ${args.join(" ")}`, ["track-b-enable/demo/audit-drill.ts", ...args])) {
+    const d = JSON.parse(fs.readFileSync(newest(LOCAL_DIR, "audit-drill-")!, "utf8")) as { opened: string[]; checks: { ok: boolean }[] };
+    checks.push({ name: `선택 연습 열린 건수 ${want}`, ok: d.opened.length === want && d.checks.every((c) => c.ok), detail: d.opened.join(", ") || "없음" });
+  }
 }
 if (run("4단계", ["track-b-enable/demo/step.ts", "4"])) {
   const d = JSON.parse(fs.readFileSync(newest(LIVE_DIR, "step4-diagnose-")!, "utf8")) as { rows: { class: string }[] };

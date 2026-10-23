@@ -17,7 +17,7 @@ Track B가 제출하는 파일을 용도별로 모았습니다. 파일 열에서
 
 | 결과물 | 파일 | 담은 것 |
 | --- | --- | --- |
-| 실행 데모 | [demo/](demo/) | `pnpm b:check`, `b:prepare`, `b:fund`, `b:step 1~5`, `b:reset`, `b:smoke`. 단계마다 예상 결과와 성공 기준을 먼저 출력하고, 실패하면 트러블슈팅 번호를 안내. 공용 흐름은 `shared/lib/`(Track A와 같은 코드) |
+| 실행 데모 | [demo/](demo/) | `pnpm b:check`, `b:prepare`, `b:fund`, `b:step 1~5`, `b:audit-drill`, `b:reset`, `b:smoke`. 단계마다 예상 결과와 성공 기준을 먼저 출력하고, 실패하면 트러블슈팅 번호를 안내. 공용 흐름은 `shared/lib/`(Track A와 같은 코드) |
 | 테스트넷 증거 | [evidence.md](evidence.md) | 1단계 조회, 2단계 상태 변경 tx, 4단계 분류, 3단계 로컬 기록 |
 | 워크샵 패키지 | [participant-guide.md](participant-guide.md), [facilitator-guide.md](facilitator-guide.md) | 학습 목표 여섯 개, 사전 준비와 확인 방법, 75분 시간표, 단계별 성공 기준, 토론 질문과 답변 방향, 끝난 뒤 다음 단계. Clairveil 빌드는 사전 준비로 뺌 |
 | 트러블슈팅 | [troubleshooting.md](troubleshooting.md) | 오류 10개(증상, 원인, 확인, 해결)와 라이브 서비스가 멈췄을 때의 대체 진행 |
@@ -38,7 +38,8 @@ Track B가 제출하는 파일을 용도별로 모았습니다. 파일 열에서
 | `pnpm b:step 3` | 참가자, 25\~50분 | 차폐 정산 전체(이 머신에서 61초) | `[Local]` |
 | `pnpm b:step 4` | 참가자, 50\~65분 | 결과 네 가지 분류와 Privacy 최초 실패 계층 | `[Live Testnet]` 조회와 시뮬레이션 |
 | `pnpm b:step 5` | 참가자, 65\~75분 | 기록 모음, 경계, 토론 질문 | 정리 |
-| `pnpm b:reset` | 누구나 | 로컬 노드 종료와 실행 폴더 삭제 | 정리 |
+| `pnpm b:audit-drill` | 참가자, 3단계 뒤 선택 | 통제된 열람 연습: 감사 키 2-of-3 몫, 규제기관의 요청을 읽고 외부감사인으로서 승인하거나 거절 | `[Local]` |
+| `pnpm b:reset` | 누구나 | 로컬 노드 종료와 실행 폴더, 선택 연습의 감사 키 몫 파일 삭제 | 정리 |
 | `pnpm b:smoke` | 진행자, 전날 | 1\~5단계를 멈춤 없이 실행하고 성공 기준 확인 | 검증 |
 
 ## 두 환경의 경계
