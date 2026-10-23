@@ -1,6 +1,8 @@
 # Maroo testnet Privacy readiness watch (pnpm a:watch-privacy).
 # Runs once a day, read-only against the testnet (queries and eth_estimateGas, no transactions, no keys).
 # The record is kept as a workflow artifact and in the job summary; nothing is committed.
+# The record folder is also kept in the Actions cache, so each run compares with the previous run's record
+# instead of the last committed one.
 # When proving material for the testnet verifying keys appears, it opens one issue labelled privacy-watch.
 name: watch-privacy
 
@@ -30,6 +32,12 @@ jobs:
         run: |
           pnpm setup:clairveil
           (cd vendor/clairveiljs && npm ci --ignore-scripts --no-audit --no-fund)
+      - name: Restore records from the previous run
+        uses: actions/cache/restore@v6
+        with:
+          path: track-a-explain/evidence/live/watch-privacy/
+          key: watch-privacy-records-${{ github.run_id }}
+          restore-keys: watch-privacy-records-
       - name: Watch
         id: watch
         # shell: bash adds pipefail, so a crash in the watch script fails the job instead of being hidden by tee
@@ -41,6 +49,12 @@ jobs:
         if: always()
         run: |
           { echo '```text'; cat watch.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep records for the next run
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: track-a-explain/evidence/live/watch-privacy/
+          key: watch-privacy-records-${{ github.run_id }}
       - uses: actions/upload-artifact@v7
         if: always()
         with:
