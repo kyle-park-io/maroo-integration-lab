@@ -55,3 +55,12 @@ test("성공 영수증은 알고 있는 금액으로, 실패 영수증은 사유
   assert.equal(failed.status, "failed");
   assert.equal((failed as { explanation?: unknown }).explanation, undefined);
 });
+
+test("다시 보낸 답이 already known 이면 노드가 이미 받았다고 쓰고, 받아들여졌으면 다시 보냈다고 쓴다", async () => {
+  // Maroo 테스트넷은 블록 전 tx 를 조회에 보이지 않아(2026-10-23 실측) 대기열의 결제도 다시 보내게 되고, 노드는 already known 으로 답한다.
+  const known = await recheckPending(p, deps({ rebroadcast: async () => "known" as const }, []));
+  assert.match(known.message, /이미 받아/);
+  assert.doesNotMatch(known.message, /찾지 못해/);
+  const ok = await recheckPending(p, deps({ rebroadcast: async () => "ok" as const }, []));
+  assert.match(ok.message, /찾지 못해 같은 결제를 다시 보냈어요/);
+});

@@ -34,7 +34,9 @@ export async function recheckPending(p: Pending, d: RecheckDeps): Promise<{ mess
     d.clearPending();
     return { message: slip.body, cleared: true };
   }
-  if (r === "ok" || r === "known") return { message: "노드에서 이 결제를 찾지 못해 같은 결제를 다시 보냈어요(같은 tx 해시). 잠시 뒤 다시 눌러 주세요.", cleared: false };
+  // Maroo 테스트넷은 블록 전 tx 를 조회에 보이지 않아(2026-10-23 실측) 대기열의 결제도 여기까지 온다. 노드가 already known 으로 답하면 이미 받은 것이다.
+  if (r === "known") return { message: "노드가 이 결제를 이미 받아 블록에 넣기를 기다리고 있어요. 잠시 뒤 다시 눌러 주세요.", cleared: false };
+  if (r === "ok") return { message: "노드에서 이 결제를 찾지 못해 같은 결제를 다시 보냈어요(같은 tx 해시). 잠시 뒤 다시 눌러 주세요.", cleared: false };
   if (r === "network") return { message: "Maroo 테스트넷 RPC에 연결하지 못해 확인하지 못했어요. 서버의 네트워크 연결을 확인한 뒤 다시 눌러 주세요.", cleared: false };
   return { message: "아직 블록에서 이 결제를 찾지 못했어요. 잠시 뒤 다시 눌러 주세요.", cleared: false };
 }
