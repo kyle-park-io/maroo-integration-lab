@@ -81,7 +81,7 @@
 - 확인 비용: 스크립트가 통과를 알리므로, 문제는 인출을 직접 쓰는 단계에서야 드러납니다.
 - 재현: `pnpm a:local`. 인출을 단독으로 보낸 뒤 같은 블록 우회로 다시 보냅니다. `[Local]` [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) 1절, 4절
 - 같은 블록 우회에는 순서 조건이 붙습니다. 대리 인출은 미리 만든 재료를 보내기만 해서 증명을 만드는 0 노트 예치보다 먼저 도착하고, 같은 블록 안에서 인출이 먼저 실행되면 세 번 모두 같은 오류로 실패했습니다. 예치를 먼저 mempool에 넣은 뒤 인출을 보내자 같은 블록에서 성공했습니다. `[Local]` [추가 단계 기록](evidence/local/vendor-settlement-20260926T041658Z.md) 5절
-- 최신 판 Clairveil: v0.6.1(2026-09-27) 소스에도 같은 검사([`path_snapshot.go` 190행](https://github.com/DELIGHT-LABS/clairveil/blob/fad307abddd0daa1c880f2e423668f5c58a0e578/x/privacy/keeper/path_snapshot.go#L190))와, 현재 루트를 현재 블록 높이로 등록하는 [`RecordCurrentMerkleRootSnapshotV1`](https://github.com/DELIGHT-LABS/clairveil/blob/fad307abddd0daa1c880f2e423668f5c58a0e578/x/privacy/keeper/path_snapshot.go#L253)이 그대로 있습니다. v0.6.1로 단독 인출을 실행해 보지는 않았습니다(2026-10-23 소스 대조).
+- 최신 판 Clairveil: v0.6.1(2026-09-27) 소스에도 같은 검사([`path_snapshot.go` 190행](https://github.com/DELIGHT-LABS/clairveil/blob/fad307abddd0daa1c880f2e423668f5c58a0e578/x/privacy/keeper/path_snapshot.go#L190))와, 현재 루트를 현재 블록 높이로 등록하는 [`RecordCurrentMerkleRootSnapshotV1`](https://github.com/DELIGHT-LABS/clairveil/blob/fad307abddd0daa1c880f2e423668f5c58a0e578/x/privacy/keeper/path_snapshot.go#L253)이 남아 있습니다. v0.6.1로 단독 인출을 실행해 보지는 않았습니다(2026-10-23 소스 대조).
 - 2026-10-23 판 문서: 이 노트는 Clairveil 스크립트에 관한 것이라 마루 문서에 해당 문장이 없습니다. 두 판 모두 한국어 문서 전체에 `clairveil`이 0건입니다.
 - 고친 문구 제안: `wait_tx`가 `code`가 0이 아니면 실패로 끝나게 하고, 인출 뒤 받는 계정 잔액이 늘었는지 검사합니다. 스냅샷 등록은 같은 루트를 새 높이로 다시 등록할 때 거부하지 않도록 고치거나, 인출 이벤트에서는 루트가 바뀌지 않은 경우 등록을 건너뜁니다.
 

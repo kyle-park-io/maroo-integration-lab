@@ -2,7 +2,7 @@
 
 Primary Track: A (Explain). 추가로 B(Enable)와 C(Activate)를 함께 제출합니다. English summary: [README.en.md](README.en.md)
 
-제출한 상태(2026-09-28)는 태그 [`submission-2026-09-28`](https://github.com/kyle-park-io/maroo-integration-lab/releases/tag/submission-2026-09-28)에 그대로 있습니다. 그 뒤에 고친 것은 [SUBMISSION_NOTES의 「제출 뒤 고친 것」](SUBMISSION_NOTES.md#제출-뒤-고친-것)에 적었습니다.
+2026-09-28 제출본은 태그 [`submission-2026-09-28`](https://github.com/kyle-park-io/maroo-integration-lab/releases/tag/submission-2026-09-28)로 남겨 두었습니다. 수정 내역은 [SUBMISSION_NOTES의 「후속 수정」](SUBMISSION_NOTES.md#후속-수정) 절에 날짜순으로 적었습니다.
 
 구매 기업이 협력사 대금을 Maroo에서 치르면서 협력사별 금액과 거래 관계를 공개 체인에서 숨기는 정산 한 사례로 세 트랙을 만들었습니다. 한국 대기업집단이 2025년 하반기에 협력사에 치른 하도급대금은 89.1조원이고 그중 84.71%가 현금으로 나갔습니다([아시아경제 2026-07-14](https://view.asiae.co.kr/article/2026071410535320908)). 단가, 거래량, 거래처는 영업비밀로 보호받을 수 있는 정보라서, 이 대금을 공개 체인으로 옮기려면 금액과 거래 관계를 가리는 장치가 먼저 필요합니다.
 

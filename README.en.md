@@ -2,7 +2,7 @@
 
 Primary Track: A (Explain). Tracks B (Enable) and C (Activate) are submitted as well. The main documents are in Korean; this page is a one-page English summary. Korean README: [README.md](README.md)
 
-The state submitted on 2026-09-28 is kept unchanged as the tag [`submission-2026-09-28`](https://github.com/kyle-park-io/maroo-integration-lab/releases/tag/submission-2026-09-28). Everything corrected since then is listed with its date, how it was found and what changed in [SUBMISSION_NOTES.md, section 제출 뒤 고친 것 (corrections after submission)](SUBMISSION_NOTES.md#제출-뒤-고친-것).
+The 2026-09-28 submission is preserved as the tag [`submission-2026-09-28`](https://github.com/kyle-park-io/maroo-integration-lab/releases/tag/submission-2026-09-28). Everything corrected since then is listed with its date, how it was found and what changed in [SUBMISSION_NOTES.md, section 후속 수정 (corrections after submission)](SUBMISSION_NOTES.md#후속-수정).
 
 ## What this is
 
