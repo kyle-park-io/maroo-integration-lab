@@ -32,7 +32,7 @@ Track B가 제출하는 파일을 용도별로 모았습니다. 파일 열에서
 | 명령 | 누가, 언제 | 하는 일 | 라벨 |
 | --- | --- | --- | --- |
 | `pnpm b:prepare` | 참가자, 전날 | Clairveil 받기, 금고 컴파일, 바이너리와 회로 산출물 빌드(이 머신에서 108초), 역할 지갑 | 준비 |
-| `pnpm b:fund --file participants.txt` | 진행자, 전날 | 참가자 구매 기업 주소에 테스트넷 OKRW 1,000씩. faucet이 멈췄을 때의 대안 | `[Live Testnet]` tx |
+| `pnpm b:fund --file participants.txt` | 진행자, 전날 | 참가자 구매 기업 주소에 테스트넷 OKRW 1,000씩. faucet이 멈췄을 때의 대안. 이미 1,000 이상 있는 주소는 건너뛰어, 멈춘 뒤 다시 실행해도 같은 주소에 두 번 보내지 않습니다 | `[Live Testnet]` tx |
 | `pnpm b:check` | 참가자, 전날과 직전 | 도구, 고정 커밋, 포트, RPC, 지갑, 잔액 점검 | 준비 |
 | `pnpm b:step 1` | 참가자, 0\~10분 | 연결, 지갑, Privacy와 전역 정책 | `[Live Testnet]` 조회 |
 | `pnpm b:step 2` | 참가자, 10\~25분 | KYB 관문 금고: 배포, 정책, 거부 셋과 통과 하나, 회수 | `[Live Testnet]` tx |

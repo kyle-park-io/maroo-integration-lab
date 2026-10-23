@@ -1,0 +1,17 @@
+{
+  "label": "[Live Testnet] 진행자 배분",
+  "from": "0x149bfA768558adEdDb5cBDFF2C7780CCEf2cf2cE",
+  "amountEach": "10",
+  "savedAt": "2026-10-23T12:47:01.151Z",
+  "results": [
+    {
+      "to": "0x5fFfC98bAb08870762d69392B1FB8ee19dE94322",
+      "tx": "0x1f12456f60343f340fc01fa2d804ddc969b28dcb544218e56cca73b2b979b548",
+      "amount": "10",
+      "precheck": "eth_estimateGas 통과(가스 103945)",
+      "status": "success",
+      "block": "21449178"
+    }
+  ],
+  "remaining": []
+}

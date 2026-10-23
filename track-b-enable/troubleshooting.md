@@ -83,10 +83,10 @@ Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다. Go�
 
 | 항목 | 내용 |
 | --- | --- |
-| 증상 | 1단계의 `✗ 구매 기업 잔액 부족`, 2단계의 `구매 기업 잔액이 부족합니다`, 또는 faucet 요청이 `Transaction failed … reverted with the following signature:.`로 실패 |
-| 원인 | 잔액이 1,000 OKRW보다 적습니다. faucet 실패는 faucet 계정이 테스트넷 전역 정책의 24시간 한도(1,000만 OKRW)를 다 쓴 경우가 있었습니다(2026-09-26 확인). faucet 문서(2026-10-23 판)는 요청당 5,000 tOKRW를 주고 지갑 잔액이 10,000에 이르면 더 주지 않는다고 적습니다([빠른 시작](https://docs.maroo.io/guides/quickstart/sending-okrw/)) |
+| 증상 | 1단계의 `✗ 구매 기업 잔액 부족`, 2단계의 `구매 기업 잔액이 부족합니다`, `b:fund`의 `진행자 지갑의 OKRW 가 모자라 … 부터 보내지 못했습니다`, faucet 요청의 `Transaction failed … reverted with the following signature:.` 실패나 `Your balance exceeds the maximum allowed` 거절 |
+| 원인 | 잔액이 1,000 OKRW보다 적습니다. faucet 실패는 faucet 계정이 테스트넷 전역 정책의 24시간 한도(1,000만 OKRW)를 다 쓴 경우가 있었습니다(2026-09-26 확인). faucet은 요청당 5,000 tOKRW를 주고, 잔액이 10,000 이상인 지갑에는 `Your balance exceeds the maximum allowed`로 거절합니다(2026-10-23 실측. faucet 문서 2026-10-23 판의 [빠른 시작](https://docs.maroo.io/guides/quickstart/sending-okrw/)과 같은 한도) |
 | 확인 | `pnpm a:probe-global`이 `ExceededPeriodicVolume(…, resetAt)`을 보여 주면 faucet 한도 문제이고, `resetAt`(UTC 초)에 풀립니다 |
-| 해결 | 진행자에게 구매 기업 주소를 보내고 `pnpm b:fund`로 받습니다. 진행자 지갑도 KYC 증명이 없으면 24시간 1,000만 OKRW, 건당 200만 OKRW 한도를 받습니다 |
+| 해결 | 참가자는 진행자에게 구매 기업 주소를 보내고 `pnpm b:fund`로 받습니다. 진행자는 `b:fund`가 멈추며 출력한 faucet 명령으로 진행자 지갑에 받은 뒤 같은 명령을 다시 실행합니다. 이미 받은 주소는 건너뜁니다. 진행자 지갑도 KYC 증명이 없으면 24시간 1,000만 OKRW, 건당 200만 OKRW 한도를 받습니다 |
 
 <a id="t8"></a>
 ## T8. 증명을 발급했는데 청구가 EasNoAttestationReceived나 EasAttestationRevoked로 거부됨
@@ -130,7 +130,7 @@ Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다. Go�
 
 | 멈춘 것 | 대체 진행 |
 | --- | --- |
-| faucet | 진행자가 전날 받아 둔 지갑에서 `pnpm b:fund`로 나눠 줍니다. 참가자 30명에 1,000 OKRW씩이면 3만 OKRW라 전역 24시간 한도 안입니다 |
+| faucet | 진행자가 전날 받아 둔 지갑에서 `pnpm b:fund`로 나눠 줍니다. faucet은 지갑 하나에 잔액 10,000 tOKRW 안팎까지만 주므로(T7), 10명 이상이면 전날 여러 지갑에 받아 진행자 지갑으로 모아 둡니다(진행자 가이드 전날 2번). 참가자 30명에 1,000 OKRW씩이면 3만 OKRW라 전역 24시간 한도 안입니다 |
 | 테스트넷 RPC | 1, 2, 4단계는 진행자 화면에서 이 레포의 기록 파일(`track-b-enable/evidence/live/`, `track-a-explain/evidence/live/`)과 탐색기 링크로 설명하고, 참가자는 3단계(로컬, 네트워크 필요 없음)에 시간을 더 씁니다 |
 | 참가자 노트북의 빌드 | 진행자가 만든 `.work/prebuilt/`를 USB나 공유 폴더로 나눠 줍니다. 그래도 안 되면 두 명이 한 노트북으로 진행합니다 |
 | 시간 부족 | 2단계는 진행자가 화면에서 한 번 실행하고 참가자는 1, 3, 4단계만 실행합니다. 성공 기준은 3단계 기록의 해독과 인출로 판정합니다 |

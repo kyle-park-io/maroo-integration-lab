@@ -5,6 +5,7 @@ import path from "node:path";
 import readline from "node:readline/promises";
 import { PREBUILT_DIR, ROOT, outPath } from "../../shared/lib/paths.ts";
 import type { Failure } from "../../shared/lib/recipe-errors.ts";
+import { getAddress, isAddress, type Address } from "viem";
 
 export const LIVE_DIR = path.join(ROOT, "track-b-enable/evidence/live");
 export const LOCAL_DIR = path.join(ROOT, "track-b-enable/evidence/local");
@@ -110,4 +111,50 @@ export function renderSmokeReport(checks: SmokeCheck[], seconds: number, stamp: 
     ...checks.map((c) => `| ${c.name} | ${c.ok ? "✓" : "✗"} | ${c.detail.replace(/\|/g, "/")} |`),
     "",
   ].join("\n");
+}
+
+// b:fund 의 주소 목록. 주소가 아닌 값(체크섬이 틀린 주소 포함)과 두 번 적힌 주소를 가려낸다.
+export function parseTargets(tokens: string[]): { targets: Address[]; invalid: string[]; duplicates: Address[] } {
+  const targets: Address[] = [];
+  const invalid: string[] = [];
+  const duplicates: Address[] = [];
+  for (const t of tokens) {
+    if (!isAddress(t)) { invalid.push(t); continue; }
+    const a = getAddress(t);
+    if (targets.includes(a)) { if (!duplicates.includes(a)) duplicates.push(a); continue; }
+    targets.push(a);
+  }
+  return { targets, invalid, duplicates };
+}
+
+// 한 주소에 보낼지. 이미 amount 이상 가진 주소는 건너뛴다. 다시 실행해도 받은 주소에 또 보내지 않는 것은 이 검사 덕분이다.
+// 진행자 잔액이 amount 와 수수료 상한(가스 한도 × 최대 수수료)을 합친 값보다 적으면 멈춘다.
+export function fundStep(o: { targetBalance: bigint; amount: bigint; ownBalance: bigint; feeCap: bigint }): "skip" | "send" | "short" {
+  if (o.targetBalance >= o.amount) return "skip";
+  return o.ownBalance >= o.amount + o.feeCap ? "send" : "short";
+}
+
+// 보내기(eth_sendRawTransaction) 오류. not-sent: 노드가 받지 않은 것이 확실함. no-funds: 진행자 잔액 부족.
+// unknown: 노드가 받았을 수 있거나 같은 논스의 tx 가 이미 있음. 다시 실행하면 받는 주소의 잔액부터 본다.
+export function sendOutcome(message: string): "not-sent" | "no-funds" | "unknown" {
+  if (/insufficient funds|exceeds the balance/i.test(message)) return "no-funds";
+  if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|getaddrinfo/i.test(message)) return "not-sent";
+  if (/fetch failed|ETIMEDOUT|ECONNRESET|socket hang up|took too long|timed? ?out|HTTP request failed/i.test(message)) return "unknown";
+  if (/already known|nonce too low|invalid nonce|replacement transaction underpriced/i.test(message)) return "unknown";
+  return "not-sent";
+}
+
+// 사전 검사(eth_estimateGas)의 HTTP 응답. rejected 는 정책이 막은 것(revert), no-funds 는 진행자 잔액 부족,
+// rpc 는 RPC 가 답하지 못한 것(요청 한도, 게이트웨이 오류)이라 다음 주소로 넘어가지 않고 멈춘다.
+export type Precheck = { kind: "ok"; gas: bigint } | { kind: "rejected" | "no-funds" | "rpc"; detail: string; data?: string };
+export function precheckOutcome(status: number, body: string): Precheck {
+  if (status !== 200) return { kind: "rpc", detail: `HTTP ${status}` };
+  let j: { result?: string; error?: { code?: number; message?: string; data?: string } };
+  try { j = JSON.parse(body); } catch { return { kind: "rpc", detail: `JSON 이 아닌 응답(${body.slice(0, 40)})` }; }
+  if (j.result) return { kind: "ok", gas: BigInt(j.result) };
+  const msg = j.error?.message ?? "응답에 결과와 오류가 모두 없음";
+  if (j.error?.data && j.error.data !== "0x") return { kind: "rejected", detail: msg, data: j.error.data };
+  if (/insufficient funds|exceeds the balance/i.test(msg)) return { kind: "no-funds", detail: msg };
+  if (/execution reverted/i.test(msg)) return { kind: "rejected", detail: msg };
+  return { kind: "rpc", detail: msg };
 }

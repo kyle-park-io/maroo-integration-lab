@@ -42,6 +42,7 @@
 | 원인 | faucet 계정의 전역 정책 24시간 한도(1,000만 OKRW) 소진과 KYC 증명 부재 |
 | 기간 | 2026-09-25 16:41 UTC 첫 실패, 19:08 UTC 원인 확인, 2026-09-26 00:00 UTC(`resetAt`) 뒤 00:00:22 UTC에 두 지갑 모두 수령. 발급자 지갑의 첫 요청은 `Missing or invalid parameters`로 실패하고 15초 뒤 두 번째 요청에서 수령 |
 | 재현 | `pnpm a:probe-global` ([기록](../track-a-explain/evidence/live/probe-global-policy-20260925T190841Z.json)) |
+| 지갑 하나의 한도 | 2026-10-23 12:46 UTC. 잔액 7.59 OKRW인 시험용 진행자 지갑에 faucet을 세 번 요청해 앞의 두 번은 5,000 tOKRW씩 받았고([첫째](https://explorer-testnet.maroo.io/tx/0x5bbe2e576125a1df8a7a903bec8ebd921b1edcf253cacc9fb1f5269f9930f19e), [둘째](https://explorer-testnet.maroo.io/tx/0x3f51f131a10bc989c33054d89c4d9f1372ff89864f934697708fb5ca156f4a3f)), 잔액 10,007.59에서 셋째 요청은 `Your balance exceeds the maximum allowed. You already have enough Maroo Testnet tokens.`로 거절되었습니다 |
 
 ## 2. Clairveil 로컬 `[Local]`
 
@@ -62,6 +63,7 @@ Clairveil v0.4.0 로컬 체인에서 실행한 3단계와 선택 연습의 기�
 | --- | --- |
 | `pnpm b:prepare` | 이 머신에서 108초(바이너리 두 개와 회로 산출물) |
 | `pnpm b:fund --file <주소 파일> --amount 10` | 2026-09-26 04:27 UTC. 진행자 가이드 전날 3\~4번 순서대로 주소 파일을 만들어 구매 기업 지갑에서 자기 협력사 지갑 둘에 보냄. 두 주소 모두 사전 검사 통과(가스 283,524), 전송 성공, 기록 남음. 한 건 수수료 2.551716 OKRW. 그때 구매 기업 지갑이 Track C 실증의 에이전트 지갑이어서 가스가 컸고, 일반 지갑이면 약 104,000(수수료 약 0.94 OKRW) [fund-20260926T042738Z.json](evidence/live/fund-20260926T042738Z.json) |
+| `pnpm b:fund` 실패 시험(2026-10-23) | 12:45\~12:47 UTC, 시험용 진행자 지갑에서 새 주소에 10 OKRW씩. 레퍼런스 앱의 시험용 RPC 프록시로 실패를 일으킴. (1) 보낸 뒤 응답이 끊김: 보냈는지 모른다며 tx 링크를 보이고 멈춤([기록](evidence/live/fund-20261023T124545Z.json)). 다시 실행하자 그 주소는 10 OKRW가 있어 건너뛰고, 다음 주소에 보낸 뒤 셋째 주소에서 진행자 잔액 7.59 OKRW로 멈추고 faucet 명령을 출력함([기록](evidence/live/fund-20261023T124601Z.json)). faucet으로 받은 뒤 다시 실행하자 두 주소를 건너뛰고 셋째에만 보냄([기록](evidence/live/fund-20261023T124650Z.json)). (2) 보내기가 노드에 닿지 않음: 멈춘 뒤 다시 실행하자 같은 논스로 서명한 같은 tx(`0x1f12456f…`)가 한 번 들어감([멈춤](evidence/live/fund-20261023T124656Z.json), [다시 실행](evidence/live/fund-20261023T124658Z.json)). (3) 응답이 끊긴 뒤 2초 만에 다시 실행: 블록에 들어가기 전의 tx는 pending 논스와 `eth_getTransactionByHash`에 보이지 않아 받는 주소 잔액이 0이었고, 같은 tx를 다시 보내 노드가 `already known`으로 답함. 받은 금액은 10 OKRW 한 번([멈춤](evidence/live/fund-20261023T124725Z.json), [다시 실행](evidence/live/fund-20261023T124727Z.json)). (4) 사전 검사에 HTTP 429: 보내지 않고 RPC 문제(T5)로 멈춤(기록 없음, 콘솔 출력). (1)과 (2)의 멈춤 기록은 남은 주소 수에 보냈는지 모르는 주소를 넣기 전, (3)의 다시 실행 기록은 노드 문구(`already known`)를 보이기 전의 코드로 돌린 것입니다. 한 건 수수료 0.934 OKRW |
 | `pnpm b:check` | 필수 항목 모두 ✓. 권장 항목 중 잔액만 ! |
 | `pnpm b:smoke` | 2026-09-26 00:02 UTC, 91초. b:check, 1\~5단계와 성공 기준(2단계 5·6b·7c 거부와 6d 성공, 3단계 협력사 B 해독과 인출 성공, 4단계 분류) 모두 통과. 세션 기록 [session-20260926T000329Z.md](evidence/session-20260926T000329Z.md). 첫 실행(2026-09-25 20:01 UTC, 잔액 0으로 2단계 제외, 64초)의 세션 기록은 [session-20260925T200201Z.md](evidence/session-20260925T200201Z.md) |
 | `pnpm b:smoke`(2026-09-27 재실행) | 2026-09-27 08:56 UTC, 105초. 지갑의 가스 한도를 노드 추정값의 125%로 바꾼 뒤. b:check, 1\~5단계와 성공 기준 모두 통과. 2단계 거부 셋(5 `EasNoAttestationReceived`, 6b·7c `EasAttestationRevoked`, 같은 지갑의 재실행이라 T8)은 한도 300,000의 50.0%, 구매 기업 128.19 OKRW 사용. 세션 기록 [session-20260927T085834Z.md](evidence/session-20260927T085834Z.md), [2단계 기록](evidence/live/pcl-kyb-gate-20260927T085726Z.json) |
