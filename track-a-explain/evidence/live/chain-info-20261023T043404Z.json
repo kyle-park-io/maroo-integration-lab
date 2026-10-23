@@ -1,0 +1,23 @@
+{
+  "rest": "https://api-testnet.maroo.io",
+  "paths": {
+    "nodeInfo": "/cosmos/base/tendermint/v1beta1/node_info",
+    "feemarket": "/cosmos/evm/feemarket/v1/params",
+    "vm": "/cosmos/evm/vm/v1/params"
+  },
+  "checkedAt": "2026-10-23T04:34:04.415Z",
+  "label": "조회만 함(Cosmos REST). tx 없음",
+  "cosmosChainId": "maroo-testnet-1",
+  "node": "marood 0.10.0 (71dcd931be)",
+  "goVersion": "go version go1.25.12 linux/arm64",
+  "cosmosSdk": "v0.54.3",
+  "cosmosEvm": "v0.7.0",
+  "privacyDeps": {
+    "github.com/DELIGHT-LABS/clairveil": "v0.3.0",
+    "github.com/consensys/gnark": "v0.14.0"
+  },
+  "minGasMultiplier": 0.5,
+  "minGasPrice": "8000000000000.000000000000000000",
+  "evmDenom": "atokrw",
+  "privacyPrecompileActive": true
+}

@@ -13,6 +13,8 @@ import { outPath } from "./paths.ts";
 
 export const RPC = process.env.MAROO_RPC_URL ?? "https://rpc-testnet.maroo.io";
 export const EXPLORER = "https://explorer-testnet.maroo.io";
+// Cosmos REST. 마루 문서의 테스트넷 접근 페이지가 MAROO_REST_URL 로 적는 주소다(2026-10-23 판).
+export const REST = process.env.MAROO_REST_URL ?? "https://api-testnet.maroo.io";
 
 // 프리컴파일 주소(마루 Docs, deployed-contracts). Privacy 는 그 표에 없어 IPrivacy.sol 상수에서 가져왔다.
 export const OKRW = "0x1000000000000000000000000000000000000001" as const;
