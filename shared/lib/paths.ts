@@ -13,6 +13,10 @@ export const PREBUILT_DIR = path.join(ROOT, ".work/prebuilt");
 export function outPath(p: string): string {
   const out = process.env.MAROO_LAB_OUT;
   if (!out) return p;
-  const rel = path.relative(ROOT, path.resolve(p));
-  return rel.startsWith("..") ? p : path.join(path.resolve(ROOT, out), rel);
+  const base = path.resolve(ROOT, out);
+  const abs = path.resolve(p);
+  // 이미 출력 폴더 안이면 그대로 둔다(기록을 만든 명령과 읽는 명령이 둘 다 outPath 를 거칠 때)
+  if (abs === base || abs.startsWith(base + path.sep)) return p;
+  const rel = path.relative(ROOT, abs);
+  return rel.startsWith("..") ? p : path.join(base, rel);
 }
