@@ -86,6 +86,8 @@ pnpm b:step 2
 | 7c 폐기 뒤 청구 | `[예상대로 거부] … EasAttestationRevoked` |
 | 8 회수 | `owedA 0`, `owedB 0` |
 
+색인 순서와 폐기 뒤 동작은 Maroo 문서의 [EAS 튜토리얼](https://docs.maroo.io/guides/integration/tutorial-using-eas-on-maroo/)에 적혀 있습니다(2026-10-23 판 확인).
+
 ### 3단계. 차폐 정산 (25분) `[Local]`
 
 ```bash

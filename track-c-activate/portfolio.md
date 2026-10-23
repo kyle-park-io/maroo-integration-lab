@@ -1,6 +1,6 @@
 # Maroo 해커톤 트랙 포트폴리오
 
-- 기준: Maroo Docs(2026-09-25 확인), Maroo 테스트넷(chain ID 450815, 2026-09-26 확인), Clairveil v0.4.0 `ca85b027`
+- 기준: Maroo Docs(2026-09-25 확인. 문서와 달랐던 항목은 2026-10-23 판으로 다시 견줌), Maroo 테스트넷(chain ID 450815, 2026-09-26 확인), Clairveil v0.4.0 `ca85b027`
 - 표시: `[Live Testnet]` Maroo 테스트넷에서 직접 확인, `[Local]` Clairveil 로컬 체인에서 확인, `[Docs Only]` 문서로만 확인. 설계 판단은 근거와 함께 적습니다.
 - 트랙 문서: [1. 기밀 정산(Flagship)](tracks/1-private-settlement.md), [2. 규칙 안의 에이전트 결제](tracks/2-agent-payments.md), [3. 자격으로 여는 원화 결제](tracks/3-credentialed-krw-payments.md)
 

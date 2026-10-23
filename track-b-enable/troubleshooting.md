@@ -84,7 +84,7 @@ Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다. Go�
 | 항목 | 내용 |
 | --- | --- |
 | 증상 | 1단계의 `✗ 구매 기업 잔액 부족`, 2단계의 `구매 기업 잔액이 부족합니다`, 또는 faucet 요청이 `Transaction failed … reverted with the following signature:.`로 실패 |
-| 원인 | 잔액이 1,000 OKRW보다 적습니다. faucet 실패는 faucet 계정이 테스트넷 전역 정책의 24시간 한도(1,000만 OKRW)를 다 쓴 경우가 있었습니다(2026-09-26 확인) |
+| 원인 | 잔액이 1,000 OKRW보다 적습니다. faucet 실패는 faucet 계정이 테스트넷 전역 정책의 24시간 한도(1,000만 OKRW)를 다 쓴 경우가 있었습니다(2026-09-26 확인). faucet 문서(2026-10-23 판)는 요청당 5,000 tOKRW를 주고 지갑 잔액이 10,000에 이르면 더 주지 않는다고 적습니다([빠른 시작](https://docs.maroo.io/guides/quickstart/sending-okrw/)) |
 | 확인 | `pnpm a:probe-global`이 `ExceededPeriodicVolume(…, resetAt)`을 보여 주면 faucet 한도 문제이고, `resetAt`(UTC 초)에 풀립니다 |
 | 해결 | 진행자에게 구매 기업 주소를 보내고 `pnpm b:fund`로 받습니다. 진행자 지갑도 KYC 증명이 없으면 24시간 1,000만 OKRW, 건당 200만 OKRW 한도를 받습니다 |
 
@@ -98,7 +98,7 @@ Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다. Go�
 | 증상 | 2단계 6d(색인 뒤 청구)가 `EasNoAttestationReceived(협력사 A 주소)`나 `EasAttestationRevoked(협력사 A 주소)`로 실패합니다. 6b(색인 전 청구)의 `EasAttestationRevoked`는 다시 실행할 때 나오는 예상된 결과입니다 |
 | 원인 | PCL의 `EAS_POLICY`는 Indexer에 색인된 증명만 봅니다. 6c(`indexAttestation`)가 실패했거나 다른 스키마로 발급했습니다. 같은 지갑으로 다시 실행하면, 새 증명을 색인하기 전에는 이전 실행에서 폐기한 증명이 보여 `EasAttestationRevoked`가 나옵니다(2026-09-26 두 번째 실행에서 확인) |
 | 확인 | 2단계 출력에서 6c 줄이 `[성공]`인지, 기록 파일의 `schema.uid`와 금고 정책의 스키마가 같은지 |
-| 해결 | 6d가 실패했으면 `pnpm b:step 2`를 처음부터 다시 실행합니다. 금고와 증명을 새로 만듭니다 |
+| 해결 | 6d가 실패했으면 `pnpm b:step 2`를 처음부터 다시 실행합니다. 금고와 증명을 새로 만듭니다. 색인 순서와 폐기 뒤 동작은 [EAS 튜토리얼](https://docs.maroo.io/guides/integration/tutorial-using-eas-on-maroo/)과 [EAS 정책 템플릿](https://docs.maroo.io/concepts/compliance/pcl-template-eas-policy/)에 적혀 있습니다(2026-10-23 판 확인. 2026-09-26 판에는 색인 단계가 없었습니다) |
 
 <a id="t9"></a>
 ## T9. 금고 컴파일 결과가 없거나 deployPclProxy가 되돌려짐
@@ -108,7 +108,7 @@ Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다. Go�
 | 항목 | 내용 |
 | --- | --- |
 | 증상 | `금고 컴파일 결과가 없습니다`, 또는 3b(PCL 프록시 배포)가 `execution reverted`로 실패 |
-| 원인 | `out/`이 없습니다. 직접 수정한 코드에서 초기화 데이터를 빈 값(`0x`)으로 넘기면 `deployPclProxy`가 되돌립니다 |
+| 원인 | `out/`이 없습니다. 직접 수정한 코드에서 초기화 데이터를 빈 값(`0x`)으로 넘기면 `deployPclProxy`가 되돌립니다. [deployPclProxy 문서](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/)는 2026-09-26 판에서 초기화가 필요 없으면 `"0x"`를 전달하라고 적었고, 2026-10-23 판에서는 Transparent와 UUPS의 `initializer`를 비워 둘 수 없다고 적습니다 |
 | 확인 | `ls out/SettlementVault.sol/SettlementVault.json` |
 | 해결 | `pnpm build:contracts`. 초기화 데이터에는 `initialize(구매 기업)` 호출을 넣습니다(Track A [문서 개선 노트 3번](../track-a-explain/documentation-improvement-notes.md)) |
 

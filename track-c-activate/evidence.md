@@ -21,7 +21,7 @@
 
 | 트랙 | 요건 | 확인한 것 | 예상 결과 | 실제 결과 |
 | --- | --- | --- | --- | --- |
-| 1 | R3, R5 | Privacy 프리컴파일 정책 | Privacy 호출을 제한하는 정책이 걸려 있음(문서에는 KYC 서비스가 "mock"으로만 적힘) | `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY(0개 주소))`, 관리자 `0x58eC…804F` |
+| 1 | R3, R5 | Privacy 프리컴파일 정책 | Privacy 호출을 제한하는 정책이 걸려 있음(2026-09-26 판 문서는 KYC 서비스를 "mock"으로만 적었고, 2026-10-23 판은 카카오를 통한 실제 본인 확인이라고 적습니다) | `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY(0개 주소))`, 관리자 `0x58eC…804F` |
 | 1 | R5 | 빈 예치 요청의 최초 실패 계층 | 전역 정책은 통과하고 요청 검증에서 거부 | `eth_call`과 `eth_estimateGas` 모두 `SDKInvalidRequest()` |
 | 1 | 심사 | 탐색기 API로 Privacy tx를 확인하는 경로 | Privacy tx 목록과 성공 여부를 탐색기 API로 읽을 수 있습니다 | 최근 50건 모두 `ok/success`, 마지막 2026-09-21 04:40 |
 | 2 | R1 | 에이전트 등록 tx | 등록 성공, 등록한 지갑으로 새 ID 조회 | `register(string)` 성공, agentId 79(시뮬레이션이 예측한 번호와 같음), 등록한 지갑의 `getAgentIds`가 바로 `[79]` |
@@ -32,25 +32,25 @@
 | 2 | R2\~R4 | 가스 한도를 추정값의 125%로 바꾼 뒤 재실행(2026-09-27, [agent-limit-20260927T085643Z.json](evidence/live/agent-limit-20260927T085643Z.json)) | 같은 결과 | 세 형식 시험 결과 같음(빈 값과 숫자 문자열은 `AgentTransferLimitMetadataInvalid`, 32바이트만 동작), 3 OKRW 결제 성공, 8 OKRW `ExceededAgentTransferLimit`, 거부 tx 가스 364,011 / 728,023(50.0%) |
 | 2 | 주의 사항 | 전역 정책의 에이전트 소유자 평가 | 에이전트 결제를 소유자 기준으로 평가 | `ForEach(Every, AgentOwners, Or(24시간 1,000만 OKRW, KYC 증명))`, `ForEach(Any, AgentOwners, KYC 증명)` |
 | 2 | 문제 정의 | 레지스트리 활동 | 등록과 메타데이터 활동이 있습니다 | 최근 50건(`register` 22, `setMetadata` 15, `setAgentURI` 11, 실패 2), 마지막 2026-09-06 18:15 |
-| 3 | R2, R4 | 정책 템플릿 | 문서가 적은 템플릿이 등록돼 있고, 지웠다는 두 템플릿은 없습니다 | `EAS_POLICY`, `VOLUME_POLICY`, `PERIODIC_VOLUME_POLICY`, `LOGICAL_POLICY`, `FOR_EACH_POLICY` 등록돼 있습니다. 없는 ID는 되돌려집니다 |
-| 3 | 문제 정의, R5 | 전역 정책의 무인증 한도 | 문서에 적힌 24시간 한도만 있습니다 | 건당 `VOLUME_POLICY(atokrw 0~2,000,000)`, 24시간 `PERIODIC_VOLUME_POLICY(atokrw ≤ 10,000,000)`, 둘 다 KYC 증명이 있으면 면제 |
+| 3 | R2, R4 | 정책 템플릿 | 2026-09-26 판 문서가 적은 템플릿이 등록돼 있고, 지웠다고 적은 두 템플릿은 없습니다 | `EAS_POLICY`, `VOLUME_POLICY`, `PERIODIC_VOLUME_POLICY`, `LOGICAL_POLICY`, `FOR_EACH_POLICY` 등록돼 있습니다. 없는 ID는 되돌려집니다 |
+| 3 | 문제 정의, R5 | 전역 정책의 무인증 한도 | 2026-09-26 판 문서에 적힌 24시간 한도만 있습니다 | 건당 `VOLUME_POLICY(atokrw 0~2,000,000)`, 24시간 `PERIODIC_VOLUME_POLICY(atokrw ≤ 10,000,000)`, 둘 다 KYC 증명이 있으면 면제 |
 | 3 | R5 | 주소별 24시간 사용량 조회 | 구매 기업 사용량 0 | 구매 기업 사용량 0, 한도 1,000만 OKRW, 초기화 시각 1790380800 |
 | 3 | R1 | EAS 주소 | `IEas.getParams`가 세 주소를 돌려줍니다 | SchemaRegistry `0x1000…0006`, EAS `0x1000…0007`, Indexer `0x1000…0008` |
 
 ## 3. 문서와 다르게 동작한 것
 
-Maroo Docs의 서술과 테스트넷에서 확인한 동작이 갈린 항목입니다. 왼쪽부터 문서의 서술, 테스트넷의 동작, 이 레포의 문서가 그 차이를 반영한 위치입니다.
+Maroo Docs의 2026-09-26 판 서술과 테스트넷에서 확인한 동작이 갈린 항목입니다. 열은 왼쪽부터 2026-09-26 판 문서의 서술, 테스트넷의 동작, 이 레포의 문서가 그 차이를 반영한 위치, 2026-10-23 판 문서의 상태입니다. 2026-10-23 판이 고친 항목도 2026-09-26에 확인한 사실이라 지우지 않고 남겼습니다.
 
-| 문서 | 테스트넷 | 트랙 문서에 반영한 곳 |
-| --- | --- | --- |
-| `OKRW_EAS_TRANSFER_LIMIT_POLICY`와 `OKRW_EAS_PERIODIC_VOLUME_LIMIT_POLICY`는 체인에서 지워졌다 | 두 ID 모두 `policyTemplate`이 이름과 설명을 돌려줍니다 | 트랙 3은 두 템플릿을 요건에 쓰지 않습니다 |
-| 배포 주소 표의 `OKRW_ERC20` `0xEeee…EEeE` | 코드가 없고 ERC-20 조회가 빈 값을 돌려줍니다 | 세 트랙 모두 OKRW는 네이티브 value로 다룸 |
-| IdentityRegistry 호출 스케치: `bytes32 agentId`, `attest`, `revoke` | 배포된 컨트랙트는 `uint256 agentId`, `register`, `setMetadata`, `setAgentWallet`을 쓰고 `attest`, `revoke`가 없음 | 트랙 2의 참고 자료와 주의 사항 |
-| ERC-8004 Reputation은 V1에 없다 | `IAgent.getParams`가 ReputationRegistry `0x8004…0002`를 돌려주고 그 주소에 코드가 있습니다 | 트랙 2는 Reputation을 요건에 쓰지 않습니다 |
-| 전역 정책의 건당 한도가 체인 설정으로 적혀 있지 않습니다 | 무인증 건당 200만 OKRW | 포트폴리오의 테스트넷 조건, 트랙 3 문제 정의 |
-| `TransferLimit`은 aokrw 금액의 숫자 문자열 | 숫자 문자열은 `AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)`로 한도 안 결제까지 거부. 32바이트 uint256만 동작 | 트랙 2 R2, 15절, 16절. 판정 스크립트가 값 길이를 확인 |
-| 메타데이터가 없거나 잘못되면 해석할 수 없는 문자열 사유로 되돌림 | 해석 가능한 오류 `AgentTransferLimitMetadataInvalid(string)`로 되돌림(빈 값이면 `empty metadata value`) | 트랙 2 15절 |
-| `getAgentIds`: "지갑에 등록된 agent ID" | 연결된 에이전트 지갑 기준. 에이전트 지갑을 연결하면 소유자 주소로는 빈 목록 | 트랙 2 R1 |
+| 2026-09-26 판 문서 | 테스트넷 | 트랙 문서에 반영한 곳 | 2026-10-23 판 문서 |
+| --- | --- | --- | --- |
+| `OKRW_EAS_TRANSFER_LIMIT_POLICY`와 `OKRW_EAS_PERIODIC_VOLUME_LIMIT_POLICY`는 체인에서 지워졌다 | 두 ID 모두 `policyTemplate`이 이름과 설명을 돌려줍니다 | 트랙 3은 두 템플릿을 요건에 쓰지 않습니다 | 고쳐짐 |
+| 배포 주소 표의 `OKRW_ERC20` `0xEeee…EEeE` | 코드가 없고 ERC-20 조회가 빈 값을 돌려줍니다 | 세 트랙 모두 OKRW는 네이티브 value로 다룸 | 고쳐짐 |
+| IdentityRegistry 호출 스케치: `bytes32 agentId`, `attest`, `revoke` | 배포된 컨트랙트는 `uint256 agentId`, `register`, `setMetadata`, `setAgentWallet`을 쓰고 `attest`, `revoke`가 없음 | 트랙 2의 참고 자료와 주의 사항 | 고쳐짐 |
+| ERC-8004 Reputation은 V1에 없다 | `IAgent.getParams`가 ReputationRegistry `0x8004…0002`를 돌려주고 그 주소에 코드가 있습니다 | 트랙 2는 Reputation을 요건에 쓰지 않습니다 | 고쳐짐 |
+| 전역 정책의 건당 한도가 체인 설정으로 적혀 있지 않습니다 | 무인증 건당 200만 OKRW | 포트폴리오의 테스트넷 조건, 트랙 3 문제 정의 | 고쳐짐 |
+| `TransferLimit`은 aokrw 금액의 숫자 문자열 | 숫자 문자열은 `AgentTransferLimitMetadataInvalid(expected 32-byte uint256, got 19 bytes)`로 한도 안 결제까지 거부. 32바이트 uint256만 동작 | 트랙 2 R2, 15절, 16절. 판정 스크립트가 값 길이를 확인 | 고쳐짐 |
+| 메타데이터가 없거나 잘못되면 해석할 수 없는 문자열 사유로 되돌림 | 해석 가능한 오류 `AgentTransferLimitMetadataInvalid(string)`로 되돌림(빈 값이면 `empty metadata value`) | 트랙 2 15절 | 고쳐짐 |
+| `getAgentIds`: "지갑에 등록된 agent ID" | 연결된 에이전트 지갑 기준. 에이전트 지갑을 연결하면 소유자 주소로는 빈 목록 | 트랙 2 R1 | 고쳐짐 |
 
 ## 4. 검증하지 못한 것
 
@@ -75,7 +75,7 @@ Maroo Docs의 서술과 테스트넷에서 확인한 동작이 갈린 항목입�
 | 명령 | `pnpm c:agent-limit`가 만든 입력으로 `pnpm c:judge track-c-activate/evidence/track2-example/evidence.json --track 2` |
 | 입력 | [evidence.json](evidence/track2-example/evidence.json): 등록과 지갑 연결(R1), `setMetadata`와 정책 바인딩(R2), 한도 안 결제(R3), 한도 초과 결제(R4) |
 | 결과 | [evidence.judge.json](evidence/track2-example/evidence.judge.json): R1\~R4 모두 통과. 거부 tx는 직전 블록 재시뮬레이션에서 `ExceededAgentTransferLimit(5e18, 8e18)`, 금고 `fund()`(`0x23024408`)에 정책이 묶여 있고 `TransferLimit`이 32바이트 uint256 |
-| 시험한 실패 경우 | Maroo Docs 형식(숫자 문자열)으로 쓴 `setMetadata` tx를 R2 항목으로 넣으면 "TransferLimit 값이 19바이트"로 실패 판정(2026-09-26, 레포에는 남기지 않았습니다) |
+| 시험한 실패 경우 | 2026-09-26 판 Maroo Docs 형식(숫자 문자열)으로 쓴 `setMetadata` tx를 R2 항목으로 넣으면 "TransferLimit 값이 19바이트"로 실패 판정(2026-09-26, 레포에는 남기지 않았습니다) |
 
 ## 6. 보조 증거
 

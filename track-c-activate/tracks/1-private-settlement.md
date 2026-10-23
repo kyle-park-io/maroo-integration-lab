@@ -118,7 +118,7 @@ R3와 R4는 R1과 다른 컨트랙트여도 됩니다. 예를 들어 인출한 �
 - 일괄 지급의 메시지 수가 지급 건수를 드러냅니다 `[Local]`.
 - 노트 하나의 금액 상한은 약 18.45 OKRW입니다. 시연 금액은 이 안에서 정합니다 `[Docs Only]`.
 - Clairveil 레퍼런스 지갑은 노트 키를 평문 파일로 둡니다. 레포에 올리지 않습니다 `[Docs Only]`.
-- 테스트넷에서 네이티브 OKRW 이체의 가스 한도를 21,000으로 고정하면 되돌려지고 수수료만 냅니다. 단순 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 씁니다. ClairveilJS의 `evmSendGasLimit` 기본값이 21,000이므로 Maroo 테스트넷 프로필에서는 `eth_estimateGas` 값으로 바꿉니다 `[Live Testnet]` ([기록](../../track-a-explain/evidence/live/probe-send-gas-20260926T052147Z.json)).
+- 테스트넷에서 네이티브 OKRW 이체의 가스 한도를 21,000으로 고정하면 되돌려지고 수수료만 냅니다. 단순 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 씁니다. 2026-09-26 판 [eth_estimateGas 문서](https://docs.maroo.io/apis/rpc/estimate-gas/)는 단순 전송을 21,000(`0x5208`)으로 적었고, 2026-10-23 판은 약 104,000과 에이전트 지갑 약 283,000으로 고쳐 적습니다. ClairveilJS의 `evmSendGasLimit` 기본값이 21,000이므로 Maroo 테스트넷 프로필에서는 `eth_estimateGas` 값으로 바꿉니다 `[Live Testnet]` ([기록](../../track-a-explain/evidence/live/probe-send-gas-20260926T052147Z.json)).
 - 테스트넷 Privacy 호출에는 개인 본인 인증 증명이 필요합니다. 실제 개인정보를 제출물이나 로그에 남기지 않습니다 `[Live Testnet]`.
 - Clairveil은 외부 감사를 받지 않은 실험 단계 구현입니다. 제출물을 프로덕션 준비 상태로 소개하지 않습니다 `[Docs Only]`.
 
@@ -295,11 +295,11 @@ pnpm a:local
 | 질문 | 답변 방향 |
 | --- | --- |
 | 테스트넷 Privacy를 부르면 `SDKInvalidRequest`가 나옵니다 | 외부에서 유효한 증명을 만들 재료가 없어 요청 검증에서 막힙니다. 모든 프리컴파일이 함께 쓰는 인자 없는 오류라 요청 검증 안의 어느 검사에서 막혔는지는 가릴 수 없습니다. R1은 로컬로 하고, 이 오류를 R5 기록으로 남기게 안내합니다 |
-| `EasNoAttestationReceived`로 거부됩니다 | 호출자에게 정책이 요구하는 증명이 없거나 색인되지 않았습니다. 발급 뒤 `indexAttestation`까지 했는지 확인하게 합니다 |
+| `EasNoAttestationReceived`로 거부됩니다 | 호출자에게 정책이 요구하는 증명이 없거나 색인되지 않았습니다. 발급 뒤 `indexAttestation`까지 했는지 확인하게 합니다. 색인 순서는 Maroo 문서의 [EAS 튜토리얼](https://docs.maroo.io/guides/integration/tutorial-using-eas-on-maroo/)에 있습니다(2026-10-23 판 확인) |
 | `eth_call`로는 통과했는데 tx가 거부됩니다 | PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않습니다. PCL 프록시를 부르는 호출은 `eth_call`에서도 거부됩니다. 두 경우를 함께 잡도록 `eth_estimateGas`로 사전 검사하게 합니다 |
-| faucet이 실패합니다 | faucet 계정이 전역 24시간 한도에 걸렸을 수 있습니다. 운영진 배분 지갑을 안내합니다 |
+| faucet이 실패합니다 | faucet 계정이 전역 24시간 한도에 걸렸을 수 있습니다. 운영진 배분 지갑을 안내합니다. faucet 문서(2026-10-23 판)는 요청당 5,000 tOKRW를 주고 지갑 잔액이 10,000에 이르면 더 주지 않는다고 적으니, 잔액이 그 이상인지도 확인하게 합니다([빠른 시작](https://docs.maroo.io/guides/quickstart/sending-okrw/)) |
 | 로컬 인출이 `merkle root snapshot re-registration is inconsistent`로 실패합니다 | Clairveil v0.4.0에서 잎이 늘지 않은 블록의 인출이 실패합니다. 같은 블록에 0 노트 예치를 함께 넣게 안내합니다 |
 | 큰 금액을 차폐하려는데 거부됩니다 | 노트 하나의 상한이 약 18.45 OKRW입니다. 시연 금액을 줄이거나 여러 노트로 나누게 합니다 |
 | 감사인이 일괄 지급의 일부만 해독합니다 | CLI의 tx 해시 해독은 첫 메시지만 풉니다. 메시지마다 감사 암호문을 꺼내 해독하게 합니다 |
-| `deployPclProxy`가 이유 없이 되돌려집니다 | 초기화 데이터가 비어 있으면 되돌려집니다. 초기화 함수 호출을 넣게 합니다 |
+| `deployPclProxy`가 이유 없이 되돌려집니다 | 초기화 데이터가 비어 있으면 되돌려집니다. 초기화 함수 호출을 넣게 합니다. [deployPclProxy 문서](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/)는 2026-09-26 판에서 `"0x"`를 허용한다고 적었고, 2026-10-23 판에서는 Transparent와 UUPS의 `initializer`를 비워 둘 수 없다고 적습니다 |
 | 로컬 결과를 테스트넷 성공으로 써도 되나요 | 쓰지 않습니다. 라벨을 나누고, 테스트넷에서 막힌 층을 R5로 적는 것이 요건입니다 |

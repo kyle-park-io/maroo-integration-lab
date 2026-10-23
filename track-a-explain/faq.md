@@ -64,8 +64,8 @@ PCL은 호출하는 쪽을 평가합니다. 차폐 지급에서 받는 쪽은 �
 2. 구매 기업이 지급 목록을 만들 때 체인 밖에서 협력사의 증명을 확인합니다.
 
 - 테스트넷 Privacy 프리컴파일에는 `And(EAS_POLICY, DENYLIST_POLICY)`가 걸려 있습니다. 호출자는 증명(스키마 `bytes32 kakaoIdHash, uint8 version`)이 있고 차단 목록에 없어야 합니다. 개인 본인 인증 스키마이고, 기관용 KYB 스키마와 발급자는 테스트넷에 없습니다. `[Live Testnet]` [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json)
-- EAS 증명은 발급한 뒤 Indexer에 색인해야 PCL이 인식합니다. 2026-09-26 금고 흐름에서 협력사 A는 증명을 받은 뒤에도 색인 전 청구가 `EasNoAttestationReceived`로 거부됐고([tx](https://explorer-testnet.maroo.io/tx/0xafe80ae6248a93138104ad72552da5987f24ccdbd74520c01713406fa31a9ef4)), `indexAttestation` 뒤 청구는 통과했습니다([tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)). `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)
-- 폐기한 증명이 색인돼 있는 협력사에게 새 증명을 발급하고 색인을 빠뜨리면, 청구는 `EasAttestationRevoked`로 거부됩니다. PCL이 색인된 옛 증명을 보기 때문입니다. 같은 협력사 지갑으로 금고 흐름을 두 번째 실행했을 때 색인 전 청구가 이렇게 거부됐고, 새 증명을 색인한 뒤에는 통과했습니다. `[Live Testnet]` [두 번째 실행 기록](../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json) 협력사 자격을 갱신하는 절차에 색인을 넣지 않으면, 협력사는 방금 받은 증명이 폐기됐다는 오류를 보게 됩니다.
+- EAS 증명은 발급한 뒤 Indexer에 색인해야 PCL이 인식합니다. 2026-09-26 금고 흐름에서 협력사 A는 증명을 받은 뒤에도 색인 전 청구가 `EasNoAttestationReceived`로 거부됐고([tx](https://explorer-testnet.maroo.io/tx/0xafe80ae6248a93138104ad72552da5987f24ccdbd74520c01713406fa31a9ef4)), `indexAttestation` 뒤 청구는 통과했습니다(2026-09-26 판 문서는 이 색인 단계를 적지 않았고, 2026-10-23 판 EAS 튜토리얼은 「PCL은 EAS Indexer를 통해서만 attestation을 찾고 일반 `attest`만으로는 인덱싱되지 않으므로」 `indexAttestation`을 제출하라고 적습니다. [tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)). `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)
+- 폐기한 증명이 색인돼 있는 협력사에게 새 증명을 발급하고 색인을 빠뜨리면, 청구는 `EasAttestationRevoked`로 거부됩니다. PCL이 색인된 옛 증명을 보기 때문입니다. 같은 협력사 지갑으로 금고 흐름을 두 번째 실행했을 때 색인 전 청구가 이렇게 거부됐고, 새 증명을 색인한 뒤에는 통과했습니다. `[Live Testnet]` [두 번째 실행 기록](../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json) 협력사 자격을 갱신하는 절차에 색인을 넣지 않으면, 협력사는 방금 받은 증명이 폐기됐다는 오류를 보게 됩니다. 2026-10-23 판 문서도 「가장 최근에 인덱싱된 attestation 하나만 검사하므로」 새 증명을 발급해 인덱싱해야 한다고 적습니다.
 - 권고: 기관 KYB로 Privacy 호출을 제한하려면 KYB 스키마와 발급자를 정하고, 체인 정책 관리자와 정책 변경을 협의하는 일을 PoC 범위에 넣습니다.
 
 ## 6. 보내기 전에 정책 거부를 미리 알 수 있나요?
@@ -83,7 +83,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 - KYC 증명이 없는 구매 기업 지갑이 건당 한도(200만 OKRW)를 넘는 금액을 보내는 경우로 두 호출을 견주면, 일반 이체는 `eth_call`이 통과하고 금고 PCL 프록시의 `fund()`는 `eth_call`에서도 `VolumeAboveMaxLimit`로 거부됩니다. 잔액은 상태 덮어쓰기로 부풀려 tx 없이 확인했습니다. `[Live Testnet]` [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json), 재현: `pnpm a:probe-global --over-limit`
 - 위 계정(faucet)은 24시간 한도를 다 썼고 증명이 없어 거부됐고, 한도 창은 `resetAt`(2026-09-26 00:00 UTC)에 풀립니다. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json), 재현: `pnpm a:probe-global`
 - 사유 코드와 인자는 [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)에 정의돼 있습니다. `[Docs Only]`
-- 가스 한도도 `eth_estimateGas` 값으로 정합니다. 단순 OKRW 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 쓰고, Ethereum처럼 21,000으로 보내면 블록에 들어가 되돌려지며 수수료 0.189 OKRW를 냅니다. 가스 21,000으로 부른 `eth_call`은 통과해 이 경우도 잡지 못합니다. 추정값의 125%로 보내도 쓴 가스는 같았습니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json), 재현: `pnpm a:probe-send-gas`
+- 가스 한도도 `eth_estimateGas` 값으로 정합니다(2026-09-26 판 문서는 단순 전송을 21,000으로 적었고, 2026-10-23 판은 「약 104,000」과 에이전트 지갑 「약 283,000」으로 고쳤습니다). 단순 OKRW 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 쓰고, Ethereum처럼 21,000으로 보내면 블록에 들어가 되돌려지며 수수료 0.189 OKRW를 냅니다. 가스 21,000으로 부른 `eth_call`은 통과해 이 경우도 잡지 못합니다. 추정값의 125%로 보내도 쓴 가스는 같았습니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json), 재현: `pnpm a:probe-send-gas`
 - 권고: 사전 검사는 `eth_estimateGas`로 하고, `AnyOfRejected` 안의 자식 사유까지 풀어 사용자에게 보여 줍니다.
 
 ## 7. 지급이 실패하면 다시 보내도 되나요? 두 번 지급될 위험은 없나요?

@@ -11,7 +11,7 @@
 | 시각 | 구간 | 참가자 명령 | 진행자가 설명할 것 | 구간을 마치는 기준 |
 | --- | --- | --- | --- | --- |
 | 0\~10분 | 구조와 연결 | `pnpm b:step 1` | 공급업체 정산에서 숨길 것(금액, 거래 관계)과 지킬 것(감사, 자격). OKRW, PCL, Privacy, EAS의 자리. 테스트넷 Privacy 정책이 개인 본인 인증 증명을 요구한다는 것 | 참가자 대부분의 1단계 출력이 ✓ |
-| 10\~25분 | 테스트넷 금고 | `pnpm b:step 2` | PCL은 호출자를 평가하고, 금고 코드보다 먼저 판정한다. 증명은 발급만으로 부족하고 색인해야 한다. 정책 관리자와 업그레이드 권한을 나누는 이유 | 5, 6b, 7c 거부와 6d 성공을 확인 |
+| 10\~25분 | 테스트넷 금고 | `pnpm b:step 2` | PCL은 호출자를 평가하고, 금고 코드보다 먼저 판정한다. 증명은 발급만으로 부족하고 색인해야 한다(2026-10-23 판 [EAS 튜토리얼](https://docs.maroo.io/guides/integration/tutorial-using-eas-on-maroo/)에 `indexAttestation` 단계가 있습니다). 정책 관리자와 업그레이드 권한을 나누는 이유 | 5, 6b, 7c 거부와 6d 성공을 확인 |
 | 25\~50분 | 로컬 차폐 정산 | `pnpm b:step 3` | 노트, 커밋먼트, nullifier. 예치와 인출은 공개되고 지급은 숨겨진다. 받는 쪽, 보낸 쪽(self-view), 감사인이 푸는 disclosure의 차이. 단독 인출 실패는 참조 구현 v0.4.0의 알려진 동작 | 기록 2절의 `verified=true`와 1절의 인출 성공 |
 | 50\~65분 | 결과 분류와 진단 | `pnpm b:step 4` | 네 가지 분류와 그 근거. `SDKInvalidRequest`는 정책 거부가 아니다. 테스트넷 Privacy로 가려면 필요한 재료 | 참가자가 표의 행 두 개 이상을 근거와 함께 분류 |
 | 65\~75분 | 정리 | `pnpm b:step 5` | 두 환경의 경계, 토론 질문, 프로덕션까지 남은 것 | 토론 질문 둘 이상의 답변 |
@@ -22,7 +22,7 @@
 ## 워크샵 전날
 
 1. 깨끗한 폴더에 레포를 새로 받아 `pnpm install`, `pnpm b:prepare`, `pnpm b:smoke`를 실행합니다. 스모크 테스트가 "모두 통과"로 끝나야 합니다.
-2. 진행자 지갑을 준비합니다. 진행자용 지갑 파일(`MAROO_LAB_ENV=~/facilitator.env pnpm setup:wallets`)의 BUYER에 참가자 수 × 1,000 OKRW보다 넉넉히 받아 둡니다. 전역 정책상 KYC 증명이 없는 지갑은 24시간에 1,000만 OKRW까지 보낼 수 있습니다. 보내는 한 건마다 수수료가 약 0.94 OKRW(가스 약 104,000) 들어, 30명이면 수수료로 약 28 OKRW가 더 듭니다 `[Live Testnet]`. 진행자 지갑을 에이전트 지갑으로 쓰면 한 건에 약 2.6 OKRW(가스 약 284,000)입니다.
+2. 진행자 지갑을 준비합니다. 진행자용 지갑 파일(`MAROO_LAB_ENV=~/facilitator.env pnpm setup:wallets`)의 BUYER에 참가자 수 × 1,000 OKRW보다 넉넉히 받아 둡니다. 전역 정책상 KYC 증명이 없는 지갑은 24시간에 1,000만 OKRW까지 보낼 수 있습니다. 보내는 한 건마다 수수료가 약 0.94 OKRW(가스 약 104,000) 들어, 30명이면 수수료로 약 28 OKRW가 더 듭니다 `[Live Testnet]`. 진행자 지갑을 에이전트 지갑으로 쓰면 한 건에 약 2.6 OKRW(가스 약 284,000)입니다. 2026-09-26 판 [eth_estimateGas 문서](https://docs.maroo.io/apis/rpc/estimate-gas/)는 단순 전송의 추정치를 21,000으로 적었고, 2026-10-23 판은 약 104,000과 에이전트 지갑 약 283,000으로 고쳐 적습니다.
 3. 참가자에게 사전 준비 안내(참가자 가이드의 "사전 준비")를 보내고, 참가자의 BUYER 주소를 한 줄에 하나씩 `participants.txt`로 모읍니다.
 4. `MAROO_LAB_ENV=~/facilitator.env pnpm b:fund --file participants.txt`로 나눠 줍니다. 주소마다 사전 검사(`eth_estimateGas`) 결과와 tx 링크가 한 줄씩 나오고, 거부된 주소는 사유와 함께 출력됩니다. 기록은 `track-b-enable/evidence/live/fund-<시각>.json`에 남습니다. 실행 예: 자기 협력사 지갑 둘을 적은 파일로 `--amount 10`을 보낸 [기록](evidence/live/fund-20260926T042738Z.json) `[Live Testnet]`
 5. 참가자와 같은 운영체제용 `.work/prebuilt/`를 압축해 USB나 공유 폴더에 둡니다(T2 대비).
@@ -45,7 +45,7 @@
 
 - 5번 거부에서 멈추고 묻습니다. "이 거부는 금고 코드가 했나요, PCL이 했나요?" 사유 코드 `EasNoAttestationReceived`는 PCL의 오류입니다.
 - 6b는 많은 개발자가 처음에 막히는 곳입니다. 증명이 있는데도 거부되는 이유가 색인이라는 것을 6c 뒤 6d 성공으로 보여 줍니다.
-- 같은 지갑으로 2단계를 다시 실행하면 6b 사유가 `EasAttestationRevoked`로 바뀝니다. 이전 실행에서 색인한 뒤 폐기한 증명이 Indexer에 남아 있고, 새 증명은 아직 색인하지 않아 PCL이 옛 증명을 보기 때문입니다. 방금 발급한 증명이 폐기됐다고 오해하기 쉬운 장면이라, 다시 실행한 참가자가 있으면 이 사유로 색인의 의미를 한 번 더 설명합니다.
+- 같은 지갑으로 2단계를 다시 실행하면 6b 사유가 `EasAttestationRevoked`로 바뀝니다. 이전 실행에서 색인한 뒤 폐기한 증명이 Indexer에 남아 있고, 새 증명은 아직 색인하지 않아 PCL이 옛 증명을 보기 때문입니다. 방금 발급한 증명이 폐기됐다고 오해하기 쉬운 장면이라, 다시 실행한 참가자가 있으면 이 사유로 색인의 의미를 한 번 더 설명합니다. 이 순서에는 2026-09-26 판 Maroo 문서에 색인 단계가 없었습니다. 2026-10-23 판 [EAS 튜토리얼](https://docs.maroo.io/guides/integration/tutorial-using-eas-on-maroo/)과 [EAS 정책 템플릿](https://docs.maroo.io/concepts/compliance/pcl-template-eas-policy/)은 색인 단계와, PCL이 가장 최근에 색인된 증명 하나만 본다는 규칙을 적습니다. 막힌 참가자에게 이 두 문서를 열어 보게 합니다.
 - 3번의 권한 줄에서 정책 관리자와 업그레이드 권한이 다른 주소인 것을 짚습니다. 업그레이드 권한을 가진 쪽은 금고 로직을 바꿀 수 있습니다.
 
 ### 로컬 차폐 정산

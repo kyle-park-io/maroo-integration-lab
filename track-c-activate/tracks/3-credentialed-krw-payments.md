@@ -92,7 +92,7 @@ primitive마다 이 트랙에서 맡는 일과 그 서술의 근거 라벨을 �
 | 자료 | 쓰는 곳 |
 | --- | --- |
 | [PCL 정책 템플릿](https://docs.maroo.io/concepts/compliance/pcl-policy-templates/), [조합 정책](https://docs.maroo.io/concepts/compliance/pcl-composite-policies/), [사유 코드](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/) | 정책 설계와 거부 해석 |
-| [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) | 결제 컨트랙트 배포. 빈 초기화 데이터는 되돌려지므로 초기화 호출을 넣습니다 |
+| [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) | 결제 컨트랙트 배포. 빈 초기화 데이터는 되돌려지므로 초기화 호출을 넣습니다. 2026-09-26 판 문서는 `"0x"`를 허용한다고 적었고, 2026-10-23 판은 Transparent와 UUPS의 `initializer`를 비워 둘 수 없다고 적습니다 |
 | [EAS 프리컴파일](https://docs.maroo.io/concepts/identity/eas-precompile-overview/) | SchemaRegistry, EAS, Indexer 주소 찾기 |
 | 이 레포의 [KYB 관문 금고 흐름](../../track-a-explain/recipe/pcl-kyb-gate.ts)과 [금고 컨트랙트](../../shared/contracts/SettlementVault.sol) | 스키마 등록, 증명 발급과 색인, 정책 바인딩, 거부와 통과, 폐기의 기준 구현 |
 | `pnpm c:grounding` | 템플릿 등록 상태, 전역 정책, 주소별 24시간 사용량 조회 |
@@ -109,6 +109,6 @@ primitive마다 이 트랙에서 맡는 일과 그 서술의 근거 라벨을 �
 
 - 증명 데이터는 공개됩니다. 개인정보는 넣지 않고 해시나 등급만 넣습니다. 테스트넷 KYC 스키마도 `kakaoIdHash`처럼 해시만 담습니다 `[Live Testnet]`.
 - 발급 키가 새면 누구에게나 자격을 줄 수 있습니다. 발급 지갑과 운영 지갑을 나누고, 폐기 절차를 함께 설계합니다.
-- 증명은 발급한 뒤 `indexAttestation`까지 해야 PCL이 인식합니다. 이 순서는 문서의 EAS 연동 페이지에서 찾기 어렵고, [KYB 관문 금고 흐름](../../track-a-explain/recipe/pcl-kyb-gate.ts)의 6b 단계(색인 전 청구)가 테스트넷에서 확인합니다 `[Live Testnet]` [기록](../../track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json). 폐기한 옛 증명이 색인돼 있으면 새 증명을 색인하기 전의 호출은 `EasAttestationRevoked`로 거부됩니다 [기록](../../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json).
+- 증명은 발급한 뒤 `indexAttestation`까지 해야 PCL이 인식합니다. 이 순서는 2026-09-26 판 문서의 EAS 연동 튜토리얼에 색인 단계가 없어 찾기 어려웠고, 2026-10-23 판 [튜토리얼](https://docs.maroo.io/guides/integration/tutorial-using-eas-on-maroo/)은 `indexAttestation` 제출과, PCL이 가장 최근에 색인된 증명 하나만 본다는 규칙을 적습니다. [KYB 관문 금고 흐름](../../track-a-explain/recipe/pcl-kyb-gate.ts)의 6b 단계(색인 전 청구)가 테스트넷에서 확인합니다 `[Live Testnet]` [기록](../../track-a-explain/evidence/live/pcl-kyb-gate-20260926T000141Z.json). 폐기한 옛 증명이 색인돼 있으면 새 증명을 색인하기 전의 호출은 `EasAttestationRevoked`로 거부됩니다 [기록](../../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json).
 - PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않습니다. PCL 프록시 호출은 `eth_call`에서도 거부되지만, 두 경우를 함께 잡도록 사전 검사는 `eth_estimateGas`로 합니다 `[Live Testnet]` [비교 기록](../../track-a-explain/evidence/live/probe-global-compare-20261023T042452Z.json).
 - 테스트넷 OKRW는 시험용입니다. 제출물을 실제 결제 서비스나 법적 요건을 충족한 서비스로 소개하지 않습니다.
