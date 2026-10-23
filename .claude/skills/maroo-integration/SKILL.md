@@ -54,7 +54,7 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 | Privacy 호출 자격 | Privacy 정책은 `And(EAS_POLICY(kakaoIdHash 스키마), DENYLIST_POLICY)`. 호출자에게 개인 본인 인증 증명이 필요하고, 기관용 KYB 스키마는 없다 | Privacy 정책을 바꿀 수 있다고 본다(관리자 한 주소만 바꾼다) | `[Live Testnet]` `pnpm a:inspect` |
 | OKRW 전송 | 네이티브 value로 보낸다(`{ to, value }`). 금고 입금도 `fund()`에 value를 싣는다 | 문서 배포 주소 표의 `OKRW_ERC20`(`0xEeee…EEeE`)을 ERC-20으로 부른다. 그 주소에는 코드가 없다 | `[Live Testnet]` `pnpm c:grounding` |
 | 차폐 금액 | 노트 하나의 상한은 2^64-1 기본 단위, 약 18.45 OKRW | 큰 금액을 노트 하나로 예치한다 | `[Docs Only]` IPrivacy.deposit |
-| Clairveil v0.4.0 인출 | 인출과 같은 블록에 잎을 더하는 tx(0 노트 예치)를 넣고, 예치를 먼저 보낸다 | 인출을 혼자 보낸다(`merkle root snapshot re-registration is inconsistent`) | `[Local]` `pnpm a:local --extras` |
+| Clairveil v0.4.0 인출 | 인출과 같은 블록에 잎을 더하는 tx(0 노트 예치)를 넣고, 예치를 먼저 보낸다 | 인출을 혼자 보낸다(`merkle root snapshot re-registration is inconsistent`). Clairveil v0.6.1의 v2 인출은 혼자 보내도 code 0이었다 | `[Local]` `pnpm a:local --extras`, v0.6.1은 `track-a-explain/evidence/local/clairveil-v0.6.1-withdraw-20261023.md` |
 | ClairveilJS EVM 프로필 | `evmSendGasLimit`를 추정값으로 바꾼다 | 기본값 `0x5208`(21,000)을 쓴다 | `[Live Testnet]` `pnpm a:probe-send-gas` |
 | faucet 실패 | `pnpm a:probe-global`로 faucet 계정의 전역 24시간 한도와 `resetAt`을 확인한다. faucet은 요청당 5,000 tOKRW를 주고 잔액이 10,000 이상인 지갑에는 `Your balance exceeds the maximum allowed`로 거절한다. 더 필요하면 여러 지갑에 받아 한 지갑으로 모은다 | 같은 요청을 계속 다시 보낸다 | `[Live Testnet]` `track-b-enable/evidence.md` faucet 절 |
 | 보냈는지 모르는 tx | 블록에 들어가기 전의 tx는 pending 논스와 `eth_getTransactionByHash`에 보이지 않는다. 영수증이나 받는 쪽 잔액으로 확인하고, 다시 보낼 때는 서명해 둔 같은 tx를 보낸다(대기열에 있으면 노드가 `already known`으로 답한다) | 조회에서 못 찾았다고 버려진 tx로 보고 다른 내용으로 새로 서명해 보낸다 | `[Live Testnet]` `pnpm b:fund` 실패 시험(`track-b-enable/evidence.md` 3절) |
