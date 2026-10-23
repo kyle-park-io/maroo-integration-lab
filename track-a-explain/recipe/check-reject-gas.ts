@@ -8,6 +8,7 @@
 // tx 마다 영수증 상태, 블록, 가스 한도, 쓴 가스와 그 비율, 수수료를 남긴다. 조회만 하고 tx 는 보내지 않는다.
 // 결과는 track-a-explain/evidence/live/reject-gas-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { formatEther, type Hex } from "viem";

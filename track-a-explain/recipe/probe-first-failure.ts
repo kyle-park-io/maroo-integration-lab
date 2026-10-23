@@ -15,6 +15,7 @@
 //   shaped+  shaped 와 같고 value 에 1 wei 를 싣는다(잔액이 없으면 EVM 단계에서 막힌다)
 // 주소를 주지 않으면 BUYER 주소를 쓴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import { randomBytes } from "node:crypto";
 import path from "node:path";
 import { encodeFunctionData, getAddress, toHex, type Abi } from "viem";

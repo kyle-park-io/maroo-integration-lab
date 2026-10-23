@@ -9,6 +9,7 @@
 // "type:name" 순으로 정렬한 JSON 의 sha256.
 // 결과는 track-a-explain/evidence/code/abi-compare-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";

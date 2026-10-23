@@ -15,6 +15,7 @@
 // 구매 기업 잔액에서 4 OKRW 안팎(협력사 지갑으로 옮기는 2, 수수료 약 2)이 빠진다.
 // 결과는 track-a-explain/evidence/live/probe-send-gas-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { formatEther, parseEther, toHex } from "viem";
@@ -39,8 +40,21 @@ async function rpc(method: string, params: unknown[]) {
 const sdkFile = path.join(ROOT, "vendor/clairveiljs/src/browser/wallet-client.js");
 const sdkDefault = fs.existsSync(sdkFile) ? fs.readFileSync(sdkFile, "utf8").match(/evmSendGasLimit = "(0x[0-9a-fA-F]+)"/)?.[1] : undefined;
 
-const estimate1 = BigInt((await rpc("eth_estimateGas", [{ from, to, value: toHex(value) }])).result!);
-const estimate100 = BigInt((await rpc("eth_estimateGas", [{ from, to, value: toHex(parseEther("100")) }])).result!);
+// 이체 세 번(1 OKRW씩)과 가스비를 낼 잔액이 있어야 한다. 없으면 보내기 전에 멈춘다.
+const NEED = parseEther("5");
+const start = await pub.getBalance({ address: from });
+if (start < NEED) throw new Error(`구매 기업 잔액이 부족합니다(${formatEther(start)} OKRW). ${formatEther(NEED)} OKRW 이상 받은 뒤 다시 실행하십시오.`);
+
+// 추정이 거부되면 RPC 오류를 그대로 보여 주고 멈춘다
+// 잔액보다 큰 금액은 잔액 상태 덮어쓰기로 추정한다(tx 없음).
+async function estimate(amount: bigint): Promise<bigint> {
+  const override = amount > start ? [{ [from]: { balance: toHex(amount * 2n) } }] : [];
+  const r = await rpc("eth_estimateGas", [{ from, to, value: toHex(amount) }, "latest", ...override]);
+  if (!r.result) throw new Error(`eth_estimateGas 가 ${formatEther(amount)} OKRW 이체를 거부했습니다: ${r.error?.message ?? "응답에 결과가 없음"}`);
+  return BigInt(r.result);
+}
+const estimate1 = await estimate(value);
+const estimate100 = await estimate(parseEther("100"));
 console.log(`1) eth_estimateGas: 1 OKRW ${estimate1}, 100 OKRW ${estimate100}. 문서 예시 21000`);
 
 // 보내는 쪽이 에이전트 지갑이면(getAgentIds 가 비어 있지 않으면) 값이 다르다

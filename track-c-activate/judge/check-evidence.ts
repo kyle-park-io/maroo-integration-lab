@@ -14,12 +14,15 @@
 // 로컬 항목([Local])은 건너뛰고 "재현 확인"으로 표시한다. 심사위원이 README 명령으로 재현한다.
 // 결과는 콘솔 표와 같은 폴더의 <파일 이름>.judge.json 이다. 트랜잭션은 보내지 않는다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
+import path from "node:path";
 import { decodeFunctionData, getAddress, size, type Address, type Hex } from "viem";
 import { identityRegistryAbi } from "@maroo-chain/viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { iPrivacyAbi } from "@maroo-chain/contracts/abi/precompiles/privacy/IPrivacy";
 import { PCL, RPC, decodeRaw, publicClient as pub } from "../../shared/lib/maroo.ts";
+import { outPath } from "../../shared/lib/paths.ts";
 import { describePolicy, type PolicySet } from "../../shared/lib/pcl-policy.ts";
 import { judge, type Checked, type Item, type Verdict } from "./rules.ts";
 
@@ -120,7 +123,9 @@ for (const v of verdicts) {
 console.log("\n요건별 판정");
 const summary = judge(track, verdicts);
 for (const s of summary) console.log(`${s.ok ? "✓" : "✗"} ${s.id} ${s.need}`);
-const out = file.replace(/\.json$/, ".judge.json");
+// MAROO_LAB_OUT 이 있으면(pnpm review) 판정 결과를 그 아래에 써서 커밋된 예시 파일을 바꾸지 않는다
+const out = outPath(file.replace(/\.json$/, ".judge.json"));
+fs.mkdirSync(path.dirname(out), { recursive: true });
 fs.writeFileSync(out, JSON.stringify({ checkedAt: new Date().toISOString(), track, chainId, summary, items: verdicts.map(({ item, ...v }) => ({ ...v, value: v.value.toString(), txHash: item.txHash })) }, null, 2) + "\n");
 console.log(`\n기록: ${out}`);
 process.exit(summary.every((s) => s.ok) ? 0 : 1);

@@ -12,6 +12,7 @@
 //                                       전역 정책의 24시간 한도, 주소별 사용량 조회
 // 결과는 track-c-activate/evidence/live/grounding-<시각>.json 에 남긴다. 개인키는 출력하지 않는다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import path from "node:path";
 import { encodeFunctionData, getAddress, parseAbi, parseEventLogs, type Address, type Hex } from "viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";

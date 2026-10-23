@@ -8,6 +8,7 @@
 //   R5      track-a-explain/evidence/live/probe-first-failure-*.json           [Live Testnet] eth_estimateGas 기록
 // 참가자가 낼 파일을 흉내 낸 예시라서, 판정 결과도 같은 폴더에 둔다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";

@@ -13,6 +13,7 @@
 // 각각 보내는 경우를 두 방법으로 견준다. 잔액은 상태 덮어쓰기(eth_call 과 eth_estimateGas 의 세 번째 인자)로
 // 부풀리므로 실제 잔액이 없어도 된다. 체인 상태와 무관하게 같은 결과가 나와 재현용으로 쓴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { encodeFunctionData, getAddress, parseEther, toHex, type Abi, type Hex } from "viem";

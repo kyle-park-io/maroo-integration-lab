@@ -7,6 +7,7 @@
 // (https://faucet.maroo.io/api/agent/sendToken)으로 tOKRW 를 받아 둔다.
 // 결과는 track-a-explain/evidence/live/pcl-kyb-gate-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import path from "node:path";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { runKybGate } from "../../shared/lib/kyb-gate.ts";

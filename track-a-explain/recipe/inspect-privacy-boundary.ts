@@ -12,6 +12,7 @@
 // 지갑 주소는 MAROO_LAB_ENV(기본 ~/.config/maroo-integration-lab/testnet.env)의 BUYER_ADDRESS 를 쓴다.
 // 개인키는 읽지 않는다. 결과는 track-a-explain/evidence/live/inspect-privacy-boundary-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { decodeAbiParameters, encodeFunctionData, getAddress, type Abi, type Hex } from "viem";

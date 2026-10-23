@@ -7,6 +7,7 @@
 // 인증 전용 지갑의 주소, 증명 UID, 증명 데이터(카카오 ID 해시), 발급 시각(초 단위)은 기록하지 않는다.
 // UID 나 발급 시각으로 증명 이벤트를 찾으면 받는 주소가 드러나서다. 발급일은 날짜만 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import { randomBytes } from "node:crypto";
 import path from "node:path";
 import { encodeFunctionData, getAddress, toHex, type Abi, type Address } from "viem";

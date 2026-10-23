@@ -21,6 +21,7 @@
 // SDK(@maroo-chain/viem)의 레지스트리 액션, policy.agentOkrwTransferLimit, pcl.deployPclProxy, simulatePclProxy, PclViolation 을 쓴다.
 // 한 번 실행에 OKRW 100 안팎이 든다(가스 보충 30, 결제 3, 배포와 tx 가스). 개인키는 출력하지 않는다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
 import path from "node:path";
 import {
@@ -69,7 +70,7 @@ const agentIdsOf = async (wallet: Address) => (await pub.agent.getAgentIds({ arg
 // getAgentIds 는 소유자가 아니라 연결된 에이전트 지갑으로 찾는다. 연결 전에는 소유자 주소가 에이전트 지갑이다.
 const [buyerAgents, agentWalletAgents] = [await agentIdsOf(buyer), await agentIdsOf(agent)];
 const agentId = argAgent >= 0 ? BigInt(process.argv[argAgent + 1]) : (agentWalletAgents[0] ?? buyerAgents[buyerAgents.length - 1]);
-if (agentId === undefined) throw new Error("구매 기업이 소유한 에이전트가 없습니다. pnpm c:grounding 으로 먼저 등록하십시오.");
+if (agentId === undefined) throw new Error("구매 기업이 소유한 에이전트가 없습니다. pnpm c:grounding --write 로 먼저 등록하십시오. --write 없이 실행하면 조회만 합니다.");
 const owner = await pub.identity.ownerOf({ args: [agentId] });
 if (getAddress(owner) !== getAddress(buyer)) throw new Error(`에이전트 ${agentId} 의 소유자가 구매 기업이 아닙니다: ${owner}`);
 const registry = (await pub.agent.getParams()).identityRegistry;

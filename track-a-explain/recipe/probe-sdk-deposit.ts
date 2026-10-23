@@ -9,6 +9,7 @@
 // 거절된 조회를 짐작한 값으로 채우지 않는다(비공개 구성 요소 추측 금지). 서명은 버리는 키로 하고 tx 는 보내지 않는다.
 // 결과는 track-a-explain/evidence/code/probe-sdk-deposit-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";

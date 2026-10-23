@@ -5,6 +5,7 @@
 // docs.maroo.io 의 현재 페이지에서 문장을 찾고, 같은 내용을 테스트넷에서 조회하거나 eth_call 로 불러 대조한다.
 // 트랜잭션은 보내지 않는다. 결과는 track-a-explain/evidence/live/doc-claims-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import path from "node:path";
 import { encodeAbiParameters, encodeFunctionData, type Abi, type Hex } from "viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";

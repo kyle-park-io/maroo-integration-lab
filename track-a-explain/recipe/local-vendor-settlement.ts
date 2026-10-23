@@ -6,6 +6,7 @@
 //
 // 기록은 track-a-explain/evidence/local/ 에 남는다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import path from "node:path";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { runLocalVendorSettlement } from "../../shared/lib/local-vendor-settlement.ts";

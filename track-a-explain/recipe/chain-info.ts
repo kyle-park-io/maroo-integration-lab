@@ -6,6 +6,7 @@
 // 가이드가 인용하는 값은 셋이다. 노드가 의존하는 Clairveil 판, 거부된 tx가 가스 한도의 절반을 내는 근거인
 // min_gas_multiplier, Privacy 프리컴파일이 활성 목록에 있는지다. 결과는 track-a-explain/evidence/live/chain-info-<시각>.json 에 남긴다.
 
+import "../../shared/lib/install-recipe-errors.ts";
 import path from "node:path";
 import { ROOT } from "../../shared/lib/paths.ts";
 import { REST, writeEvidence } from "../../shared/lib/maroo.ts";
