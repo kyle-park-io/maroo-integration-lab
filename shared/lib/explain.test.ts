@@ -175,3 +175,22 @@ test("자식 사유 안의 AnyOfRejected 도 한 단계 더 들여 써서 푼다
   const lines = formatExplanation({ source: "simulation", method: "eth_estimateGas", call: { from: SENDER, to: SENDER, value: 0n }, decoded });
   assert.ok(lines.some((l) => /^\s+자식 2\.1\s+EasNoAttestationReceived/.test(l)), lines.join("\n"));
 });
+
+import { refineByUncappedReplay } from "./explain.ts";
+
+test("데이터 없는 되돌림이 가스 한도 없이 다시 실행해 통과하면 가스 부족이다(하위 호출이 받은 가스를 다 쓴 경우)", () => {
+  // 2026-10-23 에이전트 지갑의 금고 fund(), 가스 한도 60,000 에 59,538 사용
+  const d = classifyRevert({ data: undefined, rpcMessage: "execution reverted", gasUsed: 59_538n, gasLimit: 60_000n });
+  assert.equal(d.family, "node-check");
+  const r = refineByUncappedReplay(d, true, { gasUsed: 59_538n, gasLimit: 60_000n });
+  assert.equal(r.family, "out-of-gas");
+  assert.match(r.text, /59,538/);
+  assert.match(r.text, /60,000/);
+});
+
+test("가스 한도 없이도 되돌려지거나 사유 데이터가 있으면 판정을 바꾸지 않는다", () => {
+  const d = classifyRevert({ data: undefined, rpcMessage: "execution reverted", gasUsed: 59_538n, gasLimit: 60_000n });
+  assert.equal(refineByUncappedReplay(d, false, { gasUsed: 59_538n, gasLimit: 60_000n }).family, "node-check");
+  const policy = classifyRevert({ data: "0x472e017e" as Hex, extraAbi: [{ type: "error", name: "NotBuyer", inputs: [] }] as Abi });
+  assert.equal(refineByUncappedReplay(policy, true, { gasUsed: 1n, gasLimit: 2n }).family, policy.family);
+});

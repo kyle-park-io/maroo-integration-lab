@@ -386,7 +386,7 @@ revert 데이터의 앞 4바이트(오류 선택자)로 계열을 가릅니다. 
 | 프리컴파일 요청 검증(표준 SDK 매핑) | `SDKInvalidRequest()` `0xadb34e5c` | 요청을 새로 만든 뒤 | 증명, 커밋먼트, 암호화 노트가 현재 회로와 맞는지 확인합니다. 테스트넷에서는 어느 검사에서 막혔는지 데이터로 가릴 수 없습니다(아래 최초 실패 계층) |
 | Privacy 프리컴파일 오류 | `PrivacyRequestExpired(uint64)` `0x1b70614c`, `PrivacyDuplicateNullifier()` `0x8608d9c5`, `PrivacyNullifierAlreadySpent()` `0x0f51e561`, `PrivacyTxLimitExceeded(uint256)` `0xb6f49c06`, `PrivacyBatchSizeOutOfRange(uint256,uint256)` `0x083c105e` | 오류마다 다릅니다 | 만료는 요청을 새로 만들고, nullifier 충돌은 노트를 다시 스캔하고(풀 상태가 오래된 경우가 많습니다), 한도는 호출 수와 일괄 지급 크기(최대 20)를 줄입니다 `[Docs Only]` |
 | 대상 컨트랙트 로직 | 금고의 `NotBuyer()` `0x472e017e`. 앱 ABI는 `--abi`로 넘깁니다 | 호출자나 인자를 바꾼 뒤 | 앱의 권한과 상태 조건을 확인합니다 |
-| 가스 부족 | revert 데이터가 없고 쓴 가스가 가스 한도와 같은 경우 | 가스 한도를 `eth_estimateGas` 추정값으로 | 테스트넷 OKRW 이체는 21,000이 아니라 약 104,000 가스가 듭니다 `[Docs Only]` [테스트넷 접속](https://docs.maroo.io/resources/network/testnet-access/) |
+| 가스 부족 | revert 데이터가 없고 쓴 가스가 가스 한도와 같은 경우, 또는 가스 한도 없이 같은 상태로 다시 실행하면 통과하는 경우(하위 호출이 받은 가스를 다 써서, 쓴 가스가 한도보다 조금 적은 경우) | 가스 한도를 `eth_estimateGas` 추정값으로 | 테스트넷 OKRW 이체는 21,000이 아니라 약 104,000 가스가 듭니다 `[Docs Only]` [테스트넷 접속](https://docs.maroo.io/resources/network/testnet-access/) |
 | 데이터 없는 되돌림 | revert 데이터와 노드 메시지가 모두 없는 경우 | 원인을 확인한 뒤 | 직전 블록 상태로 다시 시뮬레이션해 통과하면 같은 블록의 앞선 tx나 실행 뒤 전역 정책 재검사를 의심합니다 |
 | 결과 불명 | 응답 시간 초과, receipt 없음 | 기존 tx 해시를 확인한 뒤 | 같은 노트로 새 tx를 만들기 전에 대사합니다 |
 

@@ -8,7 +8,7 @@ import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { PCL, RPC, publicClient as pub } from "./maroo.ts";
 import { ROOT } from "./paths.ts";
 import { bareTemplates, describePolicy, templatesIn, type PolicySet } from "./pcl-policy.ts";
-import { classifyRevert, decideScope, reasonTemplates, type Explanation } from "./explain.ts";
+import { classifyRevert, decideScope, reasonTemplates, refineByUncappedReplay, type Explanation } from "./explain.ts";
 
 const KIND = ["Unspecified", "Transparent", "UUPS", "Beacon"];
 const POLICY_CHECK_PASSED = toEventSelector("PolicyCheckPassed(address,address)");
@@ -82,6 +82,11 @@ export async function explainTx(hash: Hex, opts: { abi?: Abi } = {}): Promise<Ex
   // 영수증에는 revert 데이터가 없다. 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 사유를 얻는다.
   const replay = await rpc("eth_call", [{ from: tx.from, to: tx.to, data: tx.input, value: toHex(tx.value), gas: toHex(tx.gas) }, toHex(receipt.blockNumber - 1n)]);
   e.decoded = classifyRevert({ data: replay.error?.data, extraAbi: abi, rpcMessage: replay.error?.data ? undefined : replay.error?.message, gasUsed: receipt.gasUsed, gasLimit: tx.gas });
+  // 데이터 없이 되돌려졌으면 가스 한도 없이 다시 실행해 가스 부족인지 본다
+  if (replay.error && (!replay.error.data || replay.error.data === "0x")) {
+    const uncapped = await rpc("eth_call", [{ from: tx.from, to: tx.to, data: tx.input, value: toHex(tx.value) }, toHex(receipt.blockNumber - 1n)]);
+    e.decoded = refineByUncappedReplay(e.decoded, !uncapped.error, { gasUsed: receipt.gasUsed, gasLimit: tx.gas });
+  }
   if (replay.error?.data && replay.error.data !== "0x") {
     e.replayNote = "사유는 직전 블록 상태로 다시 시뮬레이션해 얻었습니다. 같은 블록의 앞선 tx가 상태를 바꿨으면 실제 사유와 다를 수 있습니다.";
   } else if (!replay.error && e.decoded.family === "no-data") {

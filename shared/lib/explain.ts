@@ -140,6 +140,20 @@ function sdkNext(name: string): string {
   }
 }
 
+const thou = (n: bigint) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+// 데이터 없는 되돌림을 가스 한도 없이 다시 실행해 본 결과로 다시 판정한다.
+// 하위 호출(PCL 훅, delegatecall)이 받은 가스(남은 가스의 63/64)를 다 쓰고 되돌리면, tx 는 한도보다 조금 덜 쓰고 데이터 없이 끝난다.
+// 그때 쓴 가스와 한도가 같지 않아 classifyRevert 만으로는 가스 부족을 가리지 못한다.
+export function refineByUncappedReplay(d: Decoded, uncappedPassed: boolean, gas: { gasUsed: bigint; gasLimit: bigint }): Decoded {
+  if (!uncappedPassed || !(d.family === "node-check" || d.family === "no-data")) return d;
+  return {
+    family: "out-of-gas",
+    text: `가스가 모자라 되돌려졌습니다(쓴 가스 ${thou(gas.gasUsed)}, 한도 ${thou(gas.gasLimit)}). 가스 한도 없이 같은 상태로 다시 실행하면 통과합니다`,
+    next: "가스 한도를 eth_estimateGas 값에 25% 안팎을 더해 정합니다.",
+  };
+}
+
 const fmtArgs = (args: readonly unknown[] = []) => args.map((a) => (typeof a === "bigint" ? a.toString() : Array.isArray(a) ? `[${a.length}개]` : String(a))).join(", ");
 
 export function classifyRevert(input: { data: Hex | undefined; extraAbi?: Abi; rpcMessage?: string; gasUsed?: bigint; gasLimit?: bigint }): Decoded {
