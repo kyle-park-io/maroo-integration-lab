@@ -181,7 +181,7 @@ import { refineByUncappedReplay } from "./explain.ts";
 test("데이터 없는 되돌림이 가스 한도 없이 다시 실행해 통과하면 가스 부족이다(하위 호출이 받은 가스를 다 쓴 경우)", () => {
   // 2026-10-23 에이전트 지갑의 금고 fund(), 가스 한도 60,000 에 59,538 사용
   const d = classifyRevert({ data: undefined, rpcMessage: "execution reverted", gasUsed: 59_538n, gasLimit: 60_000n });
-  assert.equal(d.family, "node-check");
+  assert.equal(d.family, "no-data");
   const r = refineByUncappedReplay(d, true, { gasUsed: 59_538n, gasLimit: 60_000n });
   assert.equal(r.family, "out-of-gas");
   assert.match(r.text, /59,538/);
@@ -190,7 +190,7 @@ test("데이터 없는 되돌림이 가스 한도 없이 다시 실행해 통과
 
 test("가스 한도 없이도 되돌려지거나 사유 데이터가 있으면 판정을 바꾸지 않는다", () => {
   const d = classifyRevert({ data: undefined, rpcMessage: "execution reverted", gasUsed: 59_538n, gasLimit: 60_000n });
-  assert.equal(refineByUncappedReplay(d, false, { gasUsed: 59_538n, gasLimit: 60_000n }).family, "node-check");
+  assert.equal(refineByUncappedReplay(d, false, { gasUsed: 59_538n, gasLimit: 60_000n }).family, "no-data");
   const policy = classifyRevert({ data: "0x472e017e" as Hex, extraAbi: [{ type: "error", name: "NotBuyer", inputs: [] }] as Abi });
   assert.equal(refineByUncappedReplay(policy, true, { gasUsed: 1n, gasLimit: 2n }).family, policy.family);
 });
@@ -200,4 +200,47 @@ test("정책 인식 프리컴파일(Privacy)은 PCL 프록시가 아니어도 �
   // 테스트넷 전역 정책의 EAS_POLICY 는 Or 안에만 있어 감싸이지 않고 나올 수 없고, Privacy 주소에는 And(EAS_POLICY, DENYLIST_POLICY)가 묶여 있다.
   const s = decideScope({ isProxy: false, contract: ["EAS_POLICY", "DENYLIST_POLICY"], global: ["EAS_POLICY", "PERIODIC_VOLUME_POLICY"], globalBare: [], reason: ["EAS_POLICY"], wrapped: false });
   assert.equal(s.scope, "contract");
+});
+
+test("노드 메시지가 execution reverted 뿐인 되돌림은 노드 검사가 아니라 데이터 없는 되돌림이다", () => {
+  // 2026-10-23: 금고 프록시에 없는 선택자를 보내면 Maroo 는 data 없이 {"message":"execution reverted"} 를 돌려준다
+  const d = classifyRevert({ data: undefined, rpcMessage: "execution reverted" });
+  assert.equal(d.family, "no-data");
+  assert.match(d.text, /execution reverted/);
+  assert.match(d.next, /require|revert\(\)|선택자/);
+  assert.doesNotMatch(d.next, /노드가 요청을 거절/);
+  // 잔액, 논스, 수수료처럼 노드가 실행 전에 거절한 메시지는 그대로 노드 검사다
+  assert.equal(classifyRevert({ data: undefined, rpcMessage: "insufficient funds for gas * price + value" }).family, "node-check");
+  assert.equal(classifyRevert({ data: undefined, rpcMessage: "intrinsic gas too low: have 21000, want 21432" }).family, "node-check");
+});
+
+test("같은 선택자가 Maroo 오류와 대상 컨트랙트 ABI 에 모두 있으면, 정책 사유가 아닌 한 컨트랙트 오류로 푼다", () => {
+  const userAbi = [{ type: "error", name: "Unauthorized", inputs: [] }, { type: "error", name: "InvalidSender", inputs: [] }] as Abi;
+  for (const name of ["Unauthorized", "InvalidSender"]) {
+    const d = classifyRevert({ data: enc(pcl, name), extraAbi: userAbi });
+    assert.equal(d.family, "contract", name);
+    assert.match(d.next, /Maroo/, name); // 같은 선택자의 Maroo 오류도 있다는 것을 알린다
+  }
+  // ABI 를 넘기지 않으면 Maroo 오류로 푼다
+  assert.equal(classifyRevert({ data: enc(pcl, "Unauthorized") }).family, "pcl-config");
+  // 정책 사유는 컨트랙트 ABI 에 같은 이름이 있어도 PCL 정책 위반이다(PCL 프록시가 내는 사유)
+  const easAbi = [{ type: "error", name: "EasNoAttestationReceived", inputs: [{ type: "address", name: "sender" }] }] as Abi;
+  assert.equal(classifyRevert({ data: enc(pcl, "EasNoAttestationReceived", [SENDER]), extraAbi: easAbi }).family, "pcl-policy");
+});
+
+import { isRevertError } from "./explain.ts";
+
+test("감싸인 사유(AnyOfRejected)는 묶인 컨트랙트 정책에 Or 가 없으면 전역 정책에서 난 것이다", () => {
+  // 금고 프록시의 claim() 에는 EAS_POLICY 하나만 묶여 있고, 테스트넷 전역 정책의 EAS_POLICY 는 Or 안에 있다
+  const s = decideScope({ isProxy: true, contract: ["EAS_POLICY"], contractInOr: [], global: ["EAS_POLICY", "VOLUME_POLICY"], globalBare: [], reason: ["EAS_POLICY"], wrapped: true });
+  assert.equal(s.scope, "global");
+  // 컨트랙트 정책에도 Or 아래 EAS_POLICY 가 있으면 가릴 수 없다
+  assert.equal(decideScope({ isProxy: true, contract: ["EAS_POLICY"], contractInOr: ["EAS_POLICY"], global: ["EAS_POLICY"], globalBare: [], reason: ["EAS_POLICY"], wrapped: true }).scope, "either");
+});
+
+test("정책 조회가 되돌려진 것(묶인 정책 없음)과 네트워크 오류를 가른다", () => {
+  assert.equal(isRevertError({ name: "ContractFunctionExecutionError", cause: { name: "ContractFunctionRevertedError" } }), true);
+  assert.equal(isRevertError({ name: "CallExecutionError", shortMessage: "Execution reverted for an unknown reason." }), true);
+  assert.equal(isRevertError({ name: "ContractFunctionExecutionError", cause: { name: "HttpRequestError" } }), false);
+  assert.equal(isRevertError(new TypeError("fetch failed")), false);
 });

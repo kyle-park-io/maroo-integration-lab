@@ -7,8 +7,8 @@ import { getAddress, toEventSelector, toFunctionSelector, toHex, type Abi, type 
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { PCL, RPC, publicClient as pub } from "./maroo.ts";
 import { ROOT } from "./paths.ts";
-import { bareTemplates, describePolicy, templatesIn, type PolicySet } from "./pcl-policy.ts";
-import { classifyRevert, decideScope, reasonTemplates, refineByUncappedReplay, type Explanation } from "./explain.ts";
+import { bareTemplates, describePolicy, orTemplates, templatesIn, type PolicySet } from "./pcl-policy.ts";
+import { classifyRevert, decideScope, isRevertError, reasonTemplates, refineByUncappedReplay, type Explanation } from "./explain.ts";
 
 const KIND = ["Unspecified", "Transparent", "UUPS", "Beacon"];
 const POLICY_CHECK_PASSED = toEventSelector("PolicyCheckPassed(address,address)");
@@ -42,13 +42,15 @@ async function readPolicies(to: Address, selector?: Hex) {
   // 프록시가 아니어도 정책 인식 프리컴파일(Privacy 등)은 자기 주소에 정책이 묶여 있다. 묶인 정책이 없는 주소는 조회가 되돌려진다.
   const contractSets = await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "contractPolicies", args: [to] })
     .then((r) => ((r as { policies: readonly PolicySet[] }).policies ?? []))
-    .catch(() => [] as readonly PolicySet[]);
+    // 되돌려지면 묶인 정책이 없는 것이다. 네트워크 오류를 「정책 없음」으로 바꾸면 컨트랙트 정책 거부를 전역으로 잘못 판정하므로 그대로 던진다.
+    .catch((e) => { if (isRevertError(e)) return [] as readonly PolicySet[]; throw e; });
   const bound = contractSets.filter((p) => p.selector === "0x" || (selector && p.selector.toLowerCase() === selector.toLowerCase()));
   const globalSets = ((await pub.readContract({ address: PCL, abi: iPclAbi, functionName: "globalPolicies" })) as { policies: readonly PolicySet[] }).policies ?? [];
   const templates = (sets: readonly PolicySet[]) => [...new Set(sets.flatMap((p) => [...templatesIn(p)]))];
   return {
     target: { isProxy, kind: KIND[Number(proxy.kind)] ?? String(proxy.kind), bound: bound.map(describePolicy), global: globalSets.map(describePolicy) },
     contractTemplates: templates(bound),
+    contractInOr: [...new Set(bound.flatMap((p) => [...orTemplates(p)]))],
     globalTemplates: templates(globalSets),
     globalBare: [...new Set(globalSets.flatMap((p) => [...bareTemplates(p)]))],
   };
@@ -59,7 +61,7 @@ async function withScope(e: Explanation, to: Address): Promise<Explanation> {
   e.target = p.target;
   if (e.decoded?.family === "pcl-policy") {
     e.scope = decideScope({
-      isProxy: p.target.isProxy, contract: p.contractTemplates, global: p.globalTemplates, globalBare: p.globalBare,
+      isProxy: p.target.isProxy, contract: p.contractTemplates, contractInOr: p.contractInOr, global: p.globalTemplates, globalBare: p.globalBare,
       reason: [...reasonTemplates(e.decoded)], wrapped: e.decoded.name === "AnyOfRejected",
     });
   }

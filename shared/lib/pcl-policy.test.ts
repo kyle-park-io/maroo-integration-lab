@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseEther, toFunctionSelector, type Hex } from "viem";
 import { policy } from "@maroo-chain/viem";
-import { bareTemplates, describePolicy, findEasSchema, templatesIn, type PolicySet } from "./pcl-policy.ts";
+import { bareTemplates, describePolicy, findEasSchema, orTemplates, templatesIn, type PolicySet } from "./pcl-policy.ts";
 import { ROOT } from "./paths.ts";
 
 const fixture = JSON.parse(fs.readFileSync(path.join(ROOT, "shared/lib/fixtures/testnet-policies.json"), "utf8")) as {
@@ -59,4 +59,10 @@ test("Or 조합을 거치지 않고 닿는 템플릿만 모은다(그대로 거�
   assert.deepEqual([...bareTemplates(fixture.global.policies[0])], []);
   const set = policy.and(policy.eas({ easContract: EAS, indexContract: INDEXER, schemaUid: KYC_SCHEMA }), policy.or(policy.denylist({ addresses: ["0x1111111111111111111111111111111111111111"] }), policy.eas({ easContract: EAS, indexContract: INDEXER, schemaUid: KYC_SCHEMA })));
   assert.deepEqual([...bareTemplates(set)], ["EAS_POLICY"]);
+});
+
+test("Or 조합 아래에 있는 템플릿을 모은다(AnyOfRejected 로 감싸인 사유가 나올 수 있는 템플릿)", () => {
+  assert.deepEqual([...orTemplates(fixture.global.policies[0])].sort(), ["EAS_POLICY", "PERIODIC_VOLUME_POLICY", "VOLUME_POLICY"]);
+  // 금고 claim() 처럼 EAS_POLICY 하나만 묶이면 Or 아래 템플릿은 없다
+  assert.deepEqual([...orTemplates(policy.eas({ easContract: EAS, indexContract: INDEXER, schemaUid: KYC_SCHEMA }))], []);
 });

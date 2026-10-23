@@ -162,6 +162,10 @@ export function classifyRevert(input: { data: Hex | undefined; extraAbi?: Abi; r
     if (gasUsed !== undefined && gasLimit !== undefined && gasUsed === gasLimit) {
       return { family: "out-of-gas", text: `가스 한도를 다 써서 되돌려졌습니다(쓴 가스와 한도 ${gasUsed.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")})`, next: "가스 한도를 eth_estimateGas 값에 25% 안팎을 더해 정합니다." };
     }
+    // Maroo 는 사유 없는 되돌림(메시지 없는 require, revert(), 없는 함수 선택자)을 data 없이 "execution reverted" 로만 돌려준다
+    if (rpcMessage && /^execution reverted:?\s*$/i.test(rpcMessage.trim())) {
+      return { family: "no-data", text: `revert 데이터 없이 되돌려졌습니다(노드 메시지: ${rpcMessage.trim()})`, next: "대상 컨트랙트가 사유 없이 되돌렸거나(메시지 없는 require, revert(), 없는 함수 선택자) 하위 호출이 가스를 다 썼습니다. 대상 주소, 함수 선택자, 인자를 확인하고, 가스 한도 없이 다시 시뮬레이션해 통과하면 가스 부족입니다." };
+    }
     if (rpcMessage) {
       const balance = /insufficient (balance|funds)/i.test(rpcMessage);
       return {
@@ -173,17 +177,19 @@ export function classifyRevert(input: { data: Hex | undefined; extraAbi?: Abi; r
   }
   const selector = data.slice(0, 10).toLowerCase() as Hex;
   const contractErrors = errorsOf(extraAbi);
-  let decoded: { errorName: string; args?: readonly unknown[] } | undefined;
-  let fromContract = false;
-  for (const [abi, isContract] of [[MAROO_ERRORS, false], [contractErrors, true]] as const) {
-    if (decoded || abi.length === 0) continue;
-    try {
-      decoded = decodeErrorResult({ abi, data }) as { errorName: string; args?: readonly unknown[] };
-      fromContract = isContract;
-    } catch {
-      /* 다음 ABI 로 */
-    }
-  }
+  type Dec = { errorName: string; args?: readonly unknown[] };
+  const tryDecode = (abi: readonly unknown[]): Dec | undefined => {
+    if (abi.length === 0) return undefined;
+    try { return decodeErrorResult({ abi: abi as Abi, data }) as Dec; } catch { return undefined; }
+  };
+  const asMaroo = tryDecode(MAROO_ERRORS);
+  const asContract = tryDecode(contractErrors);
+  // 같은 선택자가 두 ABI 에 다 있으면(Unauthorized(), InvalidSender() 처럼 흔한 이름) 정책 사유가 아닌 한 사용자가 넘긴 컨트랙트 ABI 를 따른다.
+  // 정책 사유는 PCL 프록시가 내므로 Maroo 로 푼다.
+  const marooPolicy = !!asMaroo && (POLICY.has(asMaroo.errorName) || asMaroo.errorName === "AnyOfRejected");
+  const fromContract = !!asContract && (!asMaroo || !marooPolicy);
+  const decoded = fromContract ? asContract : asMaroo;
+  const shadowed = fromContract && asMaroo ? asMaroo.errorName : undefined;
   if (!decoded) {
     return { family: "unknown", selector, text: `해석되지 않은 revert ${data.length > 74 ? `${data.slice(0, 74)}…` : data}`, next: "대상 컨트랙트 ABI를 --abi 로 넘기면 풀 수 있습니다. 풀리지 않은 사유를 통과나 다른 계열로 바꿔 적지 않습니다." };
   }
@@ -195,7 +201,10 @@ export function classifyRevert(input: { data: Hex | undefined; extraAbi?: Abi; r
     const code = Number(args[0]);
     return { family: "panic", selector, name, args, text: `Panic(0x${code.toString(16)}): ${PANIC[code] ?? "알 수 없는 panic 코드"}`, next: "컨트랙트의 계산이나 배열 접근을 확인합니다." };
   }
-  if (fromContract) return { family: "contract", selector, name, args, text, next: `대상 컨트랙트 코드가 ${name}로 되돌렸습니다. 컨트랙트가 이 오류를 내는 조건을 확인합니다.` };
+  if (fromContract) {
+    const also = shadowed ? ` 같은 선택자의 Maroo 오류(${shadowed})도 있어, 대상이 컨트랙트 ABI 와 다른 코드를 부른 경우에는 그 오류일 수 있습니다.` : "";
+    return { family: "contract", selector, name, args, text, next: `대상 컨트랙트 코드가 ${name}로 되돌렸습니다. 컨트랙트가 이 오류를 내는 조건을 확인합니다.${also}` };
+  }
   if (name === "AnyOfRejected") {
     const children = (args[0] as readonly Hex[]).map((child) => classifyRevert({ data: child, extraAbi }));
     return { family: "pcl-policy", selector, name, args, text: `AnyOfRejected(자식 사유 ${children.length}개)`, children, next: "조합 정책의 자식이 모두 거부했습니다. 아래 자식 사유 가운데 하나를 풀면 통과합니다." };
@@ -242,16 +251,20 @@ export const SCOPE_LABEL: Record<Scope["scope"], string> = { global: "전역 정
 
 // PCL 거부가 전역 정책인지 컨트랙트 정책인지. 사유만으로는 가릴 수 없어(EAS_POLICY 는 양쪽에 걸 수 있다)
 // 대상이 PCL 프록시인지, 프록시와 전역에 묶인 템플릿이 사유와 맞는지로 가린다.
-export function decideScope(x: { isProxy: boolean; contract: string[]; global: string[]; reason: string[]; globalBare?: string[]; wrapped?: boolean }): Scope {
+// contractInOr: 묶인 컨트랙트 정책에서 Or 아래에 있는 템플릿. 감싸인 사유는 Or 에서만 나오므로, 주어지면 감싸인 사유를 이것과 견준다.
+export function decideScope(x: { isProxy: boolean; contract: string[]; global: string[]; reason: string[]; globalBare?: string[]; contractInOr?: string[]; wrapped?: boolean }): Scope {
   // 정책 인식 프리컴파일(Privacy 등)은 PCL 프록시가 아니어도 자기 주소에 묶인 컨트랙트 정책을 스스로 평가한다
   if (!x.isProxy && x.contract.length === 0) return { scope: "global", note: "대상이 PCL 프록시가 아니고 대상 주소에 묶인 컨트랙트 정책도 없어 전역 정책의 거부입니다." };
-  const inContract = x.reason.some((t) => x.contract.includes(t));
+  const inContract = x.wrapped === true && x.contractInOr ? x.reason.some((t) => x.contractInOr!.includes(t)) : x.reason.some((t) => x.contract.includes(t));
   // 감싸이지 않은 사유는 전역 정책의 Or 안에서는 나올 수 없다(그 자리면 AnyOfRejected 로 감싸인다)
   const inGlobal = x.wrapped === false && x.globalBare ? x.reason.some((t) => x.globalBare!.includes(t)) : x.reason.some((t) => x.global.includes(t));
   if (inContract && !inGlobal && x.wrapped === false && x.reason.some((t) => x.global.includes(t))) {
     return { scope: "contract", note: "전역 정책에도 같은 템플릿이 있지만 Or 조합 안에만 있어, 그 자리에서 거부되면 AnyOfRejected로 감싸여 나옵니다. 사유가 감싸이지 않고 나왔으므로 컨트랙트 정책의 거부입니다." };
   }
   if (inContract && !inGlobal) return { scope: "contract", note: "사유와 맞는 템플릿이 이 프록시에만 묶여 있습니다." };
+  if (!inContract && inGlobal && x.wrapped === true && x.reason.some((t) => x.contract.includes(t))) {
+    return { scope: "global", note: "사유가 AnyOfRejected로 감싸여 나왔는데, 이 프록시에 묶인 정책에는 그 템플릿이 Or 조합 아래에 없습니다. 감싸인 사유는 Or에서만 나오므로 전역 정책의 거부입니다." };
+  }
   if (!inContract && inGlobal) return { scope: "global", note: "사유와 맞는 템플릿이 전역 정책에만 있습니다." };
   if (inContract && inGlobal) return { scope: "either", note: "사유와 맞는 템플릿이 전역과 이 프록시 모두에 있습니다. 보내는 주소만 바꿔 같은 호출을 시뮬레이션하면 가릴 수 있습니다." };
   return { scope: "unknown", note: "사유와 맞는 템플릿이 전역 정책에도 이 프록시에도 없습니다." };
@@ -316,4 +329,13 @@ export function formatExplanation(e: Explanation): string[] {
     nexts(e.decoded, "");
   }
   return lines;
+}
+
+// readContract 가 되돌려진 것(조회 대상에 값이 없음)인지, 네트워크나 노드 오류인지. viem 오류의 cause 를 따라 이름을 본다.
+export function isRevertError(e: unknown): boolean {
+  for (let x = e as { name?: string; shortMessage?: string; cause?: unknown } | undefined, i = 0; x && i < 6; x = x.cause as typeof x, i++) {
+    if (/HttpRequestError|TimeoutError|WebSocketRequestError|RpcRequestError/.test(x.name ?? "")) return false;
+    if (/ContractFunctionRevertedError|ExecutionRevertedError/.test(x.name ?? "") || /reverted/i.test(x.shortMessage ?? "")) return true;
+  }
+  return false;
 }

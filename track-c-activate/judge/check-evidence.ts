@@ -21,11 +21,11 @@ import { decodeFunctionData, getAddress, size, type Address, type Hex } from "vi
 import { identityRegistryAbi } from "@maroo-chain/viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
 import { PCL, publicClient as pub } from "../../shared/lib/maroo.ts";
-import { FAMILY_LABEL, SCOPE_LABEL, classifyRevert } from "../../shared/lib/explain.ts";
+import { FAMILY_LABEL, classifyRevert } from "../../shared/lib/explain.ts";
 import { explainTx, loadAbi } from "../../shared/lib/explain-chain.ts";
 import { outPath } from "../../shared/lib/paths.ts";
 import { describePolicy, type PolicySet } from "../../shared/lib/pcl-policy.ts";
-import { judge, type Checked, type Item, type Verdict } from "./rules.ts";
+import { judge, policyScopeCheck, type Checked, type Item, type Verdict } from "./rules.ts";
 
 const file = process.argv.find((a) => a.endsWith(".json"));
 const track = Number(process.argv[process.argv.indexOf("--track") + 1] ?? 1) || 1;
@@ -75,8 +75,8 @@ for (const item of items) {
         if (e.decoded) pass(`계열 ${FAMILY_LABEL[e.decoded.family]}${e.decoded.selector ? `, 선택자 ${e.decoded.selector}` : ""}`);
         // PCL 정책 거부라면 컨트랙트 정책인지 확인한다. 대상이 PCL 프록시가 아니거나 전역 정책에서 난 거부는 이 제출물이 건 정책의 증거가 아니다.
         if (e.decoded?.family === "pcl-policy" && e.scope) {
-          if (e.scope.scope === "global") fail(`정책 거부가 전역 정책에서 났습니다. ${e.scope.note}`);
-          else pass(`걸린 정책 ${SCOPE_LABEL[e.scope.scope]}. ${e.scope.note}`);
+          const c = policyScopeCheck({ family: e.decoded.family, isProxy: !!e.target?.isProxy, scope: e.scope.scope, note: e.scope.note });
+          (c.ok ? pass : fail)(c.msg);
         }
       } else if (/통과|성공/.test(item.expected ?? "")) {
         if (receipt.status !== "success") fail("통과를 예상했는데 되돌려진 tx");

@@ -52,3 +52,16 @@ test("트랙 3 R2는 정책이 묶인 항목이 있어야 한다", () => {
 test("없는 트랙은 판정 항목이 없다", () => {
   assert.deepEqual(judge(9, [v("R1")]), []);
 });
+
+import { policyScopeCheck } from "./rules.ts";
+
+test("PCL 정책 거부는 대상이 PCL 프록시이고 전역 정책이 아닐 때만 제출물의 정책 증거로 인정한다", () => {
+  const base = { family: "pcl-policy" as const, note: "근거" };
+  assert.equal(policyScopeCheck({ ...base, isProxy: true, scope: "contract" }).ok, true);
+  assert.equal(policyScopeCheck({ ...base, isProxy: true, scope: "either" }).ok, true);
+  assert.equal(policyScopeCheck({ ...base, isProxy: true, scope: "global" }).ok, false);
+  // Privacy 프리컴파일처럼 운영자가 묶은 정책은 프록시가 아니라 제출물의 정책이 아니다
+  const pre = policyScopeCheck({ ...base, isProxy: false, scope: "contract" });
+  assert.equal(pre.ok, false);
+  assert.match(pre.msg, /PCL 프록시가 아니/);
+});

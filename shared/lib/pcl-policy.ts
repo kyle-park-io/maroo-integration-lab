@@ -83,3 +83,16 @@ export function bareTemplates(set: PolicySet): Set<string> {
   walk(SdkPolicySet.decode(set));
   return out;
 }
+
+// Or 조합 아래에 있는 템플릿. AnyOfRejected 로 감싸인 거부 사유는 이 집합의 템플릿에서만 나온다.
+export function orTemplates(set: PolicySet): Set<string> {
+  const out = new Set<string>();
+  const walk = (node: Node, inOr: boolean) => {
+    if (inOr && !(node.kind === "decoded" && (node.templateId === "LOGICAL_POLICY" || node.templateId === "FOR_EACH_POLICY"))) out.add(node.templateId);
+    if (node.kind !== "decoded") return;
+    if (node.templateId === "LOGICAL_POLICY") node.value.children.forEach((c) => walk(c, inOr || node.value.quantifier === "Or"));
+    if (node.templateId === "FOR_EACH_POLICY") walk(node.value.child, inOr);
+  };
+  walk(SdkPolicySet.decode(set), false);
+  return out;
+}

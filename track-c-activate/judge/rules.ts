@@ -41,3 +41,12 @@ export const RULES: Record<number, { id: string; need: string; test: (vs: Checke
 export function judge(track: number, verdicts: Checked[]) {
   return (RULES[track] ?? []).map((r) => ({ id: r.id, need: r.need, ok: r.test(verdicts) }));
 }
+
+// PCL 정책 거부를 제출물이 건 정책의 증거로 인정하는지. 대상이 PCL 프록시가 아니면(Privacy 프리컴파일처럼 운영자가 묶은 정책)
+// 제출물의 정책이 아니고, 전역 정책에서 난 거부도 아니다. 가릴 수 없으면(either) 인정하되 그 근거를 적는다.
+export function policyScopeCheck(x: { family: string; isProxy: boolean; scope: "global" | "contract" | "either" | "unknown"; note: string }): { ok: boolean; msg: string } {
+  if (!x.isProxy) return { ok: false, msg: `대상이 PCL 프록시가 아니라, 이 거부는 제출물이 건 정책의 증거가 아닙니다. ${x.note}` };
+  if (x.scope === "global") return { ok: false, msg: `정책 거부가 전역 정책에서 났습니다. ${x.note}` };
+  if (x.scope === "unknown") return { ok: false, msg: `걸린 정책을 가리지 못했습니다. ${x.note}` };
+  return { ok: true, msg: `걸린 정책 ${x.scope === "contract" ? "컨트랙트 정책" : "전역 또는 컨트랙트 정책"}. ${x.note}` };
+}
