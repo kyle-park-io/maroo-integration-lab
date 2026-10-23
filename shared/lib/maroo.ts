@@ -91,7 +91,8 @@ export function decodeRaw(data: Hex, abi: Abi): string {
 }
 
 // JSON-RPC eth_call 을 직접 불러 revert 데이터를 그대로 받는다. 트랜잭션은 보내지 않는다.
-// eth_estimateGas 로 부르면 전역 정책(AnteHandler)까지 평가된다. eth_call 은 전역 정책을 건너뛴다.
+// eth_estimateGas 로 부르면 실행 뒤 전역 정책 재검사까지 평가된다. eth_call 은 그 재검사를 하지 않아, PCL 프록시를 거치지 않는
+// OKRW 이체에서는 전역 정책 거부가 나오지 않는다. PCL 프록시 호출은 eth_call 도 프록시 훅에서 전역 정책을 평가한다.
 export async function rawEthCall(req: { from: Address; to: Address; data: Hex; value?: bigint }, method: "eth_call" | "eth_estimateGas" = "eth_call") {
   const tx = { ...req, value: `0x${(req.value ?? 0n).toString(16)}` };
   const res = await fetch(RPC, {

@@ -152,7 +152,8 @@ const bindRcpt = await confirm("2c) fund() 에 AGENT_OKRW_TRANSFER_LIMIT_POLICY 
 }));
 log("2d) 금고", { vault, buyerSlot: await pub.readContract({ address: vault, abi: vaultAbi, functionName: "buyer" }) });
 
-// 결제를 보내지 않고 두 방법으로 확인한다. eth_call 은 SDK simulatePclProxy, eth_estimateGas 는 전역 정책까지 평가한다.
+// 결제를 보내지 않고 두 방법으로 확인한다. eth_call(SDK simulatePclProxy)은 프록시 훅의 컨트랙트 정책과 전역 정책을,
+// eth_estimateGas 는 실행 뒤 전역 정책 재검사까지 평가한다.
 async function check(value: bigint) {
   const sim = await pub.pcl.simulatePclProxy({ account: agent, address: vault, abi: vaultAbi, functionName: "fund", args: [supplierA], value });
   const ethCall = sim.status === "succeeded" ? "통과"

@@ -1,6 +1,7 @@
 # SUBMISSION_NOTES
 
 - 기준: Maroo Docs(2026-09-25 확인), Maroo 테스트넷(chain ID 450815), Clairveil v0.4.0 `ca85b02708fdd75259d4d2ee2d671c21198cec69`
+- 제출 뒤 고친 것: 제출한 상태는 태그 [`submission-2026-09-28`](https://github.com/kyle-park-io/maroo-integration-lab/releases/tag/submission-2026-09-28)에 그대로 있고, 그 뒤에 고친 것은 [제출 뒤 고친 것](#제출-뒤-고친-것)에 적었습니다.
 - 표시: `[Live Testnet]`, `[Local]`, `[코드 대조]`, `[Docs Only]`, 권고. 테스트넷 시뮬레이션은 `[Live Testnet]` 옆에 호출 방법(`eth_call`, `eth_estimateGas`)을 함께 적었습니다. 뜻은 [README](README.md#증거-라벨)에 있습니다.
 
 ## Assumptions / Discrepancies
@@ -40,7 +41,7 @@ Maroo Docs와 Clairveil 같은 자료가 말하는 내용을 직접 실행해 �
 | # | 자료 | 자료가 말하는 것 | 실행 결과 | 재현 | 반영한 곳 |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Maroo Docs 테스트넷 접근 | KYC 서비스를 "KYC (mock)"으로만 적은 표기 | Privacy 프리컴파일 정책이 `And(EAS_POLICY(bytes32 kakaoIdHash, uint8 version), DENYLIST_POLICY)`라 호출자는 개인 본인 인증 증명이 필요. 카카오 인증을 마친 지갑이 실제로 이 스키마의 증명을 받은 기록 | `pnpm a:inspect`, `pnpm a:probe-kyc` | A 문서 개선 노트 1 |
-| 2 | Maroo Docs 사유 코드 | 사전 검사 방법의 설명 없음 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가 | `pnpm a:probe-global` | A 문서 개선 노트 2, FAQ 6 |
+| 2 | Maroo Docs 시뮬레이션 가이드 | PCL 프록시로 가는 정적 호출을 사전 검사로 안내하고, 그 호출은 프록시 훅이 전역과 컨트랙트 정책을 함께 평가한다는 설명(2026-09-24 판부터) | 2026-10-23 정정: PCL 프록시를 거치지 않는 OKRW 이체만 `eth_call`에서 전역 정책 거부가 나오지 않고, PCL 프록시 호출은 `eth_call`에서도 거부됩니다. 제출 때는 이 가이드를 놓쳐 「`eth_call`은 전역 정책을 평가하지 않는다」, 「사전 검사 방법이 문서에 없다」로 적었습니다 | `pnpm a:probe-global --over-limit` | A 문서 개선 노트 2, FAQ 6, [제출 뒤 고친 것](#제출-뒤-고친-것) |
 | 3 | Maroo Docs `deployPclProxy` | 초기화가 필요 없으면 `"0x"`를 넘기라는 안내 | 빈 초기화 데이터는 Transparent, UUPS 모두 `execution reverted` | `pnpm a:doc-claims` | A 문서 개선 노트 3 |
 | 4 | Maroo Docs `withdraw` | 금액 예시가 `aokrw` | 테스트넷 `mintDenom`은 `atokrw` | `pnpm a:doc-claims` | A 문서 개선 노트 4 |
 | 5 | Maroo Docs 배포 주소, 아키텍처 | 프리컴파일 넷, 주소 표에 Privacy 없음 | Privacy 프리컴파일 `0x…0b`에 정책이 묶여 있는 상태 | `pnpm a:doc-claims` | A 문서 개선 노트 5 |
@@ -201,7 +202,7 @@ Maroo 문서와 도구를 쓰면서 막힌 지점의 목록입니다. 열은 트
 | # | 트랙 | 문제 | 재현 또는 근거 | 영향을 받는 사용자 | 심각도와 이유 | 제안 | owner |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | A, B | Privacy 호출이 요구하는 증명(개인 본인 인증 스키마)과 정책 구조가 문서에 없고, KYC 서비스는 "mock"으로만 적힘 | `pnpm a:inspect` | Privacy를 처음 부르는 모든 개발자 | 높음. 무엇을 갖춰야 통과하는지 알 수 없어 첫 호출에서 멈춤 | Privacy 개요에 현재 정책, 스키마 UID, 증명을 받는 방법 추가 | Maroo Docs |
-| 2 | A, B, C | `eth_call`이 전역 정책을 평가하지 않아 `simulateContract`로 사전 검사하면 거부를 놓침 | `pnpm a:probe-global` | 사전 검사를 만드는 백엔드, 지갑 개발자 | 높음. 시뮬레이션은 통과하고 tx는 거부되어 원인을 찾기 어려움 | 사유 코드 문서에 `eth_estimateGas` 사전 검사를 적고, SDK에 전역 정책까지 평가하는 사전 검사 함수를 둠 | Maroo Docs, SDK |
+| 2 | A, B, C | PCL 프록시를 거치지 않는 OKRW 이체를 `eth_call`(viem `simulateContract` 등)로 사전 검사하면 전역 정책 거부를 놓침(2026-10-23 범위 정정) | `pnpm a:probe-global --over-limit` | 사전 검사를 만드는 백엔드, 지갑 개발자 | 높음. 시뮬레이션은 통과하고 tx는 거부되어 원인을 찾기 어려움 | 시뮬레이션 가이드에 프록시를 거치지 않는 이체의 경우를 적고, SDK에 전역 정책까지 평가하는 사전 검사 함수를 둠. 2026-10-23 판 가이드에는 `eth_call`이 실행 뒤 전역 정책 재검사를 하지 않는다는 문장이 들어감 | Maroo Docs, SDK |
 | 3 | B | faucet이 전역 24시간 한도에 걸리면 모든 요청이 `reverted with the following signature:.`로만 실패 | `pnpm a:probe-global` (2026-09-25 16:41 UTC부터) | 테스트넷을 처음 쓰는 모든 개발자, 워크샵 진행자 | 높음. 원인을 알 수 없고 재시도 말고 할 일이 없는 상태 | faucet 계정에 KYC 증명이나 정책 면제 부여, 오류에 PCL 사유와 `resetAt` 표시 | faucet 운영 |
 | 4 | A, C | `deployPclProxy`에 빈 초기화 데이터를 넘기면 되돌려지고, 사유 문자열이 가려지는 동작 | `pnpm a:doc-claims` | 규제 트랙 컨트랙트를 배포하는 개발자 | 중간. 문서대로 하면 실패하지만 초기화 호출을 넣으면 풀림 | 문서 예시를 초기화 호출로 변경, 안쪽 사유 반환 | Maroo Docs, PCL |
 | 5 | A, B | Clairveil v0.4.0 스모크 스크립트가 인출 실패를 통과로 보고하는 동작 | `pnpm a:local` | Clairveil로 차폐 흐름을 배우는 개발자 | 중간. 참조 흐름이 동작한다고 믿고 넘어감 | 스크립트의 tx 결과 코드 확인, 인출 스냅샷 조건의 문서화 | Clairveil |
@@ -263,3 +264,14 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | 관찰자 노드(규제기관 열람)와 차폐 금액 상한의 일정 | 문서에 미구현, 노트 하나 약 18.45 OKRW | Maroo 로드맵 확인 | Maroo |
 | 문서 차이 19건의 반영 | 2026-09-26 문서 미러 기준 | `pnpm a:doc-claims`(1\~5번), `pnpm a:probe-send-gas`, `pnpm c:agent-limit`를 다시 실행해 문서 문장과 체인 동작 대조 | Maroo Docs |
 | 실제 참가자와의 워크샵, 실제 해커톤 참가자의 트랙 2 제출 | 이 머신의 실행 시간으로만 설계 | 파일럿 워크샵 한 번, `pnpm c:judge`로 참가자 제출물 판정 | 운영진 |
+
+## 제출 뒤 고친 것
+
+제출한 상태는 태그 [`submission-2026-09-28`](https://github.com/kyle-park-io/maroo-integration-lab/releases/tag/submission-2026-09-28)(커밋 `5ce0185`)에 그대로 있습니다. 그 뒤에 찾아 고친 것을 고친 날짜순으로 적습니다. 열은 고친 날짜, 틀린 것, 찾은 방법, 고친 것입니다.
+
+| 날짜 | 틀린 것 | 찾은 방법 | 고친 것 |
+| --- | --- | --- | --- |
+| 2026-10-23 | 「`eth_call`은 전역 정책을 평가하지 않는다」를 범위 없이 약 20곳에 적었고, 사전 검사 방법이 문서에 없다고 적었습니다 | 2026-10-15에 마루 시뮬레이션 가이드를 다시 읽다가, PCL 프록시 호출은 `eth_call`도 프록시 훅에서 전역 정책을 평가한다는 문장(2026-09-24 판부터)을 찾았습니다. 그날 전역 한도를 넘긴 faucet 계정으로 일반 이체와 금고 프록시 호출을 다시 견줬습니다 | 「PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않는다」로 범위를 좁혔습니다. 레포 안에서 다시 확인할 수 있게 `pnpm a:probe-global --over-limit`를 더했고([기록](track-a-explain/evidence/live/probe-global-compare-20261023T042452Z.json)), `pnpm a:doc-claims`의 사전 검사 판정이 시뮬레이션 가이드와 Contract API 페이지도 읽게 고쳤습니다 |
+| 2026-10-23 | 로컬 결과를 테스트넷 성공으로 적으면 안 되는 이유를 「회로와 검증 키가 같다는 근거가 없다」로만 적었습니다 | Clairveil v0.4.0의 setup과 회로 코드를 다시 읽었습니다 | 「로컬 검증 키는 setup이 돌 때마다 새로 만드는 키라 Maroo의 키와 같을 수 없고, 전송과 인출 증명은 체인 도메인과 Merkle root에도 묶인다」로 고쳤습니다(A 가이드 1절, B 진행자 가이드) |
+| 2026-10-23 | `SDKInvalidRequest()`를 「요청 검증 단계의 거부」로만 적었습니다 | 마루 프리컴파일 공통 오류 페이지, 테스트넷이 돌려준 revert 데이터(선택자 4바이트), Clairveil 예치 검사 코드를 대조했습니다 | 모든 프리컴파일이 함께 쓰는 인자 없는 오류라 요청 검증 안의 어느 검사에서 막혔는지는 가릴 수 없다는 설명을 더했습니다(A 가이드 6절, B 진행자 가이드, C 트랙 1) |
+| 2026-10-23 | 문서의 표 칸을 동사를 줄인 꼴로 맺고, 설명 없이 제목 바로 아래 표를 둔 절이 많았습니다 | 글쓰기 검사기를 새 규칙으로 다시 돌렸습니다 | 모든 문서의 표 칸과 절 첫머리를 고쳤습니다. 코드가 쓰는 로컬 실행 기록도 다음 실행부터 같은 꼴로 나옵니다 |

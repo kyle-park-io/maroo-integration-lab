@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | Maroo 테스트넷 | `pnpm a:inspect` | Privacy 프리컴파일에 걸린 정책, 요구 스키마, 지갑의 증명 수, deposit이 처음 막히는 층, 인터페이스 대조 | `[Live Testnet]` 조회와 eth_call |
 | Maroo 테스트넷 | `pnpm a:probe` | deposit 요청 모양별로 처음 막히는 층 | `[Live Testnet]` eth_call, 거부 경로 증거 |
-| Maroo 테스트넷 | `pnpm a:probe-global` | 같은 전송을 `eth_call`과 `eth_estimateGas`로 불렀을 때 전역 정책의 평가 차이 | `[Live Testnet]` 조회 |
+| Maroo 테스트넷 | `pnpm a:probe-global` | 같은 전송을 `eth_call`과 `eth_estimateGas`로 불렀을 때 전역 정책의 평가 차이. `--over-limit`는 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출을 견줍니다 | `[Live Testnet]` 조회 |
 | Maroo 테스트넷 | `pnpm a:probe-kyc` | 카카오 본인 인증 증명이 있는 지갑과 없는 지갑에서 deposit이 처음 막히는 층 비교 | `[Live Testnet]` eth_call, 거부 경로 증거 |
 | 코드 대조 | `pnpm a:abi-compare` | Maroo `IPrivacy` ABI와 ClairveilJS 정식 EVM Privacy 계약(v0.3.1)의 선택자, 이벤트, 정규화 해시 | `[코드 대조]`, 체인 호출 없음 |
 | SDK와 테스트넷 조회 | `pnpm a:probe-sdk` | 공식 SDK(ClairveilJS)의 EVM 예치 준비가 Maroo 설정에서 어느 조회에 멈추는지 | `[코드 대조]`, 테스트넷 조회, tx 없음 |
@@ -86,7 +86,18 @@ eth_estimateGas  거부: AnyOfRejected(...)
                    EasNoAttestationReceived(0x5336F019Bd8E9E0064be7330833dc883a8a6c94d)
 ```
 
-- 결과는 그 순간의 체인 상태에 따라 달라집니다. 한도가 풀린 뒤에는 두 방법 모두 통과합니다. 전역 정책은 `eth_call`에서 평가되지 않으므로, 보내기 전 검사는 `eth_estimateGas`로 합니다.
+- 결과는 그 순간의 체인 상태에 따라 달라집니다. 한도가 풀린 뒤에는 두 방법 모두 통과합니다.
+- 체인 상태와 상관없이 같은 차이를 확인하려면 `pnpm a:probe-global --over-limit`를 돌립니다. KYC 증명이 없는 구매 기업 지갑이 건당 한도(200만 OKRW)를 넘는 2,000,001 OKRW를 보내는 경우를 잔액 상태 덮어쓰기로 만들고, PCL 프록시를 거치지 않는 이체(협력사 A로)와 금고 PCL 프록시의 `fund()` 호출을 두 방법으로 견줍니다. 2026-10-23 13:24 KST의 결과는 이렇습니다 `[Live Testnet]` [기록](evidence/live/probe-global-compare-20261023T042452Z.json).
+
+```text
+PCL 프록시를 거치지 않는 이체 eth_call         통과
+PCL 프록시를 거치지 않는 이체 eth_estimateGas  거부: AnyOfRejected, 자식 사유 3개
+                                      VolumeAboveMaxLimit(2000000000000000000000000, 2000001000000000000000000)
+PCL 프록시 호출(금고 fund)    eth_call         거부: AnyOfRejected, 자식 사유 3개
+PCL 프록시 호출(금고 fund)    eth_estimateGas  거부: AnyOfRejected, 자식 사유 3개
+```
+
+- PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않으므로, 보내기 전 검사는 `eth_estimateGas`로 합니다.
 
 ```bash
 pnpm a:probe-kyc

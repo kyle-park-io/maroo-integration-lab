@@ -112,4 +112,4 @@
 | 전역 정책: KYC 증명이 없으면 건당 200만 OKRW, 24시간 1,000만 OKRW | 큰 금액 시연이 거부됨. 에이전트는 소유자 기준으로 평가 | `[Live Testnet]` 기술 근거 기록 |
 | Privacy 호출자는 개인 본인 인증 증명(`kakaoIdHash` 스키마)이 있어야 합니다 | 테스트넷 Privacy를 직접 부르려면 참가자 지갑에 카카오 본인 인증이 필요 | `[Live Testnet]` 기술 근거 기록 |
 | faucet이 전역 한도에 걸리면 모든 요청이 실패 | 행사 당일 faucet 대신 운영진 지갑 배분이 필요 | `[Live Testnet]` [Track A 증거](../track-a-explain/evidence.md) |
-| 보내기 전 검사는 `eth_estimateGas` | `eth_call`만 쓰면 전역 정책 거부를 놓침 | `[Live Testnet]` [Track A 증거](../track-a-explain/evidence.md) |
+| 보내기 전 검사는 `eth_estimateGas` | PCL 프록시를 거치지 않는 OKRW 이체를 `eth_call`로만 검사하면 전역 정책 거부를 놓침 | `[Live Testnet]` [Track A 증거](../track-a-explain/evidence.md) |

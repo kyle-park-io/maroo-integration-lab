@@ -27,7 +27,7 @@
 | --- | --- | --- | --- |
 | Privacy 프리컴파일의 정책, 요구 증명, 요청 모양 조회 | 실행함 | `[Live Testnet]` | [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | Privacy 예치가 처음 막히는 층 진단 | 전역 정책은 통과하고 요청 검증(`SDKInvalidRequest`)에서 막힘 | `[Live Testnet]` eth_call과 eth_estimateGas, 거부 경로 증거 | [진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
-| 보내기 전 정책 검사 방법 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가합니다 | `[Live Testnet]` | [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
+| 보내기 전 정책 검사 방법 | PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않고 `eth_estimateGas`에서 나옵니다. PCL 프록시 호출은 두 방법 모두 거부합니다 | `[Live Testnet]` | [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json), [faucet 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
 | OKRW 지급과 KYB 관문을 건 정산 금고 | 실행함. 증명 없음, 색인 전, 폐기 뒤 청구는 거부되고 색인 뒤 청구는 통과. 정책 관리자와 업그레이드 권한이 다른 주소 | `[Live Testnet]` 상태 변경 tx 18건 | [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 | 차폐 정산 전체(예치, 일괄 지급, 스캔, 해독, 인출) | 실행함 | `[Local]` Clairveil v0.4.0 | [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) |
 | 테스트넷에서 유효한 Privacy 상태 변경 | 외부에서 만들 수 없습니다. 회로 산출물과 상태 조회 경로가 공개되지 않았습니다 | `[Live Testnet]`, `[Docs Only]` | 6절 |
@@ -112,7 +112,7 @@ Clairveil은 Cosmos SDK 체인에 차폐 풀을 넣는 공개 참조 구현이�
 3. clairveil-samples의 EVM 설정 예시가 쓰는 Privacy 프리컴파일 주소 `0x1000…000b`가 Maroo 테스트넷 주소와 같습니다. `[Docs Only]` [`.env.evm.example`](https://github.com/DELIGHT-LABS/clairveil-samples/blob/8321dedc231372679cfbea4314d080ecaea2e3f5/.env.evm.example)
 4. Clairveil v0.5.x의 전송 메시지(`privacy/v2`)는 출력마다 `outputs` 항목을 두고 감사 정보를 `audit` 하나로 묶는 모양으로 바뀌었습니다. Maroo 테스트넷 ABI는 v0.4.0 모양과 맞습니다. `[Docs Only]` [v0.5.1 `tx.proto`](https://github.com/DELIGHT-LABS/clairveil/blob/v0.5.1/proto/clairveil/privacy/v2/tx.proto), `[Live Testnet]` ABI 대조
 
-인터페이스가 같다는 사실이 회로와 검증 키가 같다는 증거는 되지 못합니다. 그래서 이 레포는 Clairveil을 구조와 흐름을 배우고 로컬에서 재현하는 자료로 쓰고, Maroo 테스트넷의 주소와 ABI와 호출 방식은 Maroo Docs를 기준으로 삼습니다.
+인터페이스가 같아도 로컬에서 만든 증명은 Maroo 테스트넷에서 통과하지 못합니다. 로컬 검증 키는 `clairveil-setup`이 돌 때마다 새로 만드는 키라([`groth16.Setup`](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/cmd/clairveil-setup/main.go#L305)) Maroo의 검증 키와 같을 수 없고, 전송과 인출 증명은 체인 도메인과 Merkle root에도 묶입니다([spend 회로의 공개 입력](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/x/privacy/circuit/spend.go#L17)) `[코드 대조]`. 그래서 이 레포는 Clairveil을 구조와 흐름을 배우고 로컬에서 재현하는 자료로 쓰고, Maroo 테스트넷의 주소와 ABI와 호출 방식은 Maroo Docs를 기준으로 삼습니다.
 
 ### Maroo 안에서 한 호출이 지나가는 층
 
@@ -142,12 +142,12 @@ flowchart TB
 | 층 | 평가되는 것 | `eth_call` | `eth_estimateGas` | 실제 tx가 거부되면 | 근거 |
 | --- | --- | --- | --- | --- | --- |
 | RPC 제출 | 문서는 브로드캐스트 전에 PCL을 평가해 거절하고, 그러면 가스를 내지 않고 블록에도 들어가지 않는다고 적습니다 | 해당 없음 | 해당 없음 | 컨트랙트 정책 거부는 제출 때 걸러지지 않았습니다(아래 행) | `[Docs Only]` [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/), `[Live Testnet]` |
-| AnteHandler 전역 정책(이름과 위치는 `[Docs Only]` 아키텍처 페이지) | 발신자와 값. KYC 증명이 없는 계정의 건당·24시간 한도, 에이전트 지갑이면 소유자 기준 평가 | 평가하지 않습니다 | 평가합니다 | 이 레포는 전역 정책에 걸리는 tx를 보내지 않았습니다(사전 검사에서 걸러 냈습니다) | `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
+| AnteHandler 전역 정책(이름과 위치는 `[Docs Only]` 아키텍처 페이지) | 발신자와 값. KYC 증명이 없는 계정의 건당·24시간 한도, 에이전트 지갑이면 소유자 기준 평가 | PCL 프록시를 거치지 않는 이체에서는 평가하지 않습니다. PCL 프록시 호출은 프록시 훅이 평가합니다 | 평가합니다 | 이 레포는 전역 정책에 걸리는 tx를 보내지 않았습니다(사전 검사에서 걸러 냈습니다) | `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
 | PCL 프록시의 컨트랙트 정책 | 프록시를 부른 계정과 선택자. 금고 `claim()`의 `EAS_POLICY`, 에이전트 결제의 `fund()` 한도 | 평가합니다 | 평가합니다 | 블록에 들어가 되돌려지고 가스 한도의 절반을 냄. 청구 150,000/300,000, 결제 363,982/727,965. 두 번의 실행에서 거부 tx 여덟 건 모두 50.0% | `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171442Z.json), [앞 실행](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` |
 | Privacy 프리컴파일의 자체 정책 | 호출자의 본인 인증 증명(`And(EAS_POLICY, DENYLIST_POLICY)`). PCL 프록시 없이 프리컴파일이 직접 정책을 가집니다 | 요청 검증(`SDKInvalidRequest()`)이 먼저 막아 정책까지 닿지 못했습니다 | 같습니다 | 보내지 않았습니다 | `[Docs Only]` [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/), `[Live Testnet]` 정책 조회 |
 | 프리컴파일과 모듈 | 프리컴파일이 Cosmos SDK 모듈의 상태를 읽고 씁니다. 문서의 아키텍처 페이지는 프리컴파일을 넷으로 적고 Privacy를 빼 놓았습니다 | 해당 없음 | 해당 없음 | 해당 없음 | `[Docs Only]` [Maroo 아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/), Privacy 주소는 `[Live Testnet]`, `x/privacy`와 Clairveil은 `[코드 대조]` |
 
-- 사전 검사는 `eth_estimateGas` 한 번이면 두 층의 정책을 함께 평가합니다. `eth_call`만 쓰면 전역 정책 거부를 놓칩니다(6절).
+- 사전 검사는 `eth_estimateGas` 한 번이면 두 층의 정책을 함께 평가합니다. PCL 프록시를 거치지 않는 OKRW 이체를 `eth_call`로만 검사하면 전역 정책 거부를 놓칩니다(6절).
 - 거부된 tx는 블록에 남습니다. 협력사가 자격 없이 청구한 시도가 탐색기에 주소와 함께 보이고, 가스 한도의 절반을 수수료로 냅니다. 한도의 절반이라는 값은 Cosmos EVM 계열의 최소 가스 비율로 보입니다. 이 레포는 체인 설정을 읽을 경로가 없어 확인하지 못했습니다. 권고: 보내기 전에 `eth_estimateGas`로 확인하고, 가스 한도는 추정값에 25% 안팎만 더합니다.
 - 단순 이체도 정책 검사 때문에 가스가 21,000을 넘습니다. 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000입니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json)
 
@@ -307,7 +307,7 @@ tx가 실패하거나 결과를 알 수 없을 때 쓰는 분류표입니다. �
 
 - 협력사 자격을 갱신할 때는 새 증명을 발급한 뒤 색인까지 해야 합니다. 폐기한 옛 증명이 색인돼 있으면, 새 증명을 색인하기 전의 청구는 `EasAttestationRevoked`로 거부됩니다. `[Live Testnet]` [두 번째 금고 실행 기록](../track-b-enable/evidence/live/pcl-kyb-gate-20260926T000228Z.json)
 - 증명이 폐기돼 청구할 수 없게 된 몫은 구매 기업이 `recall(supplier)`로 돌려받습니다. 2026-09-26 실행에서 폐기된 협력사 A 몫과 청구되지 않은 협력사 B 몫을 회수해 두 몫이 0이 됐습니다. `recall`은 협력사가 청구하기 전이면 언제든 부를 수 있으므로, 프로덕션에서는 8절처럼 청구 기간이나 타임락을 둡니다. `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) 8단계, 권고
-- 보내기 전 검사는 `eth_estimateGas`로 합니다. 같은 OKRW 전송을 불렀을 때 `eth_call`은 통과했고 `eth_estimateGas`는 `AnyOfRejected(ExceededPeriodicVolume(...), EasNoAttestationReceived(...))`로 거부했습니다. 전역 정책이 `eth_call`에서 평가되지 않기 때문입니다. `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json)
+- 보내기 전 검사는 `eth_estimateGas`로 합니다. 같은 OKRW 전송을 불렀을 때 `eth_call`은 통과했고 `eth_estimateGas`는 `AnyOfRejected(ExceededPeriodicVolume(...), EasNoAttestationReceived(...))`로 거부했습니다. PCL 프록시를 거치지 않는 이체는 `eth_call`에서 전역 정책 거부가 나오지 않습니다. PCL 프록시 호출은 프록시 훅이 전역 정책도 평가해 `eth_call`에서도 거부됩니다([시뮬레이션 가이드](https://docs.maroo.io/guides/integration/simulating-pcl-checks/)). `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json), [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json)
 - Clairveil v0.4.0 로컬 체인에서는 인출을 단독으로 보낸 tx가 `merkle root snapshot re-registration is inconsistent`로 실패했고, 같은 블록에 잎을 더하는 tx(0 노트 예치)를 함께 넣으면 성공했습니다. 다시 보내기만 하면 같은 오류가 납니다. Maroo 테스트넷에서도 같은 조건이 생기는지는 확인하지 못했습니다. `[Local]` [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) 4절
 
 ### 테스트넷 Privacy의 최초 실패 계층
@@ -321,6 +321,8 @@ tx가 실패하거나 결과를 알 수 없을 때 쓰는 분류표입니다. �
 | 3. 요청 검증 | 빈 요청, 모양을 갖춘 요청 | `SDKInvalidRequest()` | 현재 verifier와 맞는 회로 산출물로 만든 증명, 커밋먼트, 암호화 노트 |
 | 4. Privacy 컨트랙트 정책 | 본인 인증 증명(attestation)이 없는 지갑과 있는 지갑으로 같은 요청 | 두 지갑 모두 3층에서 먼저 막혀 도달하지 못했습니다 | 개인 본인 인증 증명(`kakaoIdHash` 스키마) |
 | 5. 증명 검증과 차폐 상태 | 유효한 요청 | 시험할 수 없었습니다 | Merkle witness와 nullifier를 읽는 조회 경로, 성공한 예시 입력 |
+
+- `SDKInvalidRequest()`는 모든 프리컴파일이 함께 쓰는 인자 없는 오류입니다([프리컴파일 공통 오류](https://docs.maroo.io/concepts/developer/precompile-shared-errors/)의 표준 SDK 매핑). 테스트넷이 돌려준 revert 데이터는 선택자 4바이트(`0xadb34e5c`)뿐이라, 요청 검증 안의 어느 검사에서 막혔는지는 가릴 수 없습니다. Clairveil v0.4.0에서는 금액 형식, 커밋먼트, 증명 유무, 암호화 노트 봉투, 중복 커밋먼트, 자산 등록, 증명 검증의 실패가 모두 같은 `ErrInvalidRequest`입니다 `[코드 대조]`([msg.go](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/x/privacy/types/msg.go#L263), [deposit.go](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/x/privacy/keeper/deposit.go#L59)).
 
 - 카카오 본인 인증을 마쳐 Privacy 정책의 증명을 가진 지갑도, 증명이 없는 지갑과 똑같이 `SDKInvalidRequest()`에서 막혔습니다. 외부 개발자를 막는 것은 본인 인증보다 앞에 있는 증명 재료입니다. 요청 검증이 컨트랙트 정책 평가보다 앞서는지, 시뮬레이션에서 컨트랙트 정책이 평가되지 않는지는 이 진단으로 가릴 수 없습니다. `[Live Testnet]` [인증 지갑 진단 기록](evidence/live/probe-kyc-holder-20260925T201710Z.json)
 - 공식 SDK(ClairveilJS)의 EVM 예치 경로로도 시험했습니다. Maroo가 공개한 값(EVM JSON-RPC, chain ID, Privacy 주소, `atokrw`)만 입력하면 SDK는 프로필 생성에서 Cosmos RPC 주소를 요구하며 멈춥니다. 차폐 상태 어댑터 자리를 비워 둘 수 없어서, 모든 조회를 거절하는 어댑터를 넣었습니다. 그러자 예치 준비는 회로 설정(`fetchCircuitConfig`)과 자산 등록(`fetchAssetByDenom`)을 조회하다 멈췄고, 증명 요청은 prover로 가지 않았습니다. SDK는 활성 회로와 자산 대응을 확인하기 전에는 증명 재료를 prover에 넘기지 않게 되어 있습니다. 거절한 조회를 짐작한 값으로 채우지 않았습니다. `[코드 대조]`와 테스트넷 조회 [SDK 진단 기록](evidence/code/probe-sdk-deposit-20260926T041213Z.json), 재현: `pnpm a:probe-sdk`

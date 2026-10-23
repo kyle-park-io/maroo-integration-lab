@@ -70,7 +70,7 @@ PCL은 호출하는 쪽을 평가합니다. 차폐 지급에서 받는 쪽은 �
 
 ## 6. 보내기 전에 정책 거부를 미리 알 수 있나요?
 
-`eth_estimateGas`로 확인합니다. `eth_call`(viem의 `simulateContract` 등)은 테스트넷 전역 정책을 평가하지 않습니다. 같은 OKRW 전송을 두 방법으로 불렀더니, `eth_call`은 통과하고 `eth_estimateGas`는 전역 정책으로 거부했습니다.
+`eth_estimateGas`로 확인합니다. PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`(viem의 `simulateContract` 등)에서 테스트넷 전역 정책 거부가 나오지 않습니다. 같은 OKRW 전송을 두 방법으로 불렀더니, `eth_call`은 통과하고 `eth_estimateGas`는 전역 정책으로 거부했습니다. PCL 프록시를 부르는 호출은 프록시 훅이 전역 정책도 평가해 `eth_call`에서도 거부됩니다([시뮬레이션 가이드](https://docs.maroo.io/guides/integration/simulating-pcl-checks/)). 두 경우를 한 번에 잡으려면 `eth_estimateGas`를 씁니다.
 
 ```text
 eth_call         통과
@@ -80,6 +80,7 @@ eth_estimateGas  거부: AnyOfRejected(...)
 ```
 
 - 테스트넷 전역 정책은 KYC 증명이 없는 계정에 두 한도를 둡니다. 24시간 누적 1,000만 OKRW와 건당 200만 OKRW이고, KYC 증명이 있으면 둘 다 면제됩니다. 에이전트 지갑이 보내면 24시간 한도는 소유자 모두를 기준으로 봅니다. `[Live Testnet]` [전역 정책 조회 기록](../track-c-activate/evidence/live/grounding-20260925T194211Z.json), 재현: `pnpm c:grounding`
+- KYC 증명이 없는 구매 기업 지갑이 건당 한도(200만 OKRW)를 넘는 금액을 보내는 경우로 두 호출을 견주면, 일반 이체는 `eth_call`이 통과하고 금고 PCL 프록시의 `fund()`는 `eth_call`에서도 `VolumeAboveMaxLimit`로 거부됩니다. 잔액은 상태 덮어쓰기로 부풀려 tx 없이 확인했습니다. `[Live Testnet]` [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json), 재현: `pnpm a:probe-global --over-limit`
 - 위 계정(faucet)은 24시간 한도를 다 썼고 증명이 없어 거부됐고, 한도 창은 `resetAt`(2026-09-26 00:00 UTC)에 풀립니다. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json), 재현: `pnpm a:probe-global`
 - 사유 코드와 인자는 [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)에 정의돼 있습니다. `[Docs Only]`
 - 가스 한도도 `eth_estimateGas` 값으로 정합니다. 단순 OKRW 이체도 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000 가스를 쓰고, Ethereum처럼 21,000으로 보내면 블록에 들어가 되돌려지며 수수료 0.189 OKRW를 냅니다. 가스 21,000으로 부른 `eth_call`은 통과해 이 경우도 잡지 못합니다. 추정값의 125%로 보내도 쓴 가스는 같았습니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json), 재현: `pnpm a:probe-send-gas`

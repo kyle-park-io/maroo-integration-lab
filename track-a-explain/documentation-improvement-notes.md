@@ -9,7 +9,7 @@
 | 번호 | 문서 | 요지 | 우선순위 |
 | --- | --- | --- | --- |
 | 1 | 테스트넷 접근, Privacy 정책 | Privacy 호출에 필요한 증명이 문서에 없고, 그 증명을 주는 서비스는 "KYC (mock)"으로만 소개됩니다 | 높음 |
-| 2 | 사전 검사 | `eth_call`은 전역 정책을 평가하지 않는다는 점이 문서에 없습니다 | 높음 |
+| 2 | 사전 검사 | PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않는다는 점이 Contract API와 ReasonCode 페이지에 없습니다(2026-10-23 범위 정정) | 높음 |
 | 3 | `deployPclProxy` | "초기화 함수가 없으면 `0x`"라는 안내대로 하면 배포가 되돌려집니다 | 중간 |
 | 4 | `IPrivacy.withdraw` | 금액 단위 예시가 `aokrw`인데 체인은 `atokrw`입니다 | 중간 |
 | 5 | 아키텍처, 배포 주소 | 프리컴파일 목록과 주소 표에 Privacy가 없습니다 | 낮음 |
@@ -28,14 +28,16 @@
   - 정책 인식 프리컴파일 페이지에 "테스트넷 현재 바인딩" 표를 둡니다. 정책 템플릿, 스키마 UID(`0x3e448d93…f527d`), 스키마 문자열, resolver, 증명 발급 경로를 적습니다.
   - 테스트넷 접근 페이지의 "KYC (mock)"을 "KYC: 카카오 본인 인증으로 Privacy 호출용 증명 발급(1인 1지갑, 신원 해시가 체인에 기록됨)"으로 바꿉니다.
 
-## 2. `eth_call`은 전역 정책을 평가하지 않는다
+## 2. PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않는다
 
-- 대상: [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)
-- 멈추는 사람과 단계: 보내기 전 검사를 viem `simulateContract`(`eth_call`)로 구현한 백엔드 엔지니어. 검사는 통과했는데 실제 전송이나 가스 추정에서 거부됩니다.
+- 정정(2026-10-23): 제출 때 이 노트의 제목은 「`eth_call`은 전역 정책을 평가하지 않는다」였고, 사전 검사 방법이 문서에 없다고 보았습니다. 두 문장 모두 범위를 넓게 적었습니다. [시뮬레이션 가이드](https://docs.maroo.io/guides/integration/simulating-pcl-checks/)는 2026-09-24 판부터 PCL 프록시로 가는 정적 호출을 사전 검사 방법으로 적었습니다(「프록시의 훅이 로직 컨트랙트에 위임하기 전에 `IPcl.preCall`을 호출하므로, 시뮬레이션된 호출도 전역 + 컨트랙트 범위 정책 평가를 모두 수행하고」). 이 레포가 그 가이드를 놓쳤습니다.
+- 대상: [시뮬레이션 가이드](https://docs.maroo.io/guides/integration/simulating-pcl-checks/), [PCL ReasonCode](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/)
+- 멈추는 사람과 단계: PCL 프록시를 거치지 않는 OKRW 이체(지갑 송금, faucet 배분)를 viem `simulateContract`나 `eth_call`로 사전 검사하는 백엔드 엔지니어. 검사는 통과했는데 실제 전송이나 가스 추정에서 거부됩니다.
 - 잘못 믿게 되는 것: 시뮬레이션이 통과하면 정책도 통과한다고 믿습니다. 같은 OKRW 전송을 부르면 `eth_call`은 통과하고, `eth_estimateGas`는 `AnyOfRejected(ExceededPeriodicVolume(1,000만 OKRW 한도, …, resetAt), EasNoAttestationReceived(…))`로 거부합니다. faucet도 이 조건에 걸렸을 때 사유 대신 `reverted with the following signature:.`만 돌려주어, 사용자는 재시도 말고 할 수 있는 일이 없었습니다.
 - 확인 비용: 원인이 체인 밖(RPC 설정, faucet 서버)에 있다고 보고 헤매기 쉽습니다. 이번에는 faucet이 두 시간 넘게 멈춘 원인을 `eth_estimateGas`로 찾기까지 여러 번의 시도가 들었습니다.
-- 재현: `pnpm a:probe-global`, `pnpm a:doc-claims`의 `preflight-method`. `[Live Testnet]` [기록](evidence/live/probe-global-policy-20260925T190841Z.json)
-- 고친 문구 제안: ReasonCode 페이지에 "사전 검사" 절을 둡니다. "전역 정책(기간 누적 한도 등)은 `eth_call`에서 평가되지 않습니다. 보내기 전 검사는 `eth_estimateGas`로 하고, `AnyOfRejected`의 자식 사유까지 풀어 사용자에게 보여 주십시오." 사유 코드 `ExceededPeriodicVolume`의 `resetAt`을 어떻게 보여 줄지 예시도 붙입니다. faucet 응답에도 풀린 사유와 `resetAt`을 담습니다.
+- 재현: `pnpm a:probe-global`(faucet 계정이 한도에 걸렸을 때), `pnpm a:probe-global --over-limit`(체인 상태와 상관없이 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출을 견줌), `pnpm a:doc-claims`의 `preflight-method`. `[Live Testnet]` [faucet 기록](evidence/live/probe-global-policy-20260925T190841Z.json), [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json)
+- 2026-10-23 판 문서: 시뮬레이션 가이드에 「(실제 트랜잭션이 실행 후 받는 전역 정책 재검사는 `eth_call`에 포함되지 않으며, `eth_estimateGas`는 이 재검사까지 실행합니다.)」가 들어갔습니다. ReasonCode 페이지에는 사전 검사 안내가 없고, [Contract API](https://docs.maroo.io/apis/contract/) 페이지는 「사전 점검은 `eth_call`로 수행하세요.」를 그대로 둡니다.
+- 고친 문구 제안: Contract API 페이지의 사전 점검 문장을 「PCL 프록시 호출은 `eth_call`로도 전역과 컨트랙트 정책을 확인할 수 있지만, PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않습니다. 두 경우를 함께 확인하려면 `eth_estimateGas`를 쓰십시오.」로 바꾸고, ReasonCode 페이지에서 시뮬레이션 가이드로 연결합니다. 사유 코드 `ExceededPeriodicVolume`의 `resetAt`을 어떻게 보여 줄지 예시도 붙입니다. faucet 응답에도 풀린 사유와 `resetAt`을 담습니다.
 
 ## 3. `deployPclProxy`에 빈 초기화 데이터를 넘기면 되돌려진다
 
