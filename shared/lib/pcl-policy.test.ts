@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseEther, toFunctionSelector, type Hex } from "viem";
 import { policy } from "@maroo-chain/viem";
-import { describePolicy, findEasSchema, type PolicySet } from "./pcl-policy.ts";
+import { bareTemplates, describePolicy, findEasSchema, templatesIn, type PolicySet } from "./pcl-policy.ts";
 import { ROOT } from "./paths.ts";
 
 const fixture = JSON.parse(fs.readFileSync(path.join(ROOT, "shared/lib/fixtures/testnet-policies.json"), "utf8")) as {
@@ -46,4 +46,17 @@ test("에이전트 한도 정책은 설정 값이 없어 템플릿 이름만 보
 test("모르는 템플릿과 깨진 값은 예외 없이 해석 안 됨으로 표시한다", () => {
   assert.equal(describePolicy({ templateId: "FOO_POLICY", policy: "0x", selector: "0x" }), "FOO_POLICY(해석 안 됨: unknown-template)");
   assert.equal(describePolicy({ templateId: "EAS_POLICY", policy: "0x1234" as Hex, selector: "0x" }), "EAS_POLICY(해석 안 됨: malformed-payload)");
+});
+
+test("정책 트리에 쓰인 템플릿을 중첩까지 모은다", () => {
+  assert.deepEqual([...templatesIn(fixture.global.policies[0])].sort(), ["EAS_POLICY", "FOR_EACH_POLICY", "LOGICAL_POLICY", "PERIODIC_VOLUME_POLICY", "VOLUME_POLICY"]);
+  const set = policy.and(policy.eas({ easContract: EAS, indexContract: INDEXER, schemaUid: KYC_SCHEMA }), policy.denylist({ addresses: ["0x1111111111111111111111111111111111111111"] }));
+  assert.deepEqual([...templatesIn(set)].sort(), ["DENYLIST_POLICY", "EAS_POLICY", "LOGICAL_POLICY"]);
+});
+
+test("Or 조합을 거치지 않고 닿는 템플릿만 모은다(그대로 거부 사유가 될 수 있는 템플릿)", () => {
+  // 테스트넷 전역 정책의 EAS, 기간 한도, 건당 한도는 모두 Or 안에 있다
+  assert.deepEqual([...bareTemplates(fixture.global.policies[0])], []);
+  const set = policy.and(policy.eas({ easContract: EAS, indexContract: INDEXER, schemaUid: KYC_SCHEMA }), policy.or(policy.denylist({ addresses: ["0x1111111111111111111111111111111111111111"] }), policy.eas({ easContract: EAS, indexContract: INDEXER, schemaUid: KYC_SCHEMA })));
+  assert.deepEqual([...bareTemplates(set)], ["EAS_POLICY"]);
 });

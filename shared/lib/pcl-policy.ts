@@ -52,3 +52,34 @@ export function findEasSchema(set: PolicySet): string | undefined {
   };
   return walk(SdkPolicySet.decode(set));
 }
+
+// 정책 트리에 쓰인 템플릿 이름을 중첩(LOGICAL, FOR_EACH)까지 모은다. 거부 해석기가 사유와 맞는 정책을 찾을 때 쓴다.
+export function templatesIn(set: PolicySet): Set<string> {
+  const out = new Set<string>();
+  const walk = (node: Node) => {
+    out.add(node.templateId);
+    if (node.kind !== "decoded") return;
+    if (node.templateId === "LOGICAL_POLICY") node.value.children.forEach(walk);
+    if (node.templateId === "FOR_EACH_POLICY") walk(node.value.child);
+  };
+  walk(SdkPolicySet.decode(set));
+  return out;
+}
+
+// Or 조합을 거치지 않고 닿는 템플릿. Or 의 자식이 모두 거절하면 PCL 은 AnyOfRejected 로 감싸서 돌려주므로
+// (Maroo 문서 pcl-reason-codes 의 조합 및 구조 절), 감싸이지 않은 거부 사유는 이 집합의 템플릿에서만 나올 수 있다.
+// ForEach 는 자식이 어떻게 드러나는지 문서에서 확인하지 못해, 감싸이지 않을 수도 있다고 보고 자식까지 넣는다.
+export function bareTemplates(set: PolicySet): Set<string> {
+  const out = new Set<string>();
+  const walk = (node: Node) => {
+    if (node.kind !== "decoded") return out.add(node.templateId);
+    if (node.templateId === "LOGICAL_POLICY") {
+      if (node.value.quantifier === "Or") return;
+      return node.value.children.forEach(walk);
+    }
+    if (node.templateId === "FOR_EACH_POLICY") return walk(node.value.child);
+    out.add(node.templateId);
+  };
+  walk(SdkPolicySet.decode(set));
+  return out;
+}

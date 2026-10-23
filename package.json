@@ -37,7 +37,8 @@
     "a:abi-compare": "node track-a-explain/recipe/compare-privacy-abi.ts",
     "sdk:check": "node shared/check-clairveiljs.ts",
     "a:probe-sdk": "node track-a-explain/recipe/probe-sdk-deposit.ts",
-    "a:chain-info": "node track-a-explain/recipe/chain-info.ts"
+    "a:chain-info": "node track-a-explain/recipe/chain-info.ts",
+    "explain": "node track-a-explain/recipe/explain.ts"
   },
   "dependencies": {
     "@maroo-chain/contracts": "0.0.9",
