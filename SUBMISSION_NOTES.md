@@ -163,6 +163,15 @@ Track C에서 실행한 명령의 기록입니다. 열은 명령, 실행 시각(
 | 새 클론과 링크 검사 | 빈 폴더에 받아 README 순서대로 실행, 문서 전체의 링크와 앵커, 외부 링크 응답 확인 | 문서 대조 스크립트가 404 페이지로 판정하던 문제를 찾음(아래 표) |
 | 이 레포의 에이전트 스킬 | [`.claude/skills/maroo-integration`](.claude/skills/maroo-integration/SKILL.md). 테스트넷에서 확인한 규칙과 확인 명령을 다음 에이전트가 쓸 수 있게 한 스킬 파일 | 새 하위 에이전트가 스킬만 읽고 연동 질문 11개에 답하게 하고, 새 클론에서 연 세션에 질문 여섯 개를 물어 확인(Validation) |
 
+### 제출 뒤 작업
+
+제출 뒤의 정정과 추가 작업(2026-10-23)에도 Claude Code(모델 Claude Opus 5.5)를 같은 방식으로 썼습니다. 일하는 순서와 사람이 정한 것은 다음과 같습니다.
+
+- 계획: 제출 뒤에 정리한 개선 목록을 작업 17개로 나눈 실행 계획을 에이전트가 쓰고, 사람이 범위를 정했습니다. 에이전트는 작업마다 결정과 그 이유를 기록 파일에 남기며 차례로 진행했습니다.
+- 코드: 결함을 고치거나 기능을 더할 때 재현하는 단위 테스트를 먼저 쓰고 실패하는 것을 본 뒤 고쳤습니다. 돈이 나가는 흐름은 빈 지갑, 가스 없는 지갑, 끊긴 RPC를 직접 일으켜 출력과 화면 문구를 확인했습니다.
+- 사람이 정한 것: 제출한 상태를 태그로 남기는 것, 고친 것을 「제출 뒤 고친 것」에 날짜와 함께 남기는 것, 레퍼런스 앱의 참고 이미지 선택을 에이전트에게 맡기는 것, Maroo에 보낼 제안은 미루는 것.
+- 검사: 제출 때와 같은 커밋 전 훅과 글쓰기 검사를 거쳤고, 숫자는 레포의 기록과 문서를 대조하는 단위 테스트(`shared/docs-facts.test.ts`)로 맞췄습니다.
+
 ### AI가 틀렸고 고친 사례
 
 AI가 쓴 문장과 코드에서 나온 오류를 트랙별로 모은 표입니다. 열은 틀린 내용, 발견한 방법, 고친 내용입니다.
@@ -180,6 +189,10 @@ AI가 쓴 문장과 코드에서 나온 오류를 트랙별로 모은 표입니�
 | C | 심사 자동 판정이 `target`이 없거나 `expected`에 결과가 적히지 않은 항목의 받는 주소와 영수증 상태를 확인하지 않아, 되돌려진 tx나 관계없는 tx로 요건을 채울 수 있었습니다. 트랙 1의 R1·R2 규칙도 확인에 실패한 항목을 셌습니다 | 영역을 나눈 독립 코드 검토 | `target`과 결과가 적힌 `expected`를 필수로 하고 규칙을 고쳤습니다. 기존 예시 증거 두 개는 그대로 통과하고, 조작한 증거 두 개(되돌려진 8 OKRW tx, target 없는 남의 성공 tx)는 테스트넷 조회로 실패하는 것을 확인했습니다 |
 | A | 스킬과 문서는 가스 한도에 25% 여유를 권하면서 이 레포 스크립트는 추정값 그대로 보냈습니다. 고칠 때 `eth_estimateGas` 응답만 늘렸는데, viem 2.56은 가스를 `eth_fillTransaction`으로 채워 적용되지 않았습니다 | 탐색기에서 통과 tx가 한도의 100%를 쓴 것을 보고 찾았고, 고친 뒤 금고 흐름을 다시 돌려 영수증에서 여전히 100%인 것을 봤습니다. 지갑이 부르는 RPC 메서드를 찍어 원인을 확인했습니다 | 두 응답 모두 늘리고 다시 돌려, 통과 tx 12건이 모두 80.0%인 것을 기록했습니다([기록](track-a-explain/evidence/live/pcl-kyb-gate-20260927T083827Z.json)) |
 | A | 탐색기에서 거부 tx 두 건의 사유가 원문과 깨진 글자로 나온 것을 보고 "탐색기는 PCL 거부 사유를 풀지 못한다", "PCL 프록시를 컨트랙트로 잡지 않는다"고 단정해 README와 DX 14에 적었습니다 | 다른 tx를 확인하다 같은 tx의 결과가 바뀐 것을 봤습니다. 아직 원문만 나오던 금고 주소를 한 번 열기 전후로 비교해, 원인이 생성 때의 색인 누락이고 주소를 열면 풀린다는 것을 확인했습니다 | 문장을 고치고, 문서와 기록의 tx 95건을 모두 조회해 거부 16건이 이름으로 풀려 보이는 것을 확인했습니다 |
+| A | 거부 해석기가 하위 호출의 가스 부족을 노드 검사 거부로 판정했습니다 | 레퍼런스 앱의 실패 시험에서 가스가 모자란 결제의 화면 문구가 틀리게 나와 찾았습니다 | 가스 상한 없이 한 번 더 시뮬레이션해 가스 부족을 가르게 고치고, 재현 테스트를 더했습니다 |
+| A | 거부 해석기가 Privacy 프리컴파일의 컨트랙트 정책 거부를 전역 정책 거부로 판정했습니다. PCL 프록시가 아닌 대상에는 컨트랙트 정책이 없다고 가정했습니다 | 공개된 성공 Privacy tx를 다른 지갑에서 시뮬레이션한 결과를 해석기로 다시 풀다 찾았습니다 | 대상이 프록시가 아니어도 그 주소에 묶인 컨트랙트 정책을 읽게 고치고, 재현 테스트를 더했습니다 |
+| A | 공개 tx 시뮬레이션 기록의 사유 문자열에 인증 전용 지갑의 주소가 들어갔습니다 | 커밋 전에 새 기록 파일을 그 주소로 검사해 찾았습니다 | 기록을 지우고, 사유와 인자에서 그 주소를 「(비공개)」로 바꾸게 고친 뒤 다시 실행했습니다 |
+| A | 「Cosmos REST의 Clairveil 조회 경로가 501」이라고 적었습니다. proto에 없는 경로 하나를 부른 결과였습니다 | Privacy 준비 상태 감시를 만들며 proto의 경로를 하나씩 불렀습니다 | [제출 뒤 고친 것](#제출-뒤-고친-것)의 마지막 행 |
 
 - 검증 방법: 문장마다 기록 파일이나 문서 링크를 붙이고, 커밋 전에 링크와 라벨을 대조했습니다. 코드는 명령을 다시 실행해 결과를 확인했습니다.
 
@@ -258,7 +271,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | 확인할 것 | 지금 상태 | 확인 방법 | 풀어야 하는 쪽 |
 | --- | --- | --- | --- |
 | 테스트넷 Privacy 정상 경로에 필요한 proving 재료(테스트넷 검증 키와 짝인 proving 산출물이나 prover 엔드포인트) | 공개되지 않았습니다. 차폐 상태 조회는 Cosmos REST에서 응답하고, 공식 SDK 예치 준비는 증명 공급자까지 갑니다(2026-10-23) | `pnpm a:watch-privacy`가 매일 확인하고, 공개되면 `pnpm a:probe-sdk --rest`의 증명 공급자 자리에 연결해 5층을 시험 | Maroo |
-| Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지 | 두 지갑 모두 요청 검증에서 먼저 막혀 가릴 수 없는 상태 | 유효한 요청을 만들 수 있게 되면 본인 인증 증명이 없는 지갑으로 같은 요청 | Maroo, 이 레포 |
+| Privacy 컨트랙트 정책이 증명 검증보다 먼저 평가되는지 | 공개된 성공 예치의 calldata로 시험해, 형식을 갖춘 요청은 Privacy 컨트랙트 정책까지 가고 빈 요청의 형식 검사는 정책보다 앞선다는 것까지 확인했습니다(2026-10-23). 예치 증명이 보낸 지갑에 묶이지 않아, 정책이 증명 검증보다 앞서는지는 가리지 못했습니다 | 유효한 증명을 만들 수 있게 되면 본인 인증 증명이 없는 지갑으로 새 예치 요청을 보내 사유를 봅니다. 그 전에는 `pnpm a:probe-public`으로 새 공개 tx를 다시 시험 | Maroo, 이 레포 |
 | Clairveil v0.4.0 인출 스냅샷 조건이 Maroo 테스트넷에도 있는지 | 로컬에서만 재현(단독 인출 실패, 같은 블록 우회) | 테스트넷 Privacy 정상 경로가 열린 뒤 인출 한 번 | Maroo |
 | 에이전트 한도의 전역 범위 귀속(다른 컨트랙트가 에이전트의 호출을 옮길 때) | 컨트랙트 범위, 직접 보낸 경우만 확인 | 전역 정책 설정 권한이 필요해 Maroo 쪽 시험이 필요 | Maroo |
 | 관찰자 노드(규제기관 열람)와 차폐 금액 상한의 일정 | 문서에 미구현, 노트 하나 약 18.45 OKRW | Maroo 로드맵 확인 | Maroo |
@@ -267,7 +280,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 
 ## 제출 뒤 더한 것
 
-제출한 뒤에 더한 명령입니다. 열은 명령, 하는 일, 첫 기록입니다. `pnpm a:audit-access`와 `pnpm c:app`은 테스트넷에 tx를 보내고, 나머지는 조회와 시뮬레이션만 합니다.
+제출한 뒤에 더한 명령입니다. 열은 명령, 하는 일, 첫 기록입니다. `pnpm a:audit-access`와 `pnpm c:app`은 테스트넷에 tx를 보내고, `pnpm a:local --operator`와 `pnpm b:audit-drill`은 로컬 체인에서만 돌고, 나머지는 테스트넷 조회와 시뮬레이션만 합니다.
 
 | 명령 | 하는 일 | 첫 기록 |
 | --- | --- | --- |
@@ -277,7 +290,13 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | `pnpm a:local --operator` | 정산 대행사(운영자) 키를 더하고, 금액만 담은 사용자 공개를 대행사에게 보내는 지급 세 건을 실행합니다. 대행사의 협력사별 합계를 감사인 합계와 견줍니다(`[Local]`) | [vendor-settlement-20261023T055418Z.md](track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md) |
 | `pnpm a:watch-privacy`, `pnpm a:probe-public`, `pnpm a:probe-sdk --rest` | Privacy 준비 상태 감시(조회 경로, proving 재료, 4층 시험, SDK 예치 준비, Privacy tx 수, 문서 변경, Clairveil 릴리스)와, 공개된 성공 Privacy tx를 다른 지갑과 블록에서 시뮬레이션하는 명령, 공식 SDK에 Cosmos REST를 넣은 예치 준비. GitHub Actions(`watch-privacy.yml`)가 감시를 하루 한 번 돌립니다(`[Live Testnet]`, 조회만) | [2026-10-23.json](track-a-explain/evidence/live/watch-privacy/2026-10-23.json) |
 | `pnpm c:app`, `pnpm c:app-record` | 트랙 2 레퍼런스 웹 앱. 소유자가 에이전트 한도를 저장하고 에이전트가 결제를 요청하면 `eth_estimateGas`로 먼저 검사하고, 거부 해석기의 결과를 사유마다 다른 사용자 문구로 보여 줍니다. 서명은 서버가 하고, 보냈는지 모르는 결제는 다시 읽기 전까지 새 결제를 받지 않습니다(`[Live Testnet]`) | [agent-app-20261023T062617Z.json](track-c-activate/evidence/live/agent-app-20261023T062617Z.json) |
-| `pnpm a:audit-access`, `pnpm b:audit-drill` | 로컬 감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나누고, 요청한 역할을 뺀 두 역할이 승인한 tx의 감사 disclosure만 부분값으로 엽니다(`[Local]`). A 명령은 요청, 승인, 열람의 해시를 EAS 증명으로 남기고(`[Live Testnet]`), B 명령은 참가자가 요청 범위를 읽고 승인할지 정하는 연습입니다 | [audit-access-20261023T054254Z.json](track-a-explain/evidence/live/audit-access-20261023T054254Z.json) |
+| `pnpm a:audit-access`, `pnpm b:audit-drill` | 로컬 감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나누고, 요청한 역할을 뺀 두 역할이 승인한 tx의 감사 disclosure만 부분값으로 엽니다(`[Local]`). A 명령은 요청, 승인, 열람의 해시를 EAS 증명으로 남기고(`[Live Testnet]`), B 명령은 참가자가 요청 범위를 읽고 승인할지 정하는 연습입니다. 나누기와 부분값 결합의 Go 테스트는 `pnpm test:go`로 돌립니다 | [audit-access-20261023T054254Z.json](track-a-explain/evidence/live/audit-access-20261023T054254Z.json) |
+
+명령이 아닌 결과물도 더했습니다.
+
+- README 「질문별 답과 근거 명령」 표: 처음 붙이는 개발자가 묻는 일곱 질문마다 20초 답과 확인 명령을 적었습니다.
+- B 파일럿 양식 셋([track-b-enable/pilot/](track-b-enable/pilot/)): 아젠다, 참가자 사전 안내, 진행 기록표를 인쇄용 PDF와 원본으로 두었습니다.
+- 2026-10-23 재실행: A 금고 흐름, Privacy 진단, B 스모크 테스트(108초), C 에이전트 한도와 판정 예시를 다시 돌려 제출 때와 같은 거부와 통과를 얻었습니다. 기록은 각 트랙 증거 목록의 「제출 뒤 다시 실행」 행에 있습니다. 바뀐 값은 하나로, 구매 기업 지갑에 잔액이 생긴 뒤 1 wei를 실은 Privacy 예치 요청도 잔액 부족 대신 `SDKInvalidRequest()`로 막혔습니다.
 
 ## 제출 뒤 고친 것
 
@@ -293,4 +312,4 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | 2026-10-23 | 레시피 명령 넷이 실패 경로에서 잘못 동작했습니다. `c:agent-limit`은 에이전트가 없을 때 조회만 하는 `pnpm c:grounding`으로 등록하라고 안내했고, `a:probe-send-gas`는 잔액 0인 지갑에서 `TypeError`로 멈췄고, `c:judge`는 `MAROO_LAB_OUT`을 따르지 않아 커밋된 예시 판정 파일을 바꿨고, `a:kyb-gate`와 `a:inspect`는 잔액 부족과 RPC 끊김에서 Node 스택을 찍었습니다 | 2026-10-15에 잔액 0인 새 지갑과 끊긴 RPC 주소로 레시피를 돌려 찾았고, 2026-10-23에 같은 조건으로 다시 재현했습니다 | 등록 안내를 `pnpm c:grounding --write`로 고치고 README의 C 행에 등록 단계를 넣었습니다. `a:probe-send-gas`는 시작할 때 잔액을 확인하고 추정 거부를 RPC 오류로 보여 줍니다. `c:judge`는 판정 결과를 `MAROO_LAB_OUT` 아래에 씁니다. A와 C의 레시피 명령 16개가 실패하면 스택 대신 이유와 다음 할 일을 찍습니다(`shared/lib/recipe-errors.ts`, 단위 테스트 7개) |
 | 2026-10-23 | 같은 숫자를 여러 문서에 적다가 넷이 어긋났습니다. 검증 표는 Mermaid 그림을 다섯 개로 적었고(실제 8개), A 트랙 README는 레시피 스크립트를 여섯 개로 적었고 레시피 문서 표에서 `a:probe-send-gas`와 `a:reject-gas`가 빠졌고, README와 A 트랙 README는 거부 tx `0xa4c7…557f`의 근거로 그 tx가 없는 기록(`reject-gas-20260926T171442Z.json`)을 걸었고, `c:agent-limit` 주석은 한 번 실행에 100 OKRW 안팎이 든다고 적었습니다 | 2026-10-15에 문서끼리, 문서와 코드를 대조했습니다 | 숫자를 고치고, 레포에서 센 값과 기록을 문서와 대조하는 단위 테스트(`shared/docs-facts.test.ts`)를 더했습니다. `c:agent-limit`은 이제 두 지갑에서 빠진 OKRW를 기록하고, 2026-10-23 실행에서 31.03 OKRW였습니다 |
 | 2026-10-23 | Privacy 예치 진단 결과를 「전역 정책을 통과하고 요청 검증에서 처음 막혔다」로 적었습니다 | 2026-10-23 판 PCL 정책 강제 문서가 전역 정책을 실행 전과 실행이 성공한 뒤에 두 번 평가한다고 적어, 실행 중에 되돌려진 요청은 실행 뒤 재검사까지 가지 않는다는 것을 확인했습니다 | 「전역 정책 거부 없이 요청 검증에서 처음 막혔다」로 범위를 좁혔습니다(README, A 가이드, 레시피, 증거 문서, C 증거). README 첫 화면 아래에 질문별 답과 근거 명령 표를 더했습니다 |
-| 2026-10-23 | 「차폐 상태 조회 경로가 공개되지 않았다」고 적고 Maroo에서 받아야 할 재료를 네 가지(회로 산출물, 조회 경로, 성공한 예시 입력, prover)로 적었습니다. 근거로 든 「Cosmos REST의 Clairveil 조회 경로 501」은 proto에 없는 `/params` 경로 하나를 부른 결과였습니다. 「Privacy 컨트랙트 정책에는 도달하지 못했다」고도 적었습니다 | Privacy 준비 상태 감시(`pnpm a:watch-privacy`)를 만들며 Clairveil proto의 HTTP 경로를 하나씩 불렀습니다. 2026-09-26 판 문서는 `api-testnet.maroo.io`를 Indexer로 적었고 2026-10-23 판은 Cosmos REST로 적습니다. 탐색기에 공개된 성공 Privacy tx의 calldata를 다른 지갑에서 시뮬레이션했습니다 | 조회 경로 11개가 응답하고 `privacy_scan`, `commitment_paths_at_root` 두 경로만 501이라는 것, 공식 SDK 예치 준비가 그 주소로 증명 공급자까지 간다는 것, 남은 재료가 proving 키나 prover 하나라는 것, 공개된 성공 예치의 calldata가 본인 인증 증명 없는 지갑에서 Privacy 컨트랙트 정책(`EasNoAttestationReceived`)으로 막힌다는 것을 가이드 0절, 1절, 6절, 8절, README, FAQ, B와 C 문서, 스킬에 적었습니다. 거부 해석기가 정책 인식 프리컴파일의 거부를 전역 정책으로 판정하던 것도 고쳤습니다 | [감시 기록](track-a-explain/evidence/live/watch-privacy/2026-10-23.json), [공개 tx 시뮬레이션 기록](track-a-explain/evidence/live/probe-public-privacy-20261023T064628Z.json), [SDK 진단 기록](track-a-explain/evidence/code/probe-sdk-deposit-20261023T064326Z.json) |
+| 2026-10-23 | 「차폐 상태 조회 경로가 공개되지 않았다」고 적고 Maroo에서 받아야 할 재료를 네 가지(회로 산출물, 조회 경로, 성공한 예시 입력, prover)로 적었습니다. 근거로 든 「Cosmos REST의 Clairveil 조회 경로 501」은 proto에 없는 `/params` 경로 하나를 부른 결과였습니다. 「Privacy 컨트랙트 정책에는 도달하지 못했다」고도 적었습니다 | Privacy 준비 상태 감시(`pnpm a:watch-privacy`)를 만들며 Clairveil proto의 HTTP 경로를 하나씩 불렀습니다. 2026-09-26 판 문서는 `api-testnet.maroo.io`를 Indexer로 적었고 2026-10-23 판은 Cosmos REST로 적습니다. 탐색기에 공개된 성공 Privacy tx의 calldata를 다른 지갑에서 시뮬레이션했습니다 | 조회 경로 11개가 응답하고 `privacy_scan`, `commitment_paths_at_root` 두 경로만 501이라는 것, 공식 SDK 예치 준비가 그 주소로 증명 공급자까지 간다는 것, 남은 재료가 proving 키나 prover 하나라는 것, 공개된 성공 예치의 calldata가 본인 인증 증명 없는 지갑에서 Privacy 컨트랙트 정책(`EasNoAttestationReceived`)으로 막힌다는 것을 가이드 0절, 1절, 6절, 8절, README, FAQ, B와 C 문서, 스킬에 적었습니다. 거부 해석기가 정책 인식 프리컴파일의 거부를 전역 정책으로 판정하던 것도 고쳤습니다. 근거: [감시 기록](track-a-explain/evidence/live/watch-privacy/2026-10-23.json), [공개 tx 시뮬레이션 기록](track-a-explain/evidence/live/probe-public-privacy-20261023T064628Z.json), [SDK 진단 기록](track-a-explain/evidence/code/probe-sdk-deposit-20261023T064326Z.json) |
