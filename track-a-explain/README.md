@@ -37,7 +37,7 @@ pnpm install
 pnpm a:inspect         # [Live Testnet] Privacy 정책, 요구 증명, 요청 모양. 키와 잔액 없이 됩니다
 pnpm a:probe           # [Live Testnet] 예치 요청이 처음 막히는 층
 pnpm setup:clairveil   # Clairveil v0.4.0 조합을 vendor/ 에 받습니다
-pnpm a:local           # [Local] 차폐 정산 전체, 약 4분
+pnpm a:local           # [Local] 차폐 정산 전체. pnpm bootstrap 뒤 1분 안팎, 처음이면 빌드를 포함해 약 4분
 ```
 
 `pnpm a:inspect`와 `pnpm a:probe`는 역할 지갑 파일이 있어야 구매 기업 주소를 읽습니다. 먼저 `pnpm setup:wallets`를 한 번 실행합니다. 테스트넷 상태 변경 흐름(`pnpm a:kyb-gate`)은 테스트넷 OKRW가 필요하고, 준비 방법은 [레시피 2절](runnable-recipe.md#2-지갑과-테스트넷-okrw)에 있습니다.

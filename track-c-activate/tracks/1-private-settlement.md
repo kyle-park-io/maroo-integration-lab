@@ -225,7 +225,7 @@ pnpm a:local
 
 - 준비물: Node 24 이상, pnpm, Go 1.25 이상, Git, 약 600MB 여유 공간, 비어 있는 127.0.0.1:26657
 - 성공 기준: 출력의 실행 기록에 협력사 B의 disclosure 해독(`verified=true`, 금액 15)과 인출 성공이 나옵니다.
-- 이 머신에서 `pnpm a:local`은 빌드와 회로 산출물 생성을 포함해 약 4분 걸렸습니다 `[Local]`.
+- 이 머신에서 `pnpm a:local`은 빌드와 회로 산출물 생성을 포함해 약 4분 걸렸고, `pnpm bootstrap`으로 미리 빌드한 뒤에는 61초 걸렸습니다(2026-10-23) `[Local]`.
 - 같은 시간 안에 테스트넷 쪽 첫 확인으로 `pnpm setup:wallets`와 `pnpm a:inspect`를 실행할 수 있습니다. 키와 잔액 없이 정책 조회까지 됩니다 `[Live Testnet]`.
 
 ## 22. 연동 승인 체크리스트
