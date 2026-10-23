@@ -7,7 +7,7 @@
 
 ## 확인한 결과
 
-- `[Live Testnet]` `[Local]` `pnpm b:smoke` 한 번에 1\~5단계, 선택 연습(통제된 열람), 단계별 성공 기준이 108초 만에 통과했습니다(2026-10-23, [세션 기록](evidence/session-20261023T071723Z.md)). 처음 통과한 2026-09-26 실행은 선택 연습 없이 91초였습니다([세션 기록](evidence/session-20260926T000329Z.md)).
+- `[Live Testnet]` `[Local]` `pnpm b:smoke` 한 번에 1\~5단계, 선택 연습(통제된 열람), 단계별 성공 기준이 108초 만에 통과했습니다(2026-10-23, [스모크 기록](evidence/smoke-20261023T081905Z.md), [세션 기록](evidence/session-20261023T081905Z.md)). 처음 통과한 2026-09-26 실행은 선택 연습 없이 91초였습니다([세션 기록](evidence/session-20260926T000329Z.md)).
 - `[Live Testnet]` 2단계(`pnpm b:step 2`)가 KYB 관문 금고를 배포하고, 증명 없는 청구는 `EasNoAttestationReceived`로 거부되고 색인 뒤 청구는 성공하는 tx를 보냈습니다([2단계 기록](evidence/live/pcl-kyb-gate-20260926T000228Z.json), 탐색기의 [거부 tx](https://explorer-testnet.maroo.io/tx/0x818318c4370cfb3720a816292e95392312021917feff1c8eb6d3bfc44a5d4f0d)와 [성공 tx](https://explorer-testnet.maroo.io/tx/0xf41efa60c0b46f324e7ec5d78286b5bf5ddaafe83df97a67422be8cf16bd3c79)).
 - `[Local]` 3단계에서 차폐 정산 전체(예치, 지급, 스캔, 해독, 인출)를 Clairveil 로컬 체인에서 돌렸습니다([로컬 기록](evidence/local/vendor-settlement-20260926T000228Z.md)).
 
@@ -36,7 +36,7 @@ Track B가 제출하는 파일을 용도별로 모았습니다. 파일 열에서
 | `pnpm b:check` | 참가자, 전날과 직전 | 도구, 고정 커밋, 포트, RPC, 지갑, 잔액 점검 | 준비 |
 | `pnpm b:step 1` | 참가자, 0\~10분 | 연결, 지갑, Privacy와 전역 정책 | `[Live Testnet]` 조회 |
 | `pnpm b:step 2` | 참가자, 10\~25분 | KYB 관문 금고: 배포, 정책, 거부 셋과 통과 하나, 회수 | `[Live Testnet]` tx |
-| `pnpm b:step 3` | 참가자, 25\~50분 | 차폐 정산 전체(이 머신에서 61초) | `[Local]` |
+| `pnpm b:step 3` | 참가자, 25\~50분 | 차폐 정산 전체(이 머신에서 60초, 2026-10-23 [기록](evidence/local/vendor-settlement-20261023T081756Z.md)) | `[Local]` |
 | `pnpm b:step 4` | 참가자, 50\~65분 | 결과 네 가지 분류와 Privacy 최초 실패 계층 | `[Live Testnet]` 조회와 시뮬레이션 |
 | `pnpm b:step 5` | 참가자, 65\~75분 | 기록 모음, 경계, 토론 질문 | 정리 |
 | `pnpm b:audit-drill` | 참가자, 3단계 뒤 선택 | 통제된 열람 연습: 감사 키 2-of-3 몫, 규제기관의 요청을 읽고 외부감사인으로서 승인하거나 거절 | `[Local]` |

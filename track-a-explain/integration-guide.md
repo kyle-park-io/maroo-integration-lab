@@ -366,8 +366,8 @@ Maroo Docs는 검증 가능한 프라이버시를 「법적 근거에 기반한 
 | Privacy가 처음 막히는 층(6절) | `pnpm a:probe` | `[Live Testnet]` eth_call, 거부 경로 증거 | 수 초 |
 | 보내기 전 정책 검사(6절) | `pnpm a:probe-global` | `[Live Testnet]` 조회 | 수 초 |
 | KYB 관문 금고(1절 투명 경로, 4절 권한 분리) | `pnpm a:kyb-gate` | `[Live Testnet]` 상태 변경 tx | 수 분, 테스트넷 OKRW 필요 |
-| 차폐 정산 전체와 가시성(2절, 3절) | `pnpm setup:clairveil`, `pnpm a:local` | `[Local]` | 이 머신에서 `pnpm bootstrap` 뒤 1분 안팎(2026-10-23에 61초), 빌드를 포함하면 약 4분. 실행 폴더 약 560MB |
-| 정산 대행사의 금액 합계와 감사인 합계(3절) | `pnpm a:local --operator` | `[Local]` | `pnpm bootstrap` 뒤 2분 안팎(2026-10-23에 102초) |
+| 차폐 정산 전체와 가시성(2절, 3절) | `pnpm setup:clairveil`, `pnpm a:local` | `[Local]` | 이 머신에서 `pnpm bootstrap` 뒤 1분 안팎(2026-10-23에 60초, [기록](evidence/local/vendor-settlement-20261023T081432Z.md)), 빌드를 포함하면 약 4분. 실행 폴더 약 560MB |
+| 정산 대행사의 금액 합계와 감사인 합계(3절) | `pnpm a:local --operator` | `[Local]` | `pnpm bootstrap` 뒤 2분 안팎(2026-10-23에 102초, [기록](evidence/local/vendor-settlement-20261023T081534Z.md)) |
 | 통제된 열람(3절) | `pnpm a:audit-access --top-up` | 해독 `[Local]`, 기록 `[Live Testnet]` 상태 변경 tx | `pnpm a:local` 뒤 20초 안팎, 실행마다 기록 네 건 수수료 약 12 OKRW |
 
 로컬 실행의 가스 사용량은 예치 한 건 약 128만, 단건 지급 약 167만, 두 건 일괄 지급 약 319만, 인출 약 109만이었습니다. `[Local]` Maroo 테스트넷의 Privacy 가스는 유효한 tx를 만들 수 없어 측정하지 못했습니다.
@@ -387,10 +387,15 @@ revert 데이터의 앞 4바이트(오류 선택자)로 계열을 가릅니다. 
 | 트랜잭션 수준 거절 | `NonceTooLow()` `0xd24d82a4`, `InsufficientFee()` `0x025dbdd4` | 고친 값으로 | 논스, 수수료, chain ID, 가스 한도를 다시 채워 서명합니다 |
 | 프리컴파일 요청 검증(표준 SDK 매핑) | `SDKInvalidRequest()` `0xadb34e5c` | 요청을 새로 만든 뒤 | 증명, 커밋먼트, 암호화 노트가 현재 회로와 맞는지 확인합니다. 테스트넷에서는 어느 검사에서 막혔는지 데이터로 가릴 수 없습니다(아래 최초 실패 계층) |
 | Privacy 프리컴파일 오류 | `PrivacyRequestExpired(uint64)` `0x1b70614c`, `PrivacyDuplicateNullifier()` `0x8608d9c5`, `PrivacyNullifierAlreadySpent()` `0x0f51e561`, `PrivacyTxLimitExceeded(uint256)` `0xb6f49c06`, `PrivacyBatchSizeOutOfRange(uint256,uint256)` `0x083c105e` | 오류마다 다릅니다 | 만료는 요청을 새로 만들고, nullifier 충돌은 노트를 다시 스캔하고(풀 상태가 오래된 경우가 많습니다), 한도는 호출 수와 일괄 지급 크기(최대 20)를 줄입니다 `[Docs Only]` |
-| 대상 컨트랙트 로직 | 금고의 `NotBuyer()` `0x472e017e`. 앱 ABI는 `--abi`로 넘깁니다 | 호출자나 인자를 바꾼 뒤 | 앱의 권한과 상태 조건을 확인합니다 |
+| 대상 컨트랙트 로직 | 금고의 `NotBuyer()` `0x472e017e`. 앱 ABI는 `--abi`로 넘깁니다. `Unauthorized()`처럼 Maroo 오류와 선택자가 같으면, 정책 사유가 아닌 한 넘긴 ABI로 풉니다 | 호출자나 인자를 바꾼 뒤 | 앱의 권한과 상태 조건을 확인합니다 |
 | 가스 부족 | revert 데이터가 없고 쓴 가스가 가스 한도와 같은 경우, 또는 가스 한도 없이 같은 상태로 다시 실행하면 통과하는 경우(하위 호출이 받은 가스를 다 써서, 쓴 가스가 한도보다 조금 적은 경우) | 가스 한도를 `eth_estimateGas` 추정값으로 | 테스트넷 OKRW 이체는 21,000이 아니라 약 104,000 가스가 듭니다 `[Docs Only]` [테스트넷 접속](https://docs.maroo.io/resources/network/testnet-access/) |
-| 데이터 없는 되돌림 | revert 데이터와 노드 메시지가 모두 없는 경우 | 원인을 확인한 뒤 | 직전 블록 상태로 다시 시뮬레이션해 통과하면 같은 블록의 앞선 tx나 실행 뒤 전역 정책 재검사를 의심합니다 |
-| 결과 불명 | 응답 시간 초과, receipt 없음 | 기존 tx 해시를 확인한 뒤 | 같은 노트로 새 tx를 만들기 전에 대사합니다 |
+| 프리컴파일 공통 오류(입력·인코딩) | `InvalidAddress(string)` `0x161eb542`, `InvalidAmount(string)` `0xb132ad4a`, `InvalidNumberOfArgs(uint256,uint256)` `0x34dd9b57` | 인자를 고친 뒤 | 프리컴파일에 넘긴 인자와 ABI 인코딩을 확인합니다 |
+| 문자열 사유(Error(string)) | `Error(string)` `0x08c379a0` | 원인을 고친 뒤 | 사유 문구를 대상 코드나 Maroo 문서에서 찾습니다 |
+| Solidity panic | `Panic(uint256)` `0x4e487b71` | 코드를 고친 뒤 | 계산(나눗셈, 넘침)이나 배열 접근을 확인합니다 |
+| 데이터 없는 되돌림 | revert 데이터가 없고, 노드 메시지도 없거나 `execution reverted`뿐인 경우. 메시지 없는 `require`, `revert()`, 대상에 없는 함수 선택자가 이렇게 나옵니다 | 원인을 확인한 뒤 | 대상 주소, 함수 선택자, 인자를 확인합니다. 직전 블록 상태로 다시 시뮬레이션해 통과하면 같은 블록의 앞선 tx나 실행 뒤 전역 정책 재검사를 의심합니다 |
+| 노드 검사 | revert 데이터 없이 노드가 실행 전에 거절한 메시지(`insufficient funds`, `intrinsic gas too low`) | 값을 고친 뒤 | 메시지대로 잔액을 채우거나 가스 한도를 올립니다 |
+| 해석되지 않음 | 위 ABI 어디에도 없는 오류 선택자 | 원인을 확인한 뒤 | 대상 컨트랙트 ABI를 `--abi`로 넘겨 다시 풉니다. 풀리지 않은 사유를 다른 계열로 바꿔 적지 않습니다 |
+| (해석기 밖) 결과 불명 | 응답 시간 초과, receipt 없음. `pnpm explain`이 아니라 tx를 보낸 쪽이 판정합니다 | 기존 tx 해시를 확인한 뒤 | 같은 노트로 새 tx를 만들기 전에 대사합니다 |
 
 이 레포가 겪은 실패 다섯 계열과 통과한 tx 하나를 `pnpm explain --examples`가 차례로 풉니다. 협력사 B의 증명 없는 청구와 한도 5 OKRW 에이전트의 8 OKRW 결제는 컨트랙트 정책 위반, 가스 한도 21,000 이체는 가스 부족, 구매 기업의 2,000,001 OKRW 이체 시뮬레이션은 전역 정책의 `AnyOfRejected`, 빈 Privacy 예치는 `SDKInvalidRequest()`, 협력사 A의 `fund()`는 금고의 `NotBuyer()`로 나왔습니다. `[Live Testnet]` [해석 기록](evidence/live/explain-examples-20261023T071511Z.json)
 
