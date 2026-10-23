@@ -10,24 +10,28 @@
 
 ### 네 질문의 답
 
+이 가이드가 답하는 네 질문과 그 답을 모았습니다. 마지막 열은 자세한 내용이 있는 절입니다.
+
 | 질문 | 답 | 자세히 |
 | --- | --- | --- |
 | OKRW, PCL, Privacy는 한 번의 지급에서 어떻게 이어지는가 | 구매 기업이 OKRW를 Privacy 프리컴파일에 예치하면 차폐 노트가 되고, 지급과 인출은 노트를 쓰고 새로 만듭니다. PCL은 이 호출마다 호출한 계정을 평가합니다. | 2절 |
-| 누가 무엇을 볼 수 있는가 | 제3자는 예치 금액, 인출 금액과 받는 주소, 지급한 계정과 지급 건수를 봅니다. 지급 금액과 받는 협력사는 받는 협력사, 보낸 기업, 감사 키를 가진 쪽만 봅니다. | 3절 |
+| 누가 무엇을 볼 수 있는가 | 제3자는 예치 금액, 인출 금액과 받는 주소, 지급한 계정과 지급 건수를 봅니다. 지급 금액과 받는 협력사는 받는 협력사, 보낸 기업, 감사 키를 가진 주체만 봅니다. | 3절 |
 | 어떤 키와 서비스가 신뢰 경계에 드는가 | 지갑의 노트 키, 증명 요청을 받는 prover, 감사 비밀키, KYB 발급 키, PCL 정책 관리 권한, 컨트랙트 업그레이드 권한입니다. | 4절 |
 | 레퍼런스와 프로덕션 사이에 무엇이 남는가 | 노트 하나에 약 18.45 OKRW인 금액 상한, 외부 감사를 받지 않은 참조 구현, 체인에 아직 없는 규제기관 열람 기능, 외부 개발자에게 공개되지 않은 증명 재료입니다. | 8절 |
 
 ### 지금 되는 것과 남은 것
 
+이 가이드가 다루는 범위마다 어디까지 실행했는지 모았습니다. 라벨 열은 증거의 종류이고, 근거 열은 실행 기록 파일입니다.
+
 | 범위 | 상태 | 라벨 | 근거 |
 | --- | --- | --- | --- |
 | Privacy 프리컴파일의 정책, 요구 증명, 요청 모양 조회 | 실행함 | `[Live Testnet]` | [조회 기록](evidence/live/inspect-privacy-boundary-20260925T192735Z.json) |
 | Privacy 예치가 처음 막히는 층 진단 | 전역 정책은 통과하고 요청 검증(`SDKInvalidRequest`)에서 막힘 | `[Live Testnet]` eth_call과 eth_estimateGas, 거부 경로 증거 | [진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json) |
-| 보내기 전 정책 검사 방법 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가함 | `[Live Testnet]` | [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
+| 보내기 전 정책 검사 방법 | `eth_call`은 전역 정책을 평가하지 않고 `eth_estimateGas`는 평가합니다 | `[Live Testnet]` | [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
 | OKRW 지급과 KYB 관문을 건 정산 금고 | 실행함. 증명 없음, 색인 전, 폐기 뒤 청구는 거부되고 색인 뒤 청구는 통과. 정책 관리자와 업그레이드 권한이 다른 주소 | `[Live Testnet]` 상태 변경 tx 18건 | [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json) |
 | 차폐 정산 전체(예치, 일괄 지급, 스캔, 해독, 인출) | 실행함 | `[Local]` Clairveil v0.4.0 | [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) |
-| 테스트넷에서 유효한 Privacy 상태 변경 | 외부에서 만들 수 없음. 회로 산출물과 상태 조회 경로가 공개되지 않음 | `[Live Testnet]`, `[Docs Only]` | 6절 |
-| 규제기관의 관찰자 노드 열람 | 체인에 구현되지 않음 | `[Docs Only]` | [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/) |
+| 테스트넷에서 유효한 Privacy 상태 변경 | 외부에서 만들 수 없습니다. 회로 산출물과 상태 조회 경로가 공개되지 않았습니다 | `[Live Testnet]`, `[Docs Only]` | 6절 |
+| 규제기관의 관찰자 노드 열람 | 체인에 구현되지 않았습니다 | `[Docs Only]` | [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/) |
 
 ## 1. 한 장으로 보는 공급업체 정산
 
@@ -71,6 +75,8 @@ flowchart TB
 
 ### 여섯 경계
 
+정산이 지나는 여섯 경계마다 구성 요소와 하는 일, 경계가 가진 비밀을 모았습니다. 마지막 열은 근거가 되는 문서나 기록입니다.
+
 | 경계 | 구성 요소 | 하는 일 | 쥐고 있는 비밀 | 근거 |
 | --- | --- | --- | --- | --- |
 | 오프체인 | 지급 원장, 지급 서비스 | 송장을 지급 목록으로 묶고, 송장마다 멱등 키와 상태를 두고, 체인 결과와 대사합니다 | 송장 내용, 협력사 목록 | 권고 |
@@ -82,15 +88,17 @@ flowchart TB
 
 ### Maroo가 외부 개발자에게 주는 인터페이스
 
+Maroo가 개발자에게 공개한 인터페이스를 모았습니다. 위치 열은 주소나 패키지 이름이고, 셋째 열은 이 정산에서 그 인터페이스를 쓰는 곳입니다.
+
 | 인터페이스 | 위치 | 이 정산에서 쓰는 곳 | 라벨 |
 | --- | --- | --- | --- |
 | EVM JSON-RPC | `https://rpc-testnet.maroo.io`, chain ID 450815 | 모든 호출과 조회 | `[Live Testnet]` |
 | OKRW 프리컴파일과 네이티브 잔액 | `0x1000…0001`, 테스트넷 denom `atokrw` | 대금, 가스, 금고 입금, Privacy 예치 금액 | `[Live Testnet]` |
 | PCL 프리컴파일 | `0x1000…0005` | 전역 정책, Privacy 정책 조회, 금고 프록시 배포(`deployPclProxy`)와 정책 바인딩 | `[Live Testnet]` |
-| EAS, SchemaRegistry, Indexer | `0x1000…0009`의 `getParams()`로 찾음 | KYB 스키마 등록, 증명 발급과 폐기, 색인 | `[Live Testnet]` |
+| EAS, SchemaRegistry, Indexer | `0x1000…0009`의 `getParams()`로 찾습니다 | KYB 스키마 등록, 증명 발급과 폐기, 색인 | `[Live Testnet]` |
 | Privacy 프리컴파일 | `0x1000…000b` | 예치, 지급, 일괄 지급, 인출과 각각의 `*WithAuthorization` 변형. 조회 함수는 없습니다 | `[Docs Only]`, 호출은 `[Live Testnet]` eth_call |
 | ABI 패키지 | `@maroo-chain/contracts` 0.0.9 | `IPcl`, `IPrivacy` ABI | `[Live Testnet]` 호출에 사용 |
-| 공식 TypeScript SDK | `@maroo-chain/viem` 0.4.0 (npm, Maroo Docs에는 없음) | PCL 정책 해석(`PolicySet.decode`), 금고 프록시 배포(`pcl.deployPclProxy`)와 정책 바인딩(`policy.eas`, `pcl.changeContractPolicies`). Privacy는 ABI와 주소만 있고 증명 생성과 상태 조회는 없습니다 | 정책 해석은 `[Live Testnet]` 정책에 사용. 배포와 바인딩은 직접 인코딩과 calldata가 같고 `[코드 대조]` (`pnpm test:unit`), 새 지갑으로 돌린 금고 흐름 전체가 SDK 코드로 통과 `[Live Testnet]` ([기록](evidence/live/pcl-kyb-gate-20260926T052641Z.json)) |
+| 공식 TypeScript SDK | `@maroo-chain/viem` 0.4.0 (npm 패키지, Maroo Docs에는 나오지 않습니다) | PCL 정책 해석(`PolicySet.decode`), 금고 프록시 배포(`pcl.deployPclProxy`)와 정책 바인딩(`policy.eas`, `pcl.changeContractPolicies`). Privacy는 ABI와 주소만 있고 증명 생성과 상태 조회는 없습니다 | 정책 해석은 `[Live Testnet]` 정책에 사용. 배포와 바인딩은 직접 인코딩과 calldata가 같고 `[코드 대조]` (`pnpm test:unit`), 새 지갑으로 돌린 금고 흐름 전체가 SDK 코드로 통과 `[Live Testnet]` ([기록](evidence/live/pcl-kyb-gate-20260926T052641Z.json)) |
 | 탐색기 | `https://explorer-testnet.maroo.io` (Blockscout) | tx 확인, 이벤트 조회 | `[Live Testnet]` |
 
 Maroo Docs에는 현재 테스트넷 verifier와 맞는 회로 버전과 proving 산출물, 차폐 상태(Merkle witness, nullifier 사용 여부, 암호화 노트 이벤트)를 읽는 조회 경로, 성공한 Privacy 호출의 예시 입력, prover 엔드포인트가 없습니다. `[Docs Only]` 그래서 외부에서 유효한 Privacy tx를 만들 수 없고, 6절의 진단도 그 지점에서 멈춥니다.
@@ -133,17 +141,19 @@ flowchart TB
 
 | 층 | 평가되는 것 | `eth_call` | `eth_estimateGas` | 실제 tx가 거부되면 | 근거 |
 | --- | --- | --- | --- | --- | --- |
-| RPC 제출 | 문서는 브로드캐스트 전에 PCL을 평가해 거절하고, 그러면 가스를 내지 않고 블록에도 들어가지 않는다고 적음 | 해당 없음 | 해당 없음 | 컨트랙트 정책 거부는 제출 때 걸러지지 않았음(아래 행) | `[Docs Only]` [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/), `[Live Testnet]` |
-| AnteHandler 전역 정책(이름과 위치는 `[Docs Only]` 아키텍처 페이지) | 발신자와 값. KYC 증명이 없는 계정의 건당·24시간 한도, 에이전트 지갑이면 소유자 기준 평가 | 평가하지 않음 | 평가함 | 이 레포는 전역 정책에 걸리는 tx를 보내지 않았음(사전 검사에서 걸러 냄) | `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
-| PCL 프록시의 컨트랙트 정책 | 프록시를 부른 계정과 선택자. 금고 `claim()`의 `EAS_POLICY`, 에이전트 결제의 `fund()` 한도 | 평가함 | 평가함 | 블록에 들어가 되돌려지고 가스 한도의 절반을 냄. 청구 150,000/300,000, 결제 363,982/727,965. 두 번의 실행에서 거부 tx 여덟 건 모두 50.0% | `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171442Z.json), [앞 실행](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` |
-| Privacy 프리컴파일의 자체 정책 | 호출자의 본인 인증 증명(`And(EAS_POLICY, DENYLIST_POLICY)`). PCL 프록시 없이 프리컴파일이 직접 정책을 가짐 | 요청 검증(`SDKInvalidRequest()`)이 먼저 막아 정책까지 닿지 못함 | 같음 | 보내지 않음 | `[Docs Only]` [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/), `[Live Testnet]` 정책 조회 |
-| 프리컴파일과 모듈 | 프리컴파일이 Cosmos SDK 모듈의 상태를 읽고 씀. 문서의 아키텍처 페이지는 프리컴파일을 넷으로 적고 Privacy를 빼 놓음 | 해당 없음 | 해당 없음 | 해당 없음 | `[Docs Only]` [Maroo 아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/), Privacy 주소는 `[Live Testnet]`, `x/privacy`와 Clairveil은 `[코드 대조]` |
+| RPC 제출 | 문서는 브로드캐스트 전에 PCL을 평가해 거절하고, 그러면 가스를 내지 않고 블록에도 들어가지 않는다고 적습니다 | 해당 없음 | 해당 없음 | 컨트랙트 정책 거부는 제출 때 걸러지지 않았습니다(아래 행) | `[Docs Only]` [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/), `[Live Testnet]` |
+| AnteHandler 전역 정책(이름과 위치는 `[Docs Only]` 아키텍처 페이지) | 발신자와 값. KYC 증명이 없는 계정의 건당·24시간 한도, 에이전트 지갑이면 소유자 기준 평가 | 평가하지 않습니다 | 평가합니다 | 이 레포는 전역 정책에 걸리는 tx를 보내지 않았습니다(사전 검사에서 걸러 냈습니다) | `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
+| PCL 프록시의 컨트랙트 정책 | 프록시를 부른 계정과 선택자. 금고 `claim()`의 `EAS_POLICY`, 에이전트 결제의 `fund()` 한도 | 평가합니다 | 평가합니다 | 블록에 들어가 되돌려지고 가스 한도의 절반을 냄. 청구 150,000/300,000, 결제 363,982/727,965. 두 번의 실행에서 거부 tx 여덟 건 모두 50.0% | `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171442Z.json), [앞 실행](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` |
+| Privacy 프리컴파일의 자체 정책 | 호출자의 본인 인증 증명(`And(EAS_POLICY, DENYLIST_POLICY)`). PCL 프록시 없이 프리컴파일이 직접 정책을 가집니다 | 요청 검증(`SDKInvalidRequest()`)이 먼저 막아 정책까지 닿지 못했습니다 | 같습니다 | 보내지 않았습니다 | `[Docs Only]` [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/), `[Live Testnet]` 정책 조회 |
+| 프리컴파일과 모듈 | 프리컴파일이 Cosmos SDK 모듈의 상태를 읽고 씁니다. 문서의 아키텍처 페이지는 프리컴파일을 넷으로 적고 Privacy를 빼 놓았습니다 | 해당 없음 | 해당 없음 | 해당 없음 | `[Docs Only]` [Maroo 아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/), Privacy 주소는 `[Live Testnet]`, `x/privacy`와 Clairveil은 `[코드 대조]` |
 
-- 사전 검사는 `eth_estimateGas` 한 번이면 두 층의 정책을 함께 봅니다. `eth_call`만 쓰면 전역 정책 거부를 놓칩니다(6절).
+- 사전 검사는 `eth_estimateGas` 한 번이면 두 층의 정책을 함께 평가합니다. `eth_call`만 쓰면 전역 정책 거부를 놓칩니다(6절).
 - 거부된 tx는 블록에 남습니다. 협력사가 자격 없이 청구한 시도가 탐색기에 주소와 함께 보이고, 가스 한도의 절반을 수수료로 냅니다. 한도의 절반이라는 값은 Cosmos EVM 계열의 최소 가스 비율로 보입니다. 이 레포는 체인 설정을 읽을 경로가 없어 확인하지 못했습니다. 권고: 보내기 전에 `eth_estimateGas`로 확인하고, 가스 한도는 추정값에 25% 안팎만 더합니다.
 - 단순 이체도 정책 검사 때문에 가스가 21,000을 넘습니다. 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000입니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json)
 
 ### 투명 경로: KYB 관문을 건 정산 금고
+
+KYB 관문을 건 금고 흐름을 단계 순서로 모았습니다. 단계마다 호출과 PCL 판정, 공개 체인에서 보이는 것을 적었습니다.
 
 | 단계 | 호출 | PCL 판정 | 공개 체인에 보이는 것 |
 | --- | --- | --- | --- |
@@ -220,12 +230,12 @@ stateDiagram-v2
 | 원장 상태 | 들어가는 조건 | 체인에서 확인하는 것 |
 | --- | --- | --- |
 | 준비 | 송장 확정, 노트 예약 | 예약한 노트의 nullifier가 아직 없음 |
-| 제출 | tx 해시를 받음 | tx가 블록에 들어갔는지 |
-| 확정 | tx 성공 | 새 커밋먼트와 nullifier가 기록됨 |
+| 제출 | tx 해시의 수신 | tx가 블록에 들어갔는지 |
+| 확정 | tx 성공 | 새 커밋먼트와 nullifier의 기록 |
 | 실패 | tx 실패, 요청 만료 | 실패 사유. 노트 예약을 풀고 준비로 돌림 |
 | 불명 | 응답 시간 초과 | 새로 보내기 전에 tx 해시로 결과부터 확인 |
 
-## 3. 누가 무엇을 보나
+## 3. 누가 무엇을 보는가
 
 로컬 실행에서 역할마다 자기 키로 풀어 본 결과와, 아무 키 없이 공개 체인에서 읽히는 값을 정리했습니다. `[Local]` [로컬 실행 기록](evidence/local/vendor-settlement-20260925T181924Z.md) 2절, 3절
 
@@ -248,16 +258,18 @@ stateDiagram-v2
 
 ## 4. 키와 서비스의 책임
 
+키와 권한마다 권고하는 보관 주체, 잃었을 때와 새었을 때 생기는 일을 모았습니다. 마지막 열은 근거입니다.
+
 | 키나 권한 | 권고하는 보관·운영 주체 | 잃으면 | 새면 | 근거 |
 | --- | --- | --- | --- | --- |
-| 구매 기업 계정 키 | 재무팀, HSM이나 멀티시그 | 예치와 지급을 할 수 없음 | 누군가 대금 재원을 옮김 | 권고 |
-| 구매 기업 노트 키 | 지급 서비스, 계정 키와 분리 | 예치한 노트를 쓸 수 없음 | 지급 내역이 보임 | `[Docs Only]` Clairveil 위협 모델 |
-| 협력사 노트 키와 보기 키 | 협력사 | 받은 대금을 쓸 수 없음 | 받은 내역이 보임 | Clairveil 레퍼런스는 지갑 파일을 평문 JSON(권한 0600)으로 두고, 프로덕션은 저장 시 암호화하라고 적습니다 `[Docs Only]` [위협 모델 96행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md#L96) |
-| prover | 기관 내부 서버나 지급 서비스와 같은 경계 | 증명을 만들 수 없어 지급이 멈춤 | 요청에 든 금액과 난수가 노출됨 | `[Docs Only]` 운영 가이드 |
-| 감사 epoch 비밀키 | Maroo 문서에 없음. 내부 감사팀, 외부감사인, 규제기관 가운데 PoC에서 정함 | 해당 기간을 감사할 수 없음 | 해당 기간의 모든 감사 내용이 보임 | `[Docs Only]` [위협 모델 13행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md#L13) |
-| KYB 증명 발급 키 | 발급 기관 | 새 협력사에 증명을 줄 수 없음 | 자격 없는 협력사가 증명을 받음 | 권고 |
-| 금고의 PCL 정책 관리 권한 | 구매 기업 컴플라이언스 담당 | 정책을 바꿀 수 없음 | 정책이 바뀌거나 떼어짐 | [금고 흐름 스크립트](recipe/pcl-kyb-gate.ts) |
-| 금고 업그레이드 권한(ProxyAdmin 소유자) | 정책 관리와 다른 주체, 멀티시그와 타임록 | 버그를 고칠 수 없음 | 금고 로직이 바뀌어 협력사 몫이 빠져나감 | `[Docs Only]` [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) |
+| 구매 기업 계정 키 | 재무팀, HSM이나 멀티시그 | 예치와 지급을 할 수 없습니다 | 누군가 대금 재원을 옮깁니다 | 권고 |
+| 구매 기업 노트 키 | 지급 서비스, 계정 키와 분리 | 예치한 노트를 쓸 수 없습니다 | 지급 내역이 보입니다 | `[Docs Only]` Clairveil 위협 모델 |
+| 협력사 노트 키와 보기 키 | 협력사 | 받은 대금을 쓸 수 없습니다 | 받은 내역이 보입니다 | Clairveil 레퍼런스는 지갑 파일을 평문 JSON(권한 0600)으로 두고, 프로덕션은 저장 시 암호화하라고 적습니다 `[Docs Only]` [위협 모델 96행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md#L96) |
+| prover | 기관 내부 서버나 지급 서비스와 같은 경계 | 증명을 만들 수 없어 지급이 멈춥니다 | 요청에 든 금액과 난수가 노출됩니다 | `[Docs Only]` 운영 가이드 |
+| 감사 epoch 비밀키 | Maroo 문서에 없음. 내부 감사팀, 외부감사인, 규제기관 가운데 PoC에서 정합니다 | 해당 기간을 감사할 수 없습니다 | 해당 기간의 모든 감사 내용이 보입니다 | `[Docs Only]` [위협 모델 13행](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md#L13) |
+| KYB 증명 발급 키 | 발급 기관 | 새 협력사에 증명을 줄 수 없습니다 | 자격 없는 협력사가 증명을 받습니다 | 권고 |
+| 금고의 PCL 정책 관리 권한 | 구매 기업 컴플라이언스 담당 | 정책을 바꿀 수 없습니다 | 정책이 바뀌거나 떼어집니다 | [금고 흐름 스크립트](recipe/pcl-kyb-gate.ts) |
+| 금고 업그레이드 권한(ProxyAdmin 소유자) | 정책 관리와 다른 주체, 멀티시그와 타임록 | 버그를 고칠 수 없습니다 | 금고 로직이 바뀌어 협력사 몫이 빠져나갑니다 | `[Docs Only]` [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) |
 | Privacy 프리컴파일 정책 관리 권한 | 체인 운영 측(`0x58eC…804F`) | 해당 없음 | 모든 Privacy 호출의 조건이 바뀜 | `[Live Testnet]` 조회 기록 |
 
 - PCL 프록시는 Transparent, UUPS, Beacon 세 종류라 금고는 항상 업그레이드할 수 있습니다. 이 레포의 금고 흐름은 업그레이드 권한을 정책 관리와 다른 주소(`UPGRADE_OWNER`)에 두고, 배포 직후 ERC-1967 구현 슬롯과 관리자 슬롯을 직접 읽어 배포한 구현과 같은지 확인합니다. 다르면 흐름을 멈춥니다. 2026-09-26 실행에서 구현 슬롯은 배포한 구현과 같았고, 정책 관리자는 구매 기업, ProxyAdmin 소유자는 `UPGRADE_OWNER`였습니다. `[Live Testnet]` [금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json)
@@ -282,12 +294,14 @@ stateDiagram-v2
 
 ### 결과 분류
 
-| 분류 | 알아보는 방법 | 다시 보내도 되나 | 할 일 |
+tx가 실패하거나 결과를 알 수 없을 때 쓰는 분류표입니다. 분류마다 알아보는 방법, 다시 보내도 되는지, 할 일을 적었습니다.
+
+| 분류 | 알아보는 방법 | 다시 보내도 되는가 | 할 일 |
 | --- | --- | --- | --- |
 | 성공 | receipt `status=success` | 해당 없음 | 원장을 확정으로 바꿈 |
 | 정책 거부 | PCL ReasonCode(`EasNoAttestationReceived`, `EasAttestationRevoked`, `AnyOfRejected(...)` 등) | 조건을 바꾼 뒤 | 자식 사유까지 풀어 보여 주고, 증명 발급이나 한도 창을 기다림 |
 | 요청 거부 | `SDKInvalidRequest`, `PrivacyRequestExpired`, `PrivacyNativeDenomMismatch` 등 | 요청을 새로 만든 뒤 | 증명과 요청 재료, 만료 시각, 금액 단위를 확인 |
-| 노트 충돌 | `PrivacyDuplicateNullifier`, `PrivacyNullifierAlreadySpent` | 노트를 새로 스캔한 뒤 | 풀 상태를 오래된 것으로 본 경우가 많음 `[Docs Only]` |
+| 노트 충돌 | `PrivacyDuplicateNullifier`, `PrivacyNullifierAlreadySpent` | 노트를 새로 스캔한 뒤 | 풀 상태가 오래된 경우가 많습니다 `[Docs Only]` |
 | 한도 | `PrivacyTxLimitExceeded`, `PrivacySenderTxLimitExceeded`, `PrivacyBatchSizeOutOfRange` | 나눠서 | 한 tx의 호출 수와 일괄 지급 크기(최대 20)를 줄임 `[Docs Only]` |
 | 결과 불명 | 응답 시간 초과, receipt 없음 | 기존 tx 해시를 확인한 뒤 | 같은 노트로 새 tx를 만들기 전에 대사 |
 
@@ -303,22 +317,24 @@ stateDiagram-v2
 | 층 | 확인 방법 | 테스트넷 결과 | 다음 층으로 가는 데 필요한 것 |
 | --- | --- | --- | --- |
 | 1. 네트워크와 주소 | chain ID, Privacy 주소의 정책 조회 | 통과 | 없음 |
-| 2. 전역 정책 | `eth_estimateGas` | 통과. `eth_estimateGas`도 3층의 오류를 돌려줌 | 보내는 계정이 24시간 한도 안이거나 KYC 증명을 가짐 |
+| 2. 전역 정책 | `eth_estimateGas` | 통과. `eth_estimateGas`도 3층의 오류를 돌려줍니다 | 보내는 계정이 24시간 한도 안이거나 KYC 증명을 가짐 |
 | 3. 요청 검증 | 빈 요청, 모양을 갖춘 요청 | `SDKInvalidRequest()` | 현재 verifier와 맞는 회로 산출물로 만든 증명, 커밋먼트, 암호화 노트 |
-| 4. Privacy 컨트랙트 정책 | 본인 인증 증명(attestation)이 없는 지갑과 있는 지갑으로 같은 요청 | 두 지갑 모두 3층에서 먼저 막혀 도달하지 못함 | 개인 본인 인증 증명(`kakaoIdHash` 스키마) |
-| 5. 증명 검증과 차폐 상태 | 유효한 요청 | 시험할 수 없음 | Merkle witness와 nullifier를 읽는 조회 경로, 성공한 예시 입력 |
+| 4. Privacy 컨트랙트 정책 | 본인 인증 증명(attestation)이 없는 지갑과 있는 지갑으로 같은 요청 | 두 지갑 모두 3층에서 먼저 막혀 도달하지 못했습니다 | 개인 본인 인증 증명(`kakaoIdHash` 스키마) |
+| 5. 증명 검증과 차폐 상태 | 유효한 요청 | 시험할 수 없었습니다 | Merkle witness와 nullifier를 읽는 조회 경로, 성공한 예시 입력 |
 
 - 카카오 본인 인증을 마쳐 Privacy 정책의 증명을 가진 지갑도, 증명이 없는 지갑과 똑같이 `SDKInvalidRequest()`에서 막혔습니다. 외부 개발자를 막는 것은 본인 인증보다 앞에 있는 증명 재료입니다. 요청 검증이 컨트랙트 정책 평가보다 앞서는지, 시뮬레이션에서 컨트랙트 정책이 평가되지 않는지는 이 진단으로 가릴 수 없습니다. `[Live Testnet]` [인증 지갑 진단 기록](evidence/live/probe-kyc-holder-20260925T201710Z.json)
-- 공식 SDK(ClairveilJS)의 EVM 예치 경로로도 시험했습니다. Maroo가 공개한 값(EVM JSON-RPC, chain ID, Privacy 주소, `atokrw`)만 넣으면 SDK는 프로필 생성에서 Cosmos RPC 주소를 요구하며 멈춥니다. 차폐 상태 어댑터 자리를 비워 둘 수 없어서, 모든 조회를 거절하는 어댑터를 넣었습니다. 그러자 예치 준비는 회로 설정(`fetchCircuitConfig`)과 자산 등록(`fetchAssetByDenom`)을 조회하다 멈췄고, 증명 요청은 prover로 가지 않았습니다. SDK는 활성 회로와 자산 대응을 확인하기 전에는 증명 재료를 prover에 넘기지 않게 되어 있습니다. 거절한 조회를 짐작한 값으로 채우지 않았습니다. `[코드 대조]`와 테스트넷 조회 [SDK 진단 기록](evidence/code/probe-sdk-deposit-20260926T041213Z.json), 재현: `pnpm a:probe-sdk`
+- 공식 SDK(ClairveilJS)의 EVM 예치 경로로도 시험했습니다. Maroo가 공개한 값(EVM JSON-RPC, chain ID, Privacy 주소, `atokrw`)만 입력하면 SDK는 프로필 생성에서 Cosmos RPC 주소를 요구하며 멈춥니다. 차폐 상태 어댑터 자리를 비워 둘 수 없어서, 모든 조회를 거절하는 어댑터를 넣었습니다. 그러자 예치 준비는 회로 설정(`fetchCircuitConfig`)과 자산 등록(`fetchAssetByDenom`)을 조회하다 멈췄고, 증명 요청은 prover로 가지 않았습니다. SDK는 활성 회로와 자산 대응을 확인하기 전에는 증명 재료를 prover에 넘기지 않게 되어 있습니다. 거절한 조회를 짐작한 값으로 채우지 않았습니다. `[코드 대조]`와 테스트넷 조회 [SDK 진단 기록](evidence/code/probe-sdk-deposit-20260926T041213Z.json), 재현: `pnpm a:probe-sdk`
 - 권고: 3층과 5층을 넘으려면 Maroo에서 받아야 할 것은 이렇습니다. 첫째, 현재 테스트넷 verifier와 맞는 회로 버전 고정값과 그 회로의 proving 산출물(또는 prover 엔드포인트)입니다. 둘째, 차폐 상태 조회 경로입니다. SDK 기준으로는 차폐 상태 어댑터의 필수 조회 12개(회로 설정, 자산 등록, 트리 상태, Merkle 경로, 루트 기준 경로, nullifier 확인, 스캔, 커밋먼트 정보, 준비금, 감사·disclosure 설정)이고, Clairveil 체인이라면 Cosmos REST `/clairveil/privacy/v1/*`가 같은 역할을 합니다. 셋째, 성공한 예치와 지급의 예시 입력입니다. 받기 전까지 차폐 흐름은 Clairveil 로컬에서 검증하고, 두 환경의 결과를 한 흐름으로 합쳐 표현하지 않습니다.
 
 ## 7. 4\~8주 PoC 설계 (권고)
 
+4\~8주 PoC를 주차 구간으로 나눈 계획입니다. 구간마다 목표와 산출물, 끝났다고 보는 기준, 함께 검토할 팀을 적었습니다.
+
 | 주차 | 목표 | 산출물 | 끝났다고 보는 기준 | 함께 보는 팀 |
 | --- | --- | --- | --- | --- |
-| 1 | 이 레포를 기관 환경에서 재현 | 실행 로그, 망 접근 확인 결과 | 사내 망에서 테스트넷 RPC와 탐색기에 닿고, 레시피 3절과 5절이 같은 결과를 냄 | 보안, 인프라 |
-| 2\~3 | 투명 경로와 KYB 관문 | 기관 KYB 스키마, 발급자 역할, 금고 흐름 기록 | 증명 없음, 색인 전, 폐기 후 청구가 모두 거부되고 정상 청구가 통과함. 권한 분리가 슬롯 조회로 확인됨 | 컴플라이언스 |
-| 3\~5 | 차폐 경로를 로컬에서 정산 주기 한 번 재현 | 지급 원장 연동 코드, 대사 스크립트 | 송장 N건이 한 번씩만 지급되고, 재시도와 시간 초과 시험에서 이중 지급이 없고, 감사인이 모든 송장을 해독함 | 운영, 내부 감사 |
+| 1 | 이 레포를 기관 환경에서 재현 | 실행 로그, 망 접근 확인 결과 | 사내 망에서 테스트넷 RPC와 탐색기에 닿고, 레시피 3절과 5절이 같은 결과를 냅니다 | 보안, 인프라 |
+| 2\~3 | 투명 경로와 KYB 관문 | 기관 KYB 스키마, 발급자 역할, 금고 흐름 기록 | 증명 없음, 색인 전, 폐기 후 청구가 모두 거부되고 정상 청구가 통과합니다. 권한 분리가 슬롯 조회로 확인됩니다 | 컴플라이언스 |
+| 3\~5 | 차폐 경로를 로컬에서 정산 주기 한 번 재현 | 지급 원장 연동 코드, 대사 스크립트 | 송장 N건이 한 번씩만 지급되고, 재시도와 시간 초과 시험에서 이중 지급이 없고, 감사인이 모든 송장을 해독합니다 | 운영, 내부 감사 |
 | 5\~6 | 테스트넷 Privacy 재진단 | 최초 실패 계층 기록 갱신 | Maroo에서 받은 재료로 정상 경로를 실행하거나, 받지 못했으면 막힌 층과 누락 재료를 문서로 남김 | 제품 |
 | 7\~8 | 검토 자료와 도입 판단 | 키 보관 설계, prover 배치안, 감사 키 운영안, 금액 상한 영향 분석 | 보안, 컴플라이언스, 운영, 제품 팀이 각자 남은 위험 목록에 서명 | 전체 |
 
@@ -326,37 +342,43 @@ PoC를 시작하기 전에 Maroo에 확인할 항목은 6절의 증명 재료 �
 
 ## 8. 프로덕션 전에 남은 것
 
+프로덕션으로 가기 전에 남은 항목을 모았습니다. 항목마다 현재 상태와 영향, 해결을 맡는 주체, 근거를 적었습니다.
+
 | 항목 | 현재 | 영향 | 풀어야 하는 쪽 | 근거 |
 | --- | --- | --- | --- | --- |
 | 차폐 금액 상한 | 노트 하나에 2^64-1 기본 단위, 약 18.45 OKRW | 1,000만 원을 차폐하려면 노트 542,102개와 일괄 지급 27,106번(20건씩)이 필요 | Maroo | `[Docs Only]` [IPrivacy.deposit](https://docs.maroo.io/apis/contract/contract-privacy-deposit/), 계산 |
-| 참조 구현의 성숙도 | Clairveil은 `PUBLICATION_READY_EXPERIMENTAL`. 공식 trusted setup, 외부 ZK·보안 감사, 서명된 산출물 배포, 감사 키 보관을 범위 밖으로 둠 | 기관 보안 심의를 통과할 근거가 없음 | Maroo | `[Docs Only]` [CHANGELOG v0.4.0](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/CHANGELOG.md) |
+| 참조 구현의 성숙도 | Clairveil은 `PUBLICATION_READY_EXPERIMENTAL`. 공식 trusted setup, 외부 ZK·보안 감사, 서명된 산출물 배포, 감사 키 보관을 범위 밖으로 둡니다 | 기관 보안 심의를 통과할 근거가 없습니다 | Maroo | `[Docs Only]` [CHANGELOG v0.4.0](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/CHANGELOG.md) |
 | 출시 전 관문 | 운영 가이드의 최소 메인넷 관문 10개, 위협 모델의 다운스트림 보안 관문 9개 | 도입 기관이 확인할 목록이 이미 있음 | Maroo, 기관 | `[Docs Only]` [운영 가이드 11절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-operations-guide.md), [위협 모델 8절](https://github.com/DELIGHT-LABS/clairveil/blob/ca85b02708fdd75259d4d2ee2d671c21198cec69/docs/clairveil-threat-model.md) |
-| 규제기관 열람 | 관찰자 노드 disclosure 프로토콜이 체인에 없음. 지금 동작하는 규제 통제는 PCL 정책 평가 | 규제기관에 차폐 거래를 보여 줄 공식 경로가 없음 | Maroo | `[Docs Only]` [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/) |
-| 외부 개발자용 증명 재료 | 회로 산출물, 상태 조회 경로, 예시 입력이 공개되지 않음 | 기관이 테스트넷에서 차폐 흐름을 직접 검증할 수 없음 | Maroo | `[Live Testnet]` 6절 |
-| 기관 KYB | 테스트넷 Privacy 정책은 개인 본인 인증 스키마만 요구하고, 기관용 스키마와 발급자는 없음 | 법인 계정이 Privacy를 부를 자격 경로가 없음 | Maroo, 발급 기관 | `[Live Testnet]` 조회 기록 |
+| 규제기관 열람 | 관찰자 노드 disclosure 프로토콜이 체인에 없음. 지금 동작하는 규제 통제는 PCL 정책 평가 | 규제기관에 차폐 거래를 보여 줄 공식 경로가 없습니다 | Maroo | `[Docs Only]` [검증 가능한 프라이버시](https://docs.maroo.io/concepts/privacy/verifiable-privacy/) |
+| 외부 개발자용 증명 재료 | 회로 산출물, 상태 조회 경로, 예시 입력이 공개되지 않았습니다 | 기관이 테스트넷에서 차폐 흐름을 직접 검증할 수 없습니다 | Maroo | `[Live Testnet]` 6절 |
+| 기관 KYB | 테스트넷 Privacy 정책은 개인 본인 인증 스키마만 요구하고, 기관용 스키마와 발급자는 없습니다 | 법인 계정이 Privacy를 부를 자격 경로가 없습니다 | Maroo, 발급 기관 | `[Live Testnet]` 조회 기록 |
 | 회로 교체 | Clairveil v0.5.0은 호환되지 않는 genesis에서 올라오는 체인을 새 genesis로 초기화하고 노트와 스캔 결과를 버리라고 적음. 제자리 이전 경로 없음 | 회로가 바뀌면 차폐 잔액을 옮기는 계획이 필요 | Maroo, 기관 | `[Docs Only]` [CHANGELOG v0.5.0](https://github.com/DELIGHT-LABS/clairveil/blob/v0.5.1/CHANGELOG.md) |
-| SDK 변화 | `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 템플릿 작성 함수 두 개를 지움 | 버전을 고정하지 않으면 빌드가 깨짐. 이 레포는 0.4.0을 고정해 씀 | 기관 | npm 패키지 두 판 비교 |
-| 금고 회수 권한 | 이 레포의 금고는 협력사가 청구하기 전이면 구매 기업이 언제든 `recall`로 몫을 되돌릴 수 있음 | 협력사에게 입금된 몫이 확정된 대금이 되지 않고, 구매 기업 키가 새면 청구되지 않은 몫이 모두 회수될 수 있음 | 기관 | `[Live Testnet]` 금고 흐름 8단계. 권고: 입금 뒤 청구 기간이 지나야 회수되게 하거나, 회수 요청과 실행 사이에 타임락과 협력사 통지를 둠 |
+| SDK 변화 | `@maroo-chain/viem` 0.4.0(2026-09-17)이 PCL 정책 템플릿 작성 함수 두 개를 지웠습니다 | 버전을 고정하지 않으면 빌드가 깨집니다. 이 레포는 0.4.0을 고정해 씁니다 | 기관 | npm 패키지 두 판 비교 |
+| 금고 회수 권한 | 이 레포의 금고는 협력사가 청구하기 전이면 구매 기업이 언제든 `recall`로 몫을 되돌릴 수 있습니다 | 협력사에게 입금된 몫이 확정된 대금이 되지 않고, 구매 기업 키가 새면 청구되지 않은 몫이 모두 회수될 수 있습니다 | 기관 | `[Live Testnet]` 금고 흐름 8단계. 권고: 입금 뒤 청구 기간이 지나야 회수되게 하거나, 회수 요청과 실행 사이에 타임락과 협력사 통지를 둡니다 |
 | 기관 쪽 운영 | 키 보관(HSM, 멀티시그), 지급 원장과 대사, 망 분리 환경의 RPC 접근, 사고 대응 | PoC에서 설계하고 프로덕션에서 구축 | 기관 | 권고 |
 
 ## 부록 A. 용어
 
+이 가이드에서 쓰는 용어와 뜻을 모았습니다.
+
 | 용어 | 뜻 |
 | --- | --- |
-| 차폐 풀 | Privacy 프리컴파일이 보관하는 OKRW와 노트 기록. 안의 이동은 금액과 받는 쪽이 드러나지 않음 |
-| 노트 | 차폐 풀 안의 금액 한 덩어리. 받는 쪽 공개키와 금액과 난수로 만든 커밋먼트로 기록됨 |
-| 커밋먼트 | 노트 내용을 숨긴 채 체인에 남기는 값. Merkle 트리의 잎이 됨 |
+| 차폐 풀 | Privacy 프리컴파일이 보관하는 OKRW와 노트 기록. 안의 이동은 금액과 받는 쪽이 드러나지 않습니다 |
+| 노트 | 차폐 풀 안의 금액 한 덩어리. 받는 쪽 공개키와 금액과 난수로 만든 커밋먼트로 기록됩니다 |
+| 커밋먼트 | 노트 내용을 숨긴 채 체인에 남기는 값. Merkle 트리의 잎이 됩니다 |
 | 증명(proof) | 노트를 올바르게 쓰고 만들었다는 Groth16 영지식 증명. prover가 만듦 |
-| 증명(attestation) | EAS에 기록된 자격 확인. 본인 인증, KYB 등. PCL 정책이 조회함 |
-| nullifier | 노트를 썼다는 표시. 같은 nullifier가 다시 오면 체인이 거부함 |
+| 증명(attestation) | EAS에 기록된 자격 확인. 본인 인증, KYB 등. PCL 정책이 조회합니다 |
+| nullifier | 노트를 썼다는 표시. 같은 nullifier가 다시 오면 체인이 거부합니다 |
 | witness | 증명을 만드는 데 쓰는 비공개 입력(금액, 난수, Merkle 경로 등) |
-| disclosure | 지급 내용을 특정 키로 암호화해 붙인 것. 받는 쪽용, 보낸 쪽 self-view용, 감사용이 있음 |
+| disclosure | 지급 내용을 특정 키로 암호화해 붙인 것. 받는 쪽용, 보낸 쪽 self-view용, 감사용이 있습니다 |
 | 감사 epoch | 감사 공개키가 유효한 기간. 기간마다 감사 비밀키가 다름 |
-| PCL | Maroo의 정책 계층. 전역 정책과 컨트랙트 정책으로 호출자를 평가함 |
-| EAS | 증명(attestation)을 발급하고 조회하는 컨트랙트. PCL은 Indexer에 색인된 증명만 인식함 |
+| PCL | Maroo의 정책 계층. 전역 정책과 컨트랙트 정책으로 호출자를 평가합니다 |
+| EAS | 증명(attestation)을 발급하고 조회하는 컨트랙트. PCL은 Indexer에 색인된 증명만 인식합니다 |
 | KYB | 기업 고객 확인. 이 가이드에서는 협력사 자격 증명 |
 
 ## 부록 B. 증거 목록
+
+이 가이드가 근거로 삼는 증거 파일을 모았습니다. 라벨 열은 증거의 종류이고, 내용 열은 파일이 보여 주는 것입니다.
 
 | 파일 | 라벨 | 내용 |
 | --- | --- | --- |
@@ -367,6 +389,8 @@ PoC를 시작하기 전에 Maroo에 확인할 항목은 6절의 증명 재료 �
 | [vendor-settlement-20260925T181924Z.md](evidence/local/vendor-settlement-20260925T181924Z.md) | `[Local]` | 차폐 정산 단계별 tx, 역할별 해독 결과, 공개 필드 |
 
 ## 부록 C. 기준 버전
+
+이 가이드가 기준으로 삼은 대상과 버전을 모았습니다.
 
 | 대상 | 버전 |
 | --- | --- |

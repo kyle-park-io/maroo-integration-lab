@@ -16,6 +16,8 @@
 
 ## 1. 준비
 
+스크립트를 돌리는 데 필요한 도구와 확인한 판을 모았습니다. 마지막 열은 그 도구를 쓰는 단계입니다.
+
 | 도구 | 확인한 판 | 쓰는 곳 |
 | --- | --- | --- |
 | Node.js | 24.19 (24 이상 필요, TypeScript를 바로 실행) | 모든 스크립트 |
@@ -173,20 +175,24 @@ pnpm a:local
 
 ## 6. 오류가 나면
 
+실행 중 만나는 증상마다 원인과 할 일을 모았습니다.
+
 | 증상 | 원인 | 할 일 |
 | --- | --- | --- |
-| faucet이 `… reverted with the following signature:.` | faucet 계정이 전역 24시간 한도(1,000만 tOKRW)를 다 썼고 KYC 증명이 없음 | `pnpm a:probe-global`로 `resetAt`을 보고 그 뒤에 다시 요청 |
-| `구매 기업 잔액이 부족합니다` | 테스트넷 OKRW 없음 | 2절의 faucet 명령 |
-| `EasNoAttestationReceived(주소)` | 호출한 주소에 정책이 요구하는 증명이 없거나, 증명을 색인하지 않음 | 증명 발급 뒤 `indexAttestation`까지 했는지 확인 |
-| `EasAttestationRevoked(주소)` | 증명이 폐기됨 | 발급자가 새 증명을 발급하고 색인 |
-| `AnyOfRejected(ExceededPeriodicVolume(…), …)` | 보내는 주소가 전역 기간 한도를 넘음 | `resetAt` 뒤 재시도하거나, KYC 증명이 있는 주소로 보냄 |
-| `SDKInvalidRequest()` (Privacy 호출) | 유효한 증명과 요청 재료가 없음 | 테스트넷 Privacy는 이 층까지 진단합니다. 차폐 흐름은 5절의 로컬에서 실행 |
-| `deployPclProxy`가 `execution reverted` | 초기화 데이터가 비어 있음 | 초기화 호출을 넣음(문서 개선 노트 3번) |
-| `127.0.0.1:26657 를 이미 다른 프로세스가 쓰고 있습니다` | 이전 로컬 노드가 남음 | 그 프로세스를 끄거나 `RPC_PORT`로 다른 포트 지정 |
-| `vendor/clairveil 이 없습니다` | Clairveil을 받지 않음 | `pnpm setup:clairveil` |
-| 인출이 `merkle root snapshot re-registration is inconsistent` | Clairveil v0.4.0에서 잎이 늘지 않은 블록의 인출이 스냅샷 등록에서 거부됨 | `pnpm a:local`은 같은 블록 우회를 자동으로 시도합니다(문서 개선 노트 6번) |
+| faucet이 `… reverted with the following signature:.` | faucet 계정이 전역 24시간 한도(1,000만 tOKRW)를 다 썼고 KYC 증명이 없습니다 | `pnpm a:probe-global`로 `resetAt`을 보고 그 뒤에 다시 요청 |
+| `구매 기업 잔액이 부족합니다` | 테스트넷 OKRW가 없습니다 | 2절의 faucet 명령 |
+| `EasNoAttestationReceived(주소)` | 호출한 주소에 정책이 요구하는 증명이 없거나, 증명을 색인하지 않았습니다 | 증명 발급 뒤 `indexAttestation`까지 했는지 확인 |
+| `EasAttestationRevoked(주소)` | 증명이 폐기되었습니다 | 발급자가 새 증명을 발급하고 색인 |
+| `AnyOfRejected(ExceededPeriodicVolume(…), …)` | 보내는 주소가 전역 기간 한도를 넘었습니다 | `resetAt` 뒤 재시도하거나, KYC 증명이 있는 주소로 보냅니다 |
+| `SDKInvalidRequest()` (Privacy 호출) | 유효한 증명과 요청 재료가 없습니다 | 테스트넷 Privacy는 이 층까지 진단합니다. 차폐 흐름은 5절의 로컬에서 실행 |
+| `deployPclProxy`가 `execution reverted` | 초기화 데이터가 비어 있습니다 | 초기화 호출을 넣음(문서 개선 노트 3번) |
+| `127.0.0.1:26657 를 이미 다른 프로세스가 쓰고 있습니다` | 이전 로컬 노드가 남아 있습니다 | 그 프로세스를 끄거나 `RPC_PORT`로 다른 포트 지정 |
+| `vendor/clairveil 이 없습니다` | Clairveil을 받지 않았습니다 | `pnpm setup:clairveil` |
+| 인출이 `merkle root snapshot re-registration is inconsistent` | Clairveil v0.4.0에서 잎이 늘지 않은 블록의 인출이 스냅샷 등록에서 거부됩니다 | `pnpm a:local`은 같은 블록 우회를 자동으로 시도합니다(문서 개선 노트 6번) |
 
 ## 7. 입력값
+
+스크립트가 읽는 환경 변수의 기본값과 뜻을 모았습니다.
 
 | 환경 변수 | 기본값 | 뜻 |
 | --- | --- | --- |
