@@ -39,7 +39,7 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 
 | 상황 | 할 것 | 하지 말 것 | 근거 |
 | --- | --- | --- | --- |
-| 보내기 전 정책 검사 | `eth_estimateGas`로 확인한다. 전역 정책(실행 뒤 재검사 포함)과 컨트랙트 정책을 함께 평가한다 | PCL 프록시를 거치지 않는 OKRW 이체를 `eth_call`(viem `simulateContract`)로만 검사한다. 이 경우 전역 정책 거부가 나오지 않는다. PCL 프록시 호출은 `eth_call`도 프록시 훅에서 전역 정책을 평가한다 | `[Live Testnet]` `pnpm a:probe-global --over-limit` |
+| 보내기 전 정책 검사 | `eth_estimateGas`로 확인한다. 전역 정책(실행 뒤 재검사 포함)과 컨트랙트 정책을 함께 평가한다 | `eth_call`(viem `simulateContract`)만으로 통과를 판단한다. PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않는다. PCL 프록시 호출은 `eth_call`도 프록시 훅에서 전역 정책을 평가하지만, 실행이 성공한 뒤의 전역 정책 재검사는 `eth_call`에 들어가지 않는다(2026-10-23 판 시뮬레이션 가이드). 그래서 프록시 호출도 `eth_estimateGas`로 확인한다 | `[Live Testnet]` `pnpm a:probe-global --over-limit` |
 | 가스 한도 | `eth_estimateGas` 값에 25% 안팎을 더한다. 쓰지 않은 가스는 돌려받는다. viem 2.56은 가스를 `eth_fillTransaction`으로 채우므로 `eth_estimateGas` 응답만 늘리면 여유가 붙지 않는다. `gas`를 직접 주거나 두 응답을 모두 늘린다(이 레포 `walletFor`) | 21,000으로 고정한다(단순 이체도 일반 계정 약 104,000, 에이전트 지갑 약 284,000. 한도 21,000인 이체는 블록에 들어가 가스 부족으로 되돌려지고 21,000을 모두 쓴다). 한도를 크게 잡는다(PCL 컨트랙트 정책에 거부되면 한도의 절반을 낸다) | `[Live Testnet]` `pnpm a:probe-send-gas`, `pnpm a:kyb-gate`(통과 tx가 한도의 80.0%) |
 | 정책 거부의 비용 | PCL 프록시의 컨트랙트 정책 거부는 블록에 들어가 되돌려지고 가스 한도의 절반을 낸다고 보고 사전 검사한다 | 2026-09-26 판 문서의 "제출 시점에 걸러져 가스를 내지 않는다"를 컨트랙트 정책 거부에도 적용한다(2026-10-23 판은 실행 중이나 실행 뒤의 거절이 블록에 들어가 가스를 낸다고 고쳤다) | `[Live Testnet]` 거부 tx 여덟 건 모두 한도의 50.0%, `pnpm a:reject-gas`. 2026-09-27 재실행(가스 한도 125%)의 거부 tx 일곱 건도 모두 50.0% |
 | PCL 프록시 배포 | `walletClient.extend(marooWalletActions()).pcl.deployPclProxy({ kind: pclProxyKinds.Transparent, logic, initialOwner, initializer })`. 주소는 영수증에서 `deployPclProxy.extractEvent(receipt.logs).args.proxy`로 읽는다 | 초기화 데이터를 비운다(`0x`면 되돌려진다). 시뮬레이션 반환값을 주소로 쓴다 | `[Live Testnet]` `pnpm a:kyb-gate`, `pnpm a:doc-claims` |
@@ -64,7 +64,7 @@ description: Maroo 테스트넷(chain ID 450815)에 OKRW 지급, PCL 정책과 �
 
 | 2026-09-26 판 문서 | 테스트넷 | 2026-10-23 판 문서 |
 | --- | --- | --- |
-| `deployPclProxy`: 초기화가 필요 없으면 `"0x"` | 빈 초기화 데이터는 되돌려진다 | 고쳐짐 |
+| `deployPclProxy`: 초기화가 필요 없으면 `"0x"` | 빈 초기화 데이터는 되돌려진다 | 고쳐짐. Transparent와 UUPS의 `initializer`는 비워 둘 수 없다고 적는다 |
 | `withdraw` 금액 예시 `aokrw` | 테스트넷 단위는 `atokrw` | 고쳐짐 |
 | `eth_estimateGas`: 단순 전송은 `0x5208` | 일반 계정 약 104,000, 에이전트 지갑 약 284,000 | 고쳐짐 |
 | PCL 거절은 제출 시점에 걸러져 가스를 내지 않는다 | 컨트랙트 정책 거부는 블록에 들어가 가스 한도의 절반을 낸다 | 고쳐짐. `min_gas_multiplier` 0.5도 적었다 |
