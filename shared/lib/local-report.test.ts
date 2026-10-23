@@ -59,3 +59,9 @@ test("4단계는 새 이름으로 쓴 기록과 옛 이름으로 쓴 기록의 �
   assert.equal(findStepLine(legacy, "withdraw-alone"), legacy);
   assert.equal(findStepLine(legacy, "supplier-a-withdraw"), undefined);
 });
+
+test("기록 머리에 실행 시간을 적는다(문서가 인용하는 시간의 근거)", () => {
+  const { out, report } = fixture();
+  writeReport({ out, report, coreSha: "ca85b027", chainId: "local-1", stamp: "20261023T000000Z", goVersion: "go version go1.27.1", command: "pnpm a:local", seconds: 61 });
+  assert.match(fs.readFileSync(report, "utf8"), /^> 실행 시간: 61초/m);
+});

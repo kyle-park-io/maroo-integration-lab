@@ -28,3 +28,13 @@ test("4단계가 RPC 에 닿지 않으면 스택 대신 이유와 T5 를 보인�
   assert.match(text, /T5|T6/, text.slice(-600));
   fs.rmSync(out, { recursive: true, force: true });
 });
+
+import { renderSmokeReport } from "./lib.ts";
+
+test("스모크 테스트 기록은 확인마다 결과와 걸린 시간을 남긴다", () => {
+  const md = renderSmokeReport([{ name: "1단계", ok: true, detail: "종료 코드 0" }, { name: "2단계 5)", ok: false, detail: "통과" }], 108, "20261023T071723Z");
+  assert.match(md, /^# /m);
+  assert.match(md, /걸린 시간: 108초/);
+  assert.match(md, /\| 1단계 \| ✓ \| 종료 코드 0 \|/);
+  assert.match(md, /실패 1건/);
+});

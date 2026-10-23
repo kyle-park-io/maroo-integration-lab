@@ -1,0 +1,161 @@
+{
+  "rpc": "https://rpc-testnet.maroo.io",
+  "checkedAt": "2026-10-23T08:19:04.941Z",
+  "label": "조회와 시뮬레이션, 이전 단계 기록. 새 tx 없음",
+  "rows": [
+    {
+      "case": "2단계 5) 협력사 B claim, 증명 없음",
+      "label": "[Live Testnet] tx",
+      "method": "0xb67cfcf4993d020d87d9912cd61a3967755d6e39c6c91eb38b36cd866bb4d7ed",
+      "selector": "0xbca5593e",
+      "outcome": "EasNoAttestationReceived",
+      "family": "PCL 정책 위반",
+      "class": "정책 거부",
+      "scope": "컨트랙트 정책",
+      "next": "보내는 주소에 이 정책이 요구하는 스키마의 색인된 증명이 없습니다(주소 0x9D13…67Bb). 증명을 발급하고 indexAttestation으로 색인한 뒤 다시 보냅니다."
+    },
+    {
+      "case": "2단계 6b) 협력사 A claim, 증명은 있으나 색인 전",
+      "label": "[Live Testnet] tx",
+      "method": "0x3956079a9170e4df2d694f4ba364e7ad9d56925bd134b087466cbdfb262e8ae1",
+      "selector": "0x906ffd43",
+      "outcome": "EasAttestationRevoked",
+      "family": "PCL 정책 위반",
+      "class": "정책 거부",
+      "scope": "컨트랙트 정책",
+      "next": "가장 최근에 색인된 증명이 폐기됐습니다. 새 증명을 발급해 indexAttestation으로 색인한 뒤 다시 보냅니다."
+    },
+    {
+      "case": "2단계 6d) 협력사 A claim, 증명과 색인 뒤",
+      "label": "[Live Testnet] tx",
+      "method": "0x5e1df56411f1e0197b57f26202faf00764d1d55c54aa74c0801682a53869cf04",
+      "selector": "-",
+      "outcome": "통과(PolicyCheckPassed 있음)",
+      "family": "-",
+      "class": "성공",
+      "scope": "-",
+      "next": "기록 확인"
+    },
+    {
+      "case": "2단계 7c) 협력사 A claim, 증명 폐기 뒤",
+      "label": "[Live Testnet] tx",
+      "method": "0x219d478e49823ed723251a57f83fb410ec40af71fa862788765c7a49bba80b97",
+      "selector": "0x906ffd43",
+      "outcome": "EasAttestationRevoked",
+      "family": "PCL 정책 위반",
+      "class": "정책 거부",
+      "scope": "컨트랙트 정책",
+      "next": "가장 최근에 색인된 증명이 폐기됐습니다. 새 증명을 발급해 indexAttestation으로 색인한 뒤 다시 보냅니다."
+    },
+    {
+      "case": "협력사 B claim() 재시뮬레이션",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "selector": "0xbca5593e",
+      "outcome": "EasNoAttestationReceived",
+      "family": "PCL 정책 위반",
+      "class": "정책 거부",
+      "scope": "컨트랙트 정책",
+      "next": "보내는 주소에 이 정책이 요구하는 스키마의 색인된 증명이 없습니다(주소 0x9D13…67Bb). 증명을 발급하고 indexAttestation으로 색인한 뒤 다시 보냅니다."
+    },
+    {
+      "case": "협력사 A fund() 시뮬레이션(구매 기업이 아님)",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "selector": "0x472e017e",
+      "outcome": "NotBuyer",
+      "family": "대상 컨트랙트 로직",
+      "class": "증명·입력 거부",
+      "scope": "-",
+      "next": "대상 컨트랙트 코드가 NotBuyer로 되돌렸습니다. 컨트랙트가 이 오류를 내는 조건을 확인합니다."
+    },
+    {
+      "case": "구매 기업 2,000,001 OKRW fund() 시뮬레이션(잔액 덮어쓰기)",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "selector": "0x30d7cfd1",
+      "outcome": "AnyOfRejected(VolumeAboveMaxLimit, EasNoAttestationReceived, AnyOfRejected)",
+      "family": "PCL 정책 위반",
+      "class": "정책 거부",
+      "scope": "전역 정책",
+      "next": "조합 정책의 자식이 모두 거부했습니다. 아래 자식 사유 가운데 하나를 풀면 통과합니다."
+    },
+    {
+      "case": "Privacy deposit, 빈 요청",
+      "label": "[Live Testnet] eth_call",
+      "method": "eth_call",
+      "selector": "0xadb34e5c",
+      "outcome": "SDKInvalidRequest",
+      "family": "프리컴파일 요청 검증(표준 SDK 매핑)",
+      "class": "증명·입력 거부",
+      "scope": "-",
+      "next": "프리컴파일이 요청 검증에서 거부했습니다. 인자 없는 공통 오류라 어느 검사(형식, 자산 등록, 증명 검증)에서 막혔는지는 알려 주지 않습니다. Privacy 호출이면 테스트넷 검증 키에 맞는 증명 재료가 필요합니다."
+    },
+    {
+      "case": "Privacy deposit, 빈 요청",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "selector": "0xadb34e5c",
+      "outcome": "SDKInvalidRequest",
+      "family": "프리컴파일 요청 검증(표준 SDK 매핑)",
+      "class": "증명·입력 거부",
+      "scope": "-",
+      "next": "프리컴파일이 요청 검증에서 거부했습니다. 인자 없는 공통 오류라 어느 검사(형식, 자산 등록, 증명 검증)에서 막혔는지는 알려 주지 않습니다. Privacy 호출이면 테스트넷 검증 키에 맞는 증명 재료가 필요합니다."
+    },
+    {
+      "case": "가스 한도 21,000으로 보낸 1 OKRW 이체",
+      "label": "[Live Testnet] tx",
+      "method": "0x94d3b9c4405421842358708f92670228387c84b6ef91e552af821d2bc9575e8c",
+      "selector": "-",
+      "outcome": "가스 한도를 다 써서 되돌려졌습니다(쓴 가스와 한도 21,000)",
+      "family": "가스 부족",
+      "class": "증명·입력 거부",
+      "scope": "-",
+      "next": "가스 한도를 eth_estimateGas 값에 25% 안팎을 더해 정합니다."
+    },
+    {
+      "case": "Privacy 정상 경로 재료",
+      "label": "[Docs Only]",
+      "method": "Maroo Docs",
+      "selector": "-",
+      "outcome": "테스트넷 검증 키와 짝인 proving 재료가 공개되지 않음(차폐 상태 조회는 Cosmos REST에서 응답)",
+      "family": "-",
+      "class": "인프라·자료 부재",
+      "scope": "-",
+      "next": "Maroo에 요청할 목록으로 정리"
+    },
+    {
+      "case": "잔액보다 1 OKRW 큰 예치(계정 준비 부족)",
+      "label": "[Live Testnet] eth_estimateGas",
+      "method": "eth_estimateGas",
+      "selector": "-",
+      "outcome": "rpc error: code = Unknown desc = insufficient balance for transfer",
+      "family": "노드 검사",
+      "class": "인프라·자료 부재",
+      "scope": "-",
+      "next": "보내는 지갑의 잔액이 부족합니다. OKRW를 받은 뒤 다시 보냅니다."
+    },
+    {
+      "case": "로컬 인출(같은 블록 우회)",
+      "label": "[Local] tx",
+      "method": "track-b-enable/evidence/local/vendor-settlement-20261023T081756Z.md",
+      "selector": "-",
+      "outcome": "통과",
+      "family": "-",
+      "class": "성공",
+      "scope": "-",
+      "next": "Maroo 테스트넷 결과가 아님"
+    },
+    {
+      "case": "로컬 인출(단독)",
+      "label": "[Local] tx",
+      "method": "track-b-enable/evidence/local/vendor-settlement-20261023T081756Z.md",
+      "selector": "-",
+      "outcome": "merkle root snapshot re-registration is inconsistent",
+      "family": "-",
+      "class": "참조 구현 문제",
+      "scope": "-",
+      "next": "같은 블록에 잎을 더하는 tx를 함께 넣음"
+    }
+  ]
+}

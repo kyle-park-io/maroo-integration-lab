@@ -7,10 +7,11 @@
 
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
 import { formatEther, parseEther } from "viem";
-import { ROOT } from "../../shared/lib/paths.ts";
+import { ROOT, outPath } from "../../shared/lib/paths.ts";
 import { addressOf, publicClient as pub } from "../../shared/lib/maroo.ts";
-import { LIVE_DIR, LOCAL_DIR, newest } from "./lib.ts";
+import { LIVE_DIR, LOCAL_DIR, newest, renderSmokeReport } from "./lib.ts";
 
 type Check = { name: string; ok: boolean; detail: string };
 const checks: Check[] = [];
@@ -60,5 +61,13 @@ run("5단계", ["track-b-enable/demo/step.ts", "5"]);
 console.log("\n스모크 테스트 결과");
 for (const c of checks) console.log(`${c.ok ? "✓" : "✗"} ${c.name.padEnd(24)} ${c.detail}`);
 const failed = checks.filter((c) => !c.ok).length;
-console.log(`\n${failed ? `실패 ${failed}건` : "모두 통과"}. ${Math.round((Date.now() - started) / 1000)}초`);
+const seconds = Math.round((Date.now() - started) / 1000);
+console.log(`\n${failed ? `실패 ${failed}건` : "모두 통과"}. ${seconds}초`);
+// 결과와 걸린 시간을 기록으로 남긴다(문서가 인용하는 시간의 근거)
+const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
+const dir = outPath(path.join(ROOT, "track-b-enable/evidence"));
+fs.mkdirSync(dir, { recursive: true });
+const file = path.join(dir, `smoke-${stamp}.md`);
+fs.writeFileSync(file, renderSmokeReport(checks, seconds, stamp));
+console.log(`기록: ${path.relative(ROOT, file)}`);
 process.exit(failed ? 1 : 0);

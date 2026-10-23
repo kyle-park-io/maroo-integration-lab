@@ -90,3 +90,24 @@ export const DISCUSSION = [
   "4단계의 SDKInvalidRequest는 정책 거부인가요? Maroo 테스트넷에서 3단계를 실행하려면 무엇이 더 필요한가요?",
   "3단계의 결과를 Maroo 테스트넷 성공으로 적으면 안 되는 이유는 무엇인가요?",
 ];
+
+export type SmokeCheck = { name: string; ok: boolean; detail: string };
+
+// 스모크 테스트 기록. 문서가 인용하는 걸린 시간과 확인 결과의 근거로 evidence/ 에 남긴다.
+export function renderSmokeReport(checks: SmokeCheck[], seconds: number, stamp: string): string {
+  const failed = checks.filter((c) => !c.ok).length;
+  return [
+    `# 워크샵 스모크 테스트 기록 · ${stamp}`,
+    "",
+    `> 명령: \`pnpm b:smoke\`. 걸린 시간: ${seconds}초. 결과: ${failed ? `실패 ${failed}건` : "모두 통과"}.`,
+    "",
+    "## 확인",
+    "",
+    "확인마다 결과와 근거를 적은 표입니다. 근거 칸은 그 단계의 종료 코드나 기록에서 찾은 값입니다.",
+    "",
+    "| 확인 | 결과 | 근거 |",
+    "| --- | --- | --- |",
+    ...checks.map((c) => `| ${c.name} | ${c.ok ? "✓" : "✗"} | ${c.detail.replace(/\|/g, "/")} |`),
+    "",
+  ].join("\n");
+}

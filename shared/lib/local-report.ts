@@ -60,7 +60,8 @@ function disclosure(out: string, name: string) {
   return `verified=${doc.verification?.verified}, ${s.delivery}, 필드 [${(s.disclosed_fields ?? []).join(", ")}], amount ${s.amount}`;
 }
 
-export function writeReport(opts: { out: string; report: string; coreSha: string; chainId: string; stamp: string; goVersion: string; command: string }) {
+// seconds: 실행 시간(체인을 띄운 때부터 기록을 정리할 때까지). 문서가 인용하는 시간의 근거로 기록에 남긴다.
+export function writeReport(opts: { out: string; report: string; coreSha: string; chainId: string; stamp: string; goVersion: string; command: string; seconds?: number }) {
   const { out } = opts;
   const lines: string[] = [
     `# 비공개 공급업체 정산 로컬 실행 기록 · ${opts.stamp}`,
@@ -68,6 +69,7 @@ export function writeReport(opts: { out: string; report: string; coreSha: string
     "> 증거 라벨: `[Local]`. Clairveil 로컬 체인에서 실행한 기록입니다. Maroo 테스트넷에서 실행한 기록은 같은 트랙의 `evidence/live/`에 있습니다.",
     `> 실행 환경: Clairveil \`${opts.coreSha}\`(v0.4.0), chain-id \`${opts.chainId}\`, ${opts.goVersion.replace(/^go version go/, "Go ")}`,
     `> 재현 명령: \`${opts.command}\`. 명령마다 받은 원본 JSON은 실행 폴더 \`.work/vendor-<시각>/out/\`에 남고, 레포에는 올리지 않습니다.`,
+    ...(opts.seconds !== undefined ? [`> 실행 시간: ${opts.seconds}초(로컬 체인을 띄운 때부터 기록을 정리할 때까지, 미리 빌드한 바이너리 사용)`] : []),
     "> 금액은 로컬 체인 자산 `uclair`의 정수 단위입니다.",
     "",
     "## 1. 단계별 tx",

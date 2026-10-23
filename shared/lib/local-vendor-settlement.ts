@@ -51,7 +51,10 @@ export async function runLocalVendorSettlement(opts: {
   if (!fs.existsSync(path.join(CORE, ".git"))) {
     throw new Error("vendor/clairveil 이 없습니다. 먼저 pnpm setup:clairveil 을 실행하십시오.");
   }
-  const stage = async (n: number) => { await opts.beforeStage?.(n); };
+  // 실행 시간은 워크샵 진행자가 멈춰 설명한 시간(beforeStage)을 빼고 잰다
+  const startedAt = Date.now();
+  let paused = 0;
+  const stage = async (n: number) => { const t = Date.now(); await opts.beforeStage?.(n); paused += Date.now() - t; };
 
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+Z$/, "Z");
   const workDir = process.env.VENDOR_SETTLEMENT_WORK_DIR ?? path.join(ROOT, ".work", `vendor-${stamp}`);
@@ -318,6 +321,7 @@ export async function runLocalVendorSettlement(opts: {
     out, report, chainId, stamp, command: opts.command,
     coreSha,
     goVersion: execFileSync("go", ["version"]).toString().trim(),
+    seconds: Math.round((Date.now() - startedAt - paused) / 1000),
   });
   stopChain();
   return report;
