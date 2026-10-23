@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import readline from "node:readline/promises";
 import { PREBUILT_DIR, ROOT, outPath } from "../../shared/lib/paths.ts";
+import type { Failure } from "../../shared/lib/recipe-errors.ts";
 
 export const LIVE_DIR = path.join(ROOT, "track-b-enable/evidence/live");
 export const LOCAL_DIR = path.join(ROOT, "track-b-enable/evidence/local");
@@ -23,6 +24,11 @@ export const TROUBLE: Record<string, string> = {
   T10: "로컬 인출이 merkle root snapshot 오류로 실패",
 };
 export const trouble = (id: string) => `트러블슈팅 ${id}(${TROUBLE[id]}): track-b-enable/troubleshooting.md#${id.toLowerCase()}`;
+
+// 실행기가 멈춘 이유(shared/lib/recipe-errors.ts 의 분류)를 트러블슈팅 번호로 옮긴다. 맞는 번호가 없으면 undefined.
+export function troubleFor(f: Failure): string | undefined {
+  return ({ network: "T5", balance: "T7", wallet: "T6" } as Record<string, string>)[f.kind];
+}
 
 export const noPause = process.argv.includes("--no-pause") || !!process.env.B_NO_PAUSE || !process.stdin.isTTY;
 

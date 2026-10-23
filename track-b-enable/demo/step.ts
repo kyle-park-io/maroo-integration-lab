@@ -21,7 +21,8 @@ import {
   EAS_PARAMS, EXPLORER, PCL, PRIVACY, RPC, addressOf, easParamsAbi, indexerAbi, publicClient as pub,
   writeEvidence, type Role,
 } from "../../shared/lib/maroo.ts";
-import { DISCUSSION, LIVE_DIR, LOCAL_DIR, PREBUILT_DIR, STEP2, STEP3, announce, newest, pause, trouble } from "./lib.ts";
+import { DISCUSSION, LIVE_DIR, LOCAL_DIR, PREBUILT_DIR, STEP2, STEP3, announce, newest, pause, trouble, troubleFor } from "./lib.ts";
+import { explainFailure } from "../../shared/lib/recipe-errors.ts";
 import { categoryOf } from "./classify.ts";
 import { FAMILY_LABEL, SCOPE_LABEL, type Explanation } from "../../shared/lib/explain.ts";
 import { explainCall, explainTx, loadAbi } from "../../shared/lib/explain-chain.ts";
@@ -224,4 +225,16 @@ if (!run) {
   console.log("사용법: pnpm b:step <1~5> [--no-pause]");
   process.exit(2);
 }
-await run();
+try {
+  await run();
+} catch (err) {
+  // 테스트넷 조회가 끊기거나 지갑, 잔액이 없을 때 스택 대신 이유와 트러블슈팅 번호를 보인다
+  const f = explainFailure(err, { rpc: RPC });
+  console.log(`\n  실패: ${f.reason}`);
+  for (const line of f.details ?? []) console.log(`    ${line}`);
+  console.log(`  다음 할 일: ${f.next}`);
+  const id = troubleFor(f);
+  if (id) console.log(`  ${trouble(id)}`);
+  if (process.env.DEBUG) console.error(err);
+  process.exit(1);
+}
