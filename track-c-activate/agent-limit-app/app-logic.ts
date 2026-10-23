@@ -35,11 +35,12 @@ export function parseAmount(s: string): bigint | undefined {
 export type Outcome =
   | { status: "success"; tx: Hex; value: bigint; fee: bigint; block: bigint }
   | { status: "rejected"; explanation: Explanation } // 사전 검사(eth_estimateGas)에서 막혀 보내지 않았다
-  | { status: "failed"; tx: Hex; fee: bigint; explanation: Explanation } // 블록에 들어갔지만 되돌려졌다
+  | { status: "failed"; tx: Hex; fee: bigint; explanation?: Explanation } // 블록에 들어갔지만 되돌려졌다. 사유를 읽지 못하면 explanation 이 없다
   | { status: "blocked"; balance: bigint; need: bigint } // 잔고가 결제 금액과 가스비 상한보다 적어 보내지 않았다
   | { status: "refused"; decoded: Decoded; nodeMessage: string } // 노드가 tx 를 받지 않았다(블록에 들어가지 않았다)
-  | { status: "network" } // 서명 전에 RPC 가 끊겨 보내지 않았다
-  | { status: "unknown"; tx: Hex }; // 보냈지만 영수증을 아직 받지 못했다
+  | { status: "network"; detail?: string } // RPC 에 닿지 못했거나 RPC 가 사전 검사에 답하지 않아 보내지 않았다
+  | { status: "unknown"; tx: Hex } // 보냈지만 영수증을 아직 받지 못했다
+  | { status: "dropped"; tx: Hex }; // 확인 중이던 tx 가 블록에 들어가지 않았다(같은 논스를 다른 tx 가 썼다)
 
 export type NextAction = "raise-limit" | "save-limit" | "topup" | "retry" | "recheck";
 export type Message = { stamp: "승인" | "거절" | "실패" | "보내지 않음" | "확인 중"; body: string; next?: { action: NextAction; label: string } };
@@ -81,16 +82,16 @@ export function messageFor(o: Outcome): Message {
     case "rejected":
       return rejection(o.explanation, false);
     case "failed": {
-      const d = o.explanation.decoded;
+      const d = o.explanation?.decoded;
       if (d?.family === "out-of-gas") {
-        const limit = o.explanation.tx?.gasLimit ?? 0n;
+        const limit = o.explanation?.tx?.gasLimit ?? 0n;
         return {
           stamp: "실패",
           body: `가스 한도(${limit.toLocaleString("en-US")})가 모자라 결제가 블록에서 실패했어요. 결제 금액은 나가지 않았고 가스비(fee) ${okrw(o.fee)} OKRW는 나갔어요. 가스 한도 칸을 비워 추정값으로 두고 다시 요청해 주세요.`,
           next: { action: "retry", label: "가스 한도를 비우고 다시 요청하기" },
         };
       }
-      if (d) {
+      if (d && o.explanation) {
         const m = rejection(o.explanation, true);
         return { ...m, stamp: "실패", body: `${m.body} 블록에서 되돌려져 가스비(fee) ${okrw(o.fee)} OKRW가 나갔어요.` };
       }
@@ -121,7 +122,15 @@ export function messageFor(o: Outcome): Message {
     case "network":
       return {
         stamp: "보내지 않음",
-        body: "Maroo 테스트넷 RPC에 연결하지 못해 결제를 보내지 않았어요. 서버의 네트워크 연결을 확인한 뒤 다시 요청해 주세요.",
+        body: o.detail
+          ? `Maroo 테스트넷 RPC가 사전 검사 요청에 답하지 않아(${o.detail}) 결제를 보내지 않았어요. 잠시 뒤 다시 요청해 주세요.`
+          : "Maroo 테스트넷 RPC에 연결하지 못해 결제를 보내지 않았어요. 서버의 네트워크 연결을 확인한 뒤 다시 요청해 주세요.",
+        next: { action: "retry", label: "다시 요청하기" },
+      };
+    case "dropped":
+      return {
+        stamp: "보내지 않음",
+        body: "확인 중이던 결제는 블록에 들어가지 않았어요. 같은 순번(논스)을 다른 tx가 먼저 써서 이 결제는 더 들어갈 수 없어요. 결제 금액과 가스비(fee)는 나가지 않았어요. 다시 요청해 주세요.",
         next: { action: "retry", label: "다시 요청하기" },
       };
     case "unknown":
@@ -135,3 +144,44 @@ export function messageFor(o: Outcome): Message {
 
 export const formatOkrw = (wei: bigint) => okrw(wei);
 export const weiToNumberString = (wei: bigint) => formatEther(wei);
+
+// tx 를 보내다 난 오류. 연결 자체가 안 됐으면 노드에 닿지 않았고(not-sent), 연결 뒤에 끊기거나 늦으면 노드가 받았는지 모른다(ambiguous).
+export function classifySendError(message: string): "not-sent" | "ambiguous" | "other" {
+  if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|getaddrinfo/i.test(message)) return "not-sent";
+  if (/fetch failed|ETIMEDOUT|ECONNRESET|socket hang up|took too long|HTTP request failed/i.test(message)) return "ambiguous";
+  return "other";
+}
+
+// 확인 중인 tx 를 다시 보낸 결과. 오류가 없으면 ok.
+export function rebroadcastResult(message: string | undefined): "ok" | "known" | "nonce-too-low" | "network" | "other" {
+  if (message === undefined) return "ok";
+  if (/already known|already exists|known transaction/i.test(message)) return "known";
+  if (/nonce too low|invalid nonce/i.test(message)) return "nonce-too-low";
+  if (classifySendError(message) !== "other") return "network";
+  return "other";
+}
+
+// 사전 검사(eth_estimateGas)의 오류가 거절이 아니라 RPC 의 문제인지(요청 한도, 게이트웨이 오류)
+export function isRpcTrouble(httpStatus: number, error: { code?: number; message?: string; data?: unknown } | undefined): boolean {
+  if (httpStatus !== 200) return true;
+  if (!error) return false;
+  if (error.data) return false;
+  return error.code === -32005 || /rate limit|rate exceeded|too many requests|timeout|unavailable|overloaded/i.test(error.message ?? "");
+}
+
+// 이 서버의 화면에서 온 요청인지. 다른 사이트가 브라우저를 시켜 서명 요청을 보내거나(Origin), 다른 이름으로 이 포트에 붙는 것(Host)을 막는다.
+export function allowedRequest(r: { method: string; host?: string; origin?: string }, port: number): boolean {
+  const hosts = [`127.0.0.1:${port}`, `localhost:${port}`];
+  if (!r.host || !hosts.includes(r.host)) return false;
+  if (r.method !== "GET" && r.method !== "HEAD" && r.origin !== undefined && !hosts.map((h) => `http://${h}`).includes(r.origin)) return false;
+  return true;
+}
+
+// 가스 한도 입력. 비우면 추정값을 쓰고(undefined), 양의 정수가 아니면 null.
+export function parseGas(s: string | undefined): bigint | undefined | null {
+  const t = (s ?? "").replace(/,/g, "").trim();
+  if (!t) return undefined;
+  if (!/^\d{1,9}$/.test(t)) return null;
+  const g = BigInt(t);
+  return g > 0n ? g : null;
+}

@@ -121,8 +121,9 @@ function drawSlips(s) {
     body.append(what, text);
     const meta = document.createElement("p");
     meta.className = "slip-meta";
-    // 확인 중인 결제의 거래 링크는 위 안내에, 다시 읽은 결제의 링크는 결과 전표에 하나만 둔다
-    if (e.tx && !(s.pending && s.pending.tx === e.tx) && e.stamp !== "다시 읽음") {
+    // 확인 중인 결제의 거래 링크는 위 안내에, 다시 읽은 결제의 링크는 결과 전표에 하나만 둔다.
+    // 블록에 들어가지 않은 결제(dropped)는 탐색기에서 찾을 수 없어 링크를 두지 않는다.
+    if (e.tx && !(s.pending && s.pending.tx === e.tx) && e.stamp !== "다시 읽음" && e.outcome !== "dropped") {
       const a = document.createElement("a");
       a.href = `${s.network.explorer}/tx/${e.tx}`; a.target = "_blank"; a.rel = "noopener";
       a.textContent = TX_LINK[e.kind];

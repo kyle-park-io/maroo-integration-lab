@@ -23,6 +23,7 @@ const CASES: Record<string, string> = {
   blocked: "잔고가 결제 금액과 가스비 상한보다 적어 보내지 않음",
   network: "RPC 가 끊겨 보내지 않음",
   unknown: "보냈지만 영수증 대기 시간 안에 확인하지 못함(다시 읽어 결과 전표를 남김)",
+  dropped: "확인 중이던 tx 가 블록에 들어가지 않음(같은 논스를 다른 tx 가 써서 보내지 않음으로 정리)",
 };
 const byOutcome = Object.fromEntries(Object.keys(CASES).map((k) => [k, log.filter((e) => e.kind === "pay" && e.outcome === k).map((e) => e.id)]));
 const receipts = log.filter((e) => e.receiptMs !== undefined).map((e) => e.receiptMs!);

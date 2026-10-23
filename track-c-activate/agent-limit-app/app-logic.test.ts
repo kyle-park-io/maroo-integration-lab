@@ -113,3 +113,63 @@ test("노드가 다른 이유로 받지 않으면 사유 이름을 쓴다", () =
   assert.match(m.body, /NonceTooLow/);
   assert.match(m.body, /블록에 들어가지 않아/);
 });
+
+import { allowedRequest, classifySendError, isRpcTrouble, parseGas, rebroadcastResult } from "./app-logic.ts";
+
+test("보내다 연결 자체가 안 된 오류는 보내지 않음, 끊긴 오류는 보냈는지 모름으로 나눈다", () => {
+  for (const m of ["fetch failed (cause: connect ECONNREFUSED 127.0.0.1:9)", "getaddrinfo ENOTFOUND rpc-testnet.maroo.io", "getaddrinfo EAI_AGAIN rpc-testnet.maroo.io"]) assert.equal(classifySendError(m), "not-sent", m);
+  for (const m of ["socket hang up", "The request took too long to respond.", "read ECONNRESET", "connect ETIMEDOUT 1.2.3.4:443", "fetch failed"]) assert.equal(classifySendError(m), "ambiguous", m);
+  assert.equal(classifySendError("nonce too low: next nonce 5, tx nonce 4"), "other");
+});
+
+test("다시 보낸 결과를 노드 메시지로 나눈다", () => {
+  assert.equal(rebroadcastResult(undefined), "ok");
+  assert.equal(rebroadcastResult("already known"), "known");
+  assert.equal(rebroadcastResult("nonce too low: next nonce 12, tx nonce 11"), "nonce-too-low");
+  assert.equal(rebroadcastResult("fetch failed (cause: connect ECONNREFUSED)"), "network");
+  assert.equal(rebroadcastResult("insufficient funds"), "other");
+});
+
+test("RPC 가 바쁘거나 응답하지 않은 사전 검사는 거절이 아니다", () => {
+  assert.equal(isRpcTrouble(429, undefined), true);
+  assert.equal(isRpcTrouble(502, undefined), true);
+  assert.equal(isRpcTrouble(200, { code: -32005, message: "request rate exceeded" }), true);
+  assert.equal(isRpcTrouble(200, { code: -32000, message: "too many requests" }), true);
+  assert.equal(isRpcTrouble(200, { code: 3, message: "execution reverted", data: "0x1eea0f93" }), false);
+  assert.equal(isRpcTrouble(200, { code: -32000, message: "execution reverted" }), false);
+});
+
+test("POST 는 이 서버의 화면에서 온 요청만 받는다", () => {
+  const port = 5175;
+  assert.equal(allowedRequest({ method: "POST", host: "127.0.0.1:5175", origin: "http://127.0.0.1:5175" }, port), true);
+  assert.equal(allowedRequest({ method: "POST", host: "localhost:5175", origin: "http://localhost:5175" }, port), true);
+  assert.equal(allowedRequest({ method: "POST", host: "127.0.0.1:5175", origin: undefined }, port), true); // curl 같은 도구
+  assert.equal(allowedRequest({ method: "POST", host: "127.0.0.1:5175", origin: "https://evil.example" }, port), false);
+  assert.equal(allowedRequest({ method: "POST", host: "evil.example:5175", origin: "http://evil.example:5175" }, port), false); // DNS 리바인딩
+  assert.equal(allowedRequest({ method: "GET", host: "evil.example:5175", origin: undefined }, port), false);
+  assert.equal(allowedRequest({ method: "GET", host: "127.0.0.1:5175", origin: undefined }, port), true);
+});
+
+test("가스 한도 입력은 비우거나 양의 정수만 받는다", () => {
+  assert.equal(parseGas(undefined), undefined);
+  assert.equal(parseGas("  "), undefined);
+  assert.equal(parseGas("60,000"), 60_000n);
+  assert.equal(parseGas("abc"), null);
+  assert.equal(parseGas("0"), null);
+  assert.equal(parseGas("1.5"), null);
+});
+
+test("확인 중이던 결제가 블록에 들어가지 않았으면 보내지 않음으로 쓰고, 사전 검사 RPC 문제는 이유를 쓴다", () => {
+  const d = messageFor({ status: "dropped", tx: "0xab" });
+  assert.equal(d.stamp, "보내지 않음");
+  assert.match(d.body, /나가지 않았어요/);
+  assert.equal(d.next?.action, "retry");
+  const n = messageFor({ status: "network", detail: "HTTP 429" });
+  assert.match(n.body, /HTTP 429/);
+});
+
+test("되돌려진 결제의 사유를 읽지 못해도 실패 전표를 쓴다", () => {
+  const m = messageFor({ status: "failed", tx: "0xab", fee: 10n ** 15n });
+  assert.equal(m.stamp, "실패");
+  assert.match(m.body, /pnpm explain/);
+});

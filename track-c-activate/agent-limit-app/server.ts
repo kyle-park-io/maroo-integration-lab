@@ -26,7 +26,8 @@ import { EXPLORER, PCL, RPC, addressOf, publicClient, walletFor } from "../../sh
 import { describePolicy, type PolicySet } from "../../shared/lib/pcl-policy.ts";
 import { explainCall, explainTx, loadAbi } from "../../shared/lib/explain-chain.ts";
 import { classifyRevert } from "../../shared/lib/explain.ts";
-import { encodeLimit, formatOkrw as fmt, messageFor, parseAmount, readLimit, type Outcome } from "./app-logic.ts";
+import { allowedRequest, classifySendError, encodeLimit, formatOkrw as fmt, isRpcTrouble, messageFor, parseAmount, parseGas, readLimit, rebroadcastResult, type Outcome } from "./app-logic.ts";
+import { outcomeFromReceipt, recheckPending, type Pending, type ReceiptLike } from "./flow.ts";
 
 const PORT = Number(process.env.AGENT_APP_PORT ?? 5175);
 const RECEIPT_TIMEOUT_MS = Number(process.env.RECEIPT_TIMEOUT_MS ?? 30_000);
@@ -53,13 +54,17 @@ function latestAgentRecord(): { agentId: bigint; vault: Address; file: string } 
 const { agentId, vault, file: recordFile } = latestAgentRecord();
 const fundData = encodeFunctionData({ abi: vaultAbi, functionName: "fund", args: [supplierA] });
 
-const isNetwork = (e: unknown) => /fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|socket hang up|HTTP request failed|took too long/i.test(String((e as Error)?.message ?? e) + String((e as { cause?: unknown })?.cause ?? ""));
+const errText = (e: unknown) => String((e as Error)?.message ?? e) + " " + String((e as { cause?: unknown })?.cause ?? "");
+const isNetwork = (e: unknown) => /fetch failed|ECONNREFUSED|ENOTFOUND|ETIMEDOUT|EAI_AGAIN|ECONNRESET|socket hang up|HTTP request failed|took too long/i.test(errText(e));
+const notFound = (e: unknown) => /NotFound|could not be found/i.test(`${(e as Error)?.name} ${(e as Error)?.message}`);
+// 사전 검사 RPC 가 답하지 않은 경우. 거절과 나눠 「보내지 않음」으로 쓴다.
+class RpcTrouble extends Error {}
 
 // 결제 기록과 확인 중인 tx. 서버를 다시 켜도 남도록 파일에 둔다.
 type LogEntry = { id: number; at: string; kind: "pay" | "limit" | "topup"; amount: string; gas?: string; format?: "string"; outcome: string; stamp: string; body: string; next?: unknown; tx?: Hex; receiptMs?: number };
 const logFile = path.join(DATA, "log.json"), pendingFile = path.join(DATA, "pending.json");
 const log: LogEntry[] = fs.existsSync(logFile) ? JSON.parse(fs.readFileSync(logFile, "utf8")) : [];
-let pending: { tx: Hex; id: number; value: string } | null = fs.existsSync(pendingFile) ? JSON.parse(fs.readFileSync(pendingFile, "utf8")) : null;
+let pending: Pending | null = fs.existsSync(pendingFile) ? JSON.parse(fs.readFileSync(pendingFile, "utf8")) : null;
 const persist = () => {
   fs.writeFileSync(logFile, JSON.stringify(log, null, 2));
   if (pending) fs.writeFileSync(pendingFile, JSON.stringify(pending)); else fs.rmSync(pendingFile, { force: true });
@@ -104,7 +109,8 @@ async function estimate(value: bigint): Promise<{ gas: bigint } | { explanation:
     method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_estimateGas", params: [{ from: agent, to: vault, data: fundData, value: toHex(value) }, "latest", { [agent]: { balance: toHex(override) } }] }),
   });
-  const j = (await res.json()) as { result?: Hex; error?: unknown };
+  const j = (await res.json().catch(() => ({}))) as { result?: Hex; error?: { code?: number; message?: string; data?: unknown } };
+  if (isRpcTrouble(res.status, j.error)) throw new RpcTrouble(res.status !== 200 ? `HTTP ${res.status}` : (j.error?.message ?? "응답 없음"));
   if (j.result) return { gas: BigInt(j.result) };
   return { explanation: await explainCall({ from: agent, to: vault, data: fundData, value }, { abi, method: "eth_estimateGas", balanceOverride: override }) };
 }
@@ -116,7 +122,11 @@ async function pay(value: bigint, fixedGas?: bigint): Promise<{ outcome: Outcome
     return { outcome, entry: record({ kind: "pay", amount, outcome: outcome.status, stamp: m.stamp, body: m.body, next: m.next, ...extra }) };
   };
   let est;
-  try { est = await estimate(value); } catch (e) { if (isNetwork(e)) return finish({ status: "network" }); throw e; }
+  try { est = await estimate(value); } catch (e) {
+    if (e instanceof RpcTrouble) return finish({ status: "network", detail: e.message });
+    if (isNetwork(e)) return finish({ status: "network" });
+    throw e;
+  }
   if ("explanation" in est) return finish({ status: "rejected", explanation: est.explanation });
 
   const wallet = walletFor("AGENT");
@@ -140,13 +150,15 @@ async function pay(value: bigint, fixedGas?: bigint): Promise<{ outcome: Outcome
     if (/insufficient funds|exceeds the balance/i.test(String((e as Error).message))) {
       return finish({ status: "blocked", balance: await pub.getBalance({ address: agent }), need: value + gas * (request.maxFeePerGas ?? 0n) });
     }
-    // 노드가 받았는지 모른다. 해시로 다시 읽는다.
-    if (isNetwork(e)) return unknown(tx, amount, fixedGas);
+    // 연결 자체가 안 됐으면 노드에 닿지 않았다. 연결 뒤에 끊기거나 늦으면 노드가 받았는지 모르니 서명한 tx 를 두고 해시로 다시 읽는다.
+    const kind = classifySendError(errText(e));
+    if (kind === "not-sent") return finish({ status: "network" });
+    if (kind === "ambiguous") return unknown(tx, amount, value, serialized, fixedGas);
     // 노드가 받지 않았다(가스 한도가 최소보다 작음, 논스 등). 오류 데이터와 메시지로 사유를 푼다.
     const { data, message } = rpcError(e);
     return finish({ status: "refused", decoded: classifyRevert({ data, rpcMessage: message }), nodeMessage: message }, { gas: fixedGas?.toString() });
   }
-  return settle(tx, amount, started, fixedGas);
+  return settle(tx, amount, value, serialized, started, fixedGas);
 }
 
 // viem 오류 사슬에서 노드가 돌려준 오류 데이터와 메시지를 찾는다
@@ -160,54 +172,69 @@ function rpcError(e: unknown): { data?: Hex; message: string } {
   return { data, message: message || String((e as Error).message).split("\n")[0] };
 }
 
-function unknown(tx: Hex, amount: string, fixedGas?: bigint) {
+// 확인 중으로 둔다. 서명한 tx 를 함께 남겨, 다시 읽을 때 노드에 없으면 같은 tx(같은 해시)를 다시 보낸다.
+function unknown(tx: Hex, amount: string, value: bigint, serialized: Hex, fixedGas?: bigint) {
   const outcome: Outcome = { status: "unknown", tx };
   const m = messageFor(outcome);
   const entry = record({ kind: "pay", amount, gas: fixedGas?.toString(), outcome: "unknown", stamp: m.stamp, body: m.body, next: m.next, tx });
-  pending = { tx, id: entry.id, value: amount };
+  pending = { tx, id: entry.id, value: amount, wei: value.toString(), serialized };
   persist();
   return { outcome, entry };
 }
 
-async function settle(tx: Hex, amount: string, started: number, fixedGas?: bigint) {
+async function settle(tx: Hex, amount: string, value: bigint, serialized: Hex, started: number, fixedGas?: bigint) {
   let receipt;
   try {
     receipt = await pub.waitForTransactionReceipt({ hash: tx, timeout: RECEIPT_TIMEOUT_MS, pollingInterval: 500 });
   } catch {
-    return unknown(tx, amount, fixedGas);
+    return unknown(tx, amount, value, serialized, fixedGas);
   }
-  return resolved(tx, amount, receipt, Date.now() - started, fixedGas);
+  try {
+    return await resolved(tx, amount, value, receipt, Date.now() - started, fixedGas);
+  } catch {
+    // 영수증은 받았지만 결과 전표를 쓰지 못했다. 확인 중으로 두어 새 결제를 받지 않는다.
+    return unknown(tx, amount, value, serialized, fixedGas);
+  }
 }
 
-async function resolved(tx: Hex, amount: string, receipt: Awaited<ReturnType<typeof pub.getTransactionReceipt>>, receiptMs?: number, fixedGas?: bigint) {
-  const fee = receipt.gasUsed * receipt.effectiveGasPrice;
-  let outcome: Outcome;
-  if (receipt.status === "success") {
-    const t = await pub.getTransaction({ hash: tx });
-    outcome = { status: "success", tx, value: t.value, fee, block: receipt.blockNumber };
-  } else {
-    outcome = { status: "failed", tx, fee, explanation: await explainTx(tx, { abi }) };
-  }
+async function resolved(tx: Hex, amount: string, value: bigint, receipt: ReceiptLike, receiptMs?: number, fixedGas?: bigint) {
+  const outcome = await outcomeFromReceipt(tx, value, receipt, () => explainTx(tx, { abi }));
   const m = messageFor(outcome);
   return { outcome, entry: record({ kind: "pay", amount, gas: fixedGas?.toString(), outcome: outcome.status, stamp: m.stamp, body: m.body, next: m.next, tx, receiptMs }) };
 }
 
+// 확인 중으로 남긴 전표의 안내는 더 할 일이 없으니 결과 전표를 가리키게 바꾼다
+function pointToResult(p: Pending, resultId: number, what: string) {
+  const old = log.find((e) => e.id === p.id);
+  if (!old) return;
+  old.stamp = "다시 읽음";
+  old.body = `보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 ${what}는 전표 ${resultId}에 있어요.`;
+  old.next = undefined;
+}
+
+const weiOf = (p: Pending) => (p.wei ? BigInt(p.wei) : parseEther(p.value.replace(/,/g, "")));
+
 async function recheck() {
   if (!pending) return { message: "확인 중인 결제가 없어요." };
   const p = pending;
-  const receipt = await pub.getTransactionReceipt({ hash: p.tx }).catch(() => undefined);
-  if (!receipt) return { message: "아직 블록에서 이 결제를 찾지 못했어요. 잠시 뒤 다시 눌러 주세요.", checkedAt: new Date().toISOString() };
-  pending = null;
-  const r = await resolved(p.tx, p.value, receipt);
-  // 확인 중으로 남긴 전표의 안내는 더 할 일이 없으니 결과 전표를 가리키게 바꾼다
-  const old = log.find((e) => e.id === p.id);
-  if (old) {
-    old.stamp = "다시 읽음";
-    old.body = `보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 ${r.entry.id}에 있어요.`;
-    old.next = undefined;
-  }
-  persist();
-  return { message: r.entry.body, checkedAt: new Date().toISOString() };
+  const r = await recheckPending(p, {
+    getReceipt: (tx) => pub.getTransactionReceipt({ hash: tx }).catch((e) => { if (notFound(e)) return undefined; throw e; }),
+    inMempool: (tx) => pub.getTransaction({ hash: tx }).then(() => true, (e) => { if (notFound(e)) return false; throw e; }),
+    rebroadcast: (serialized) => pub.sendRawTransaction({ serializedTransaction: serialized }).then(() => "ok" as const, (e) => rebroadcastResult(errText(e))),
+    resolve: async (pp, receipt) => {
+      const res = await resolved(pp.tx, pp.value, weiOf(pp), receipt);
+      pointToResult(pp, res.entry.id, "결과");
+      return res.entry;
+    },
+    dropped: (pp) => {
+      const m = messageFor({ status: "dropped", tx: pp.tx });
+      const entry = record({ kind: "pay", amount: pp.value, outcome: "dropped", stamp: m.stamp, body: m.body, next: m.next, tx: pp.tx });
+      pointToResult(pp, entry.id, "결과(블록에 들어가지 않음)");
+      return entry;
+    },
+    clearPending: () => { pending = null; persist(); },
+  });
+  return { message: r.message, checkedAt: new Date().toISOString() };
 }
 
 async function sendOwner(kind: "limit" | "topup", amount: string, send: () => Promise<Hex>, ok: string, extra: Partial<LogEntry> = {}) {
@@ -246,18 +273,24 @@ const body = (req: http.IncomingMessage) => new Promise<Record<string, string>>(
   req.on("end", () => { try { resolve(JSON.parse(s || "{}")); } catch { resolve({}); } });
 });
 const badAmount = "금액을 OKRW 단위 숫자로 입력해 주세요(예: 3 또는 0.5).";
+const badGas = "가스 한도는 비워 두거나 양의 정수로 입력해 주세요(예: 60000).";
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url ?? "/", "http://localhost");
+  if (url.pathname.startsWith("/api/") && !allowedRequest({ method: req.method ?? "GET", host: req.headers.host, origin: req.headers.origin }, PORT)) {
+    return json(res, 403, { error: `이 서버의 화면(http://127.0.0.1:${PORT})에서만 요청할 수 있어요. 주소창에 그 주소를 열어 다시 시도해 주세요.` });
+  }
   try {
     if (url.pathname === "/api/state") return json(res, 200, await state());
     if (req.method === "POST" && url.pathname === "/api/pay") {
       const b = await body(req);
       const value = parseAmount(b.amount ?? "");
       if (!value) return json(res, 400, { error: badAmount });
-      const gas = b.gas?.trim() ? BigInt(b.gas.replace(/,/g, "")) : undefined;
-      if (pending) return json(res, 409, { error: "확인 중인 결제가 있어 새 결제를 받지 않았어요. 결제 기록 다시 읽기를 먼저 눌러 주세요." });
-      const r = await serial(() => pay(value, gas));
+      const gas = parseGas(b.gas);
+      if (gas === null) return json(res, 400, { error: badGas });
+      // 확인 중인 결제 검사도 한 줄로 세운 뒤에 한다(두 창에서 동시에 눌러도 둘 다 지나가지 않게)
+      const r = await serial(async () => (pending ? null : pay(value, gas)));
+      if (!r) return json(res, 409, { error: "확인 중인 결제가 있어 새 결제를 받지 않았어요. 결제 기록 다시 읽기를 먼저 눌러 주세요." });
       return json(res, 200, r.entry);
     }
     if (req.method === "POST" && url.pathname === "/api/recheck") return json(res, 200, await serial(recheck));
