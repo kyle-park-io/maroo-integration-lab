@@ -92,6 +92,7 @@ Clairveil 로컬 체인에서 실행한 기록을 모았습니다. 환경 열은
 | [audit-access-20261023T054254Z.json](evidence/live/audit-access-20261023T054254Z.json) | `pnpm a:audit-access --top-up` | 2026-10-23 05:42 UTC | 로컬 확인 13개 모두 맞음. 협력사 B 지급 한 건만 열림(금액 15, 체인 disclosure 해시와 일치). 요청, 승인 둘, 열람의 EAS 증명 네 건과 탐색기 색인 확인 |
 | [audit-access-20261023T054216Z.json](evidence/live/audit-access-20261023T054216Z.json) | `pnpm a:audit-access --top-up`을 첫 기록 뒤 끊고 `--resume`으로 이어 보낸 실행 | 2026-10-23 05:40\~05:42 UTC | 끊기 전에 요청 기록 한 건, 이어 한 실행에서 남은 세 건. 다시 보낸 기록은 없습니다 |
 | [audit-access-20261023T080746Z.json](evidence/live/audit-access-20261023T080746Z.json) | 노드가 요청 기록 tx를 받은 뒤 응답을 끊는 시험용 프록시(`track-c-activate/agent-limit-app/test-rpc-proxy.ts`의 `forward-drop`)를 RPC로 두고 실행한 뒤, 프록시를 정상으로 돌려 `--resume` | 2026-10-23 08:07 UTC | 첫 실행은 「보내다 연결이 끊겨 노드가 받았는지 모릅니다」와 tx 해시를 남기고 멈춤. 이어 하기는 그 tx(`0x8852…74b1`)의 영수증을 찾아 요청 기록으로 쓰고 남은 세 건만 보냄. 요청 기록은 한 건 |
+| [audit-access-20261023T132618Z.json](evidence/live/audit-access-20261023T132618Z.json) | 요청 기록 tx의 응답은 바로 끊고 tx는 5초 뒤에야 노드에 넘기는 시험용 프록시를 RPC로 두고 실행한 뒤, 곧바로 `--resume`을 두 번 | 2026-10-23 13:26 UTC | 첫 실행은 「보내다 연결이 끊겨 노드가 받았는지 모릅니다」로 멈춤. 3초 뒤 첫 이어 하기는 영수증이 없어 상태 파일의 같은 서명 tx를 다시 보내고 「아직 블록에 들어가지 않았습니다」로 멈춤(새 기록 없음). 두 번째 이어 하기는 그 tx(`0xc861…9e2a`)의 영수증을 찾아 요청 기록으로 쓰고 남은 세 건만 보냄. 5초 뒤 프록시가 넘긴 원래 tx는 `nonce too low: next nonce 10, tx nonce 9`로 거절됨. 요청 기록은 한 건 |
 
 ### 검증한 것
 

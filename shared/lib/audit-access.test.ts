@@ -122,3 +122,25 @@ test("승인과 거절의 이유는 결정과 요청 범위를 함께 쓴다", (
   assert.match(approvalReason("reject", true), /넓/);
   assert.match(approvalReason("reject", false), /맞지만 거절/);
 });
+
+import { rebroadcastOutcome } from "./audit-access.ts";
+
+test("이어 하기는 서명해 둔 같은 tx 를 다시 보낸 답으로 정하고, 그 tx 가 들어갈 수 없을 때만 새로 보낸다", () => {
+  const sent = { tx: "0xbb" as const, sent: true as const, contentHash: "0xcc" as const, serialized: "0x02f8" as const };
+  // Maroo 테스트넷은 블록 전 tx 를 조회에 보이지 않아 inMempool 은 늘 false 다. 다시 보낸 답을 쓴다.
+  assert.equal(resumeAction(sent, { receipt: "none", inMempool: false, rebroadcast: "known" }), "wait");
+  assert.equal(resumeAction(sent, { receipt: "none", inMempool: false, rebroadcast: "ok" }), "wait");
+  assert.equal(resumeAction(sent, { receipt: "none", inMempool: false, rebroadcast: "network" }), "wait");
+  assert.equal(resumeAction(sent, { receipt: "none", inMempool: false, rebroadcast: "other" }), "wait");
+  assert.equal(resumeAction(sent, { receipt: "none", inMempool: false, rebroadcast: "nonce-too-low" }), "send");
+  assert.equal(resumeAction(sent, { receipt: "success", inMempool: false, rebroadcast: "nonce-too-low" }), "adopt");
+});
+
+test("같은 tx 를 다시 보낸 오류를 대기열에 있음, 논스 지남, 연결 실패로 나눈다", () => {
+  assert.equal(rebroadcastOutcome(undefined), "ok");
+  assert.equal(rebroadcastOutcome("Missing or invalid parameters. Details: already known"), "known");
+  assert.equal(rebroadcastOutcome("nonce too low: next nonce 7, tx nonce 6"), "nonce-too-low");
+  assert.equal(rebroadcastOutcome("invalid nonce; got 6, expected 7"), "nonce-too-low");
+  assert.equal(rebroadcastOutcome("HTTP request failed. fetch failed ECONNREFUSED"), "network");
+  assert.equal(rebroadcastOutcome("replacement transaction underpriced"), "other");
+});

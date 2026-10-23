@@ -81,15 +81,31 @@ export const STEP_CODE: Record<Step, number> = { request: 1, approve: 2, reject:
 export const STEP_LABEL: Record<Step, string> = { request: "요청", approve: "승인", reject: "거절", access: "열람" };
 export type RecordPlan = { key: string; step: Step; actor: Holder; contentHash: Hex };
 // uid 가 있으면 남긴 기록, sent 만 있으면 보냈지만 영수증을 확인하지 못한 기록이다(다시 보내기 전에 그 tx 부터 본다).
-export type RecordState = Record<string, { uid?: Hex; tx: Hex; contentHash?: Hex; sent?: true }>;
+// serialized 는 서명한 tx 원문이다. 이어 하기는 새로 서명하지 않고 이 tx 를 다시 보낸다. 상태 파일은 .work/ 아래(git 밖)에 있다.
+export type RecordState = Record<string, { uid?: Hex; tx: Hex; contentHash?: Hex; sent?: true; serialized?: Hex }>;
 
-// 이어 하기에서 기록 하나를 어떻게 할지. 보낸 tx 의 영수증이 있으면 그것을 쓰고(adopt), 대기열에 있으면 기다리고,
-// 어디에도 없으면 들어가지 않은 것이라 다시 보낸다. 같은 기록을 두 번 남기지 않으려는 순서다.
-export function resumeAction(entry: RecordState[string] | undefined, chain: { receipt: "success" | "reverted" | "none"; inMempool: boolean }): "done" | "send" | "adopt" | "failed" | "wait" {
+// 같은 서명 tx 를 다시 보낸 결과. 오류가 없으면 ok(노드가 받음), already known 이면 대기열에 있음,
+// nonce too low 면 그 논스를 다른 tx 가 써서 이 tx 는 블록에 들어갈 수 없음.
+export type Rebroadcast = "ok" | "known" | "nonce-too-low" | "network" | "other";
+export function rebroadcastOutcome(message: string | undefined): Rebroadcast {
+  if (message === undefined) return "ok";
+  if (/already known|already exists|known transaction/i.test(message)) return "known";
+  if (/nonce too low|invalid nonce/i.test(message)) return "nonce-too-low";
+  if (/ECONNREFUSED|ENOTFOUND|EAI_AGAIN|fetch failed|ETIMEDOUT|ECONNRESET|socket hang up|took too long|HTTP request failed/i.test(message)) return "network";
+  return "other";
+}
+
+// 이어 하기에서 기록 하나를 어떻게 할지. 보낸 tx 의 영수증이 있으면 그것을 쓰고(adopt), 없으면 서명해 둔 같은 tx 를
+// 다시 보낸 답(rebroadcast)으로 정한다. 그 tx 가 블록에 들어갈 수 없을 때(nonce too low)만 새로 보내고, 나머지는 기다린다.
+// Maroo 테스트넷은 블록 전 tx 를 pending 논스와 eth_getTransactionByHash 에 보이지 않아(2026-10-23 실측) inMempool 로는
+// 대기열의 tx 를 찾지 못한다. inMempool 은 serialized 가 없는 옛 상태 파일에만 쓴다.
+// 같은 기록을 두 번 남기지 않으려는 순서다.
+export function resumeAction(entry: RecordState[string] | undefined, chain: { receipt: "success" | "reverted" | "none"; inMempool: boolean; rebroadcast?: Rebroadcast }): "done" | "send" | "adopt" | "failed" | "wait" {
   if (!entry) return "send";
   if (entry.uid) return "done";
   if (chain.receipt === "success") return "adopt";
   if (chain.receipt === "reverted") return "failed";
+  if (chain.rebroadcast) return chain.rebroadcast === "nonce-too-low" ? "send" : "wait";
   return chain.inMempool ? "wait" : "send";
 }
 
