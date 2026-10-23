@@ -22,6 +22,8 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 | [pcl-kyb-gate-20260926T052641Z.json](evidence/live/pcl-kyb-gate-20260926T052641Z.json) | `pnpm a:kyb-gate`(새 지갑 파일, `MAROO_LAB_ENV`) | 금고 흐름 전체. 프록시 배포와 정책 바인딩을 Maroo 공식 SDK(`@maroo-chain/viem`)로 바꾼 뒤 첫 테스트넷 실행 | 2026-09-26 05:26, 블록 19130769\~19130807 | 첫 실행과 같은 결과 | 5, 6b `EasNoAttestationReceived`, 7c `EasAttestationRevoked`, 6d 성공. 새 지갑이라 6b가 첫 실행 사유로 나옴. 구매 기업 311 OKRW(가스 보충 180, 협력사 A가 받은 100), 발급자 가스 6.3 OKRW 사용 |
 | [pcl-kyb-gate-20260927T083827Z.json](evidence/live/pcl-kyb-gate-20260927T083827Z.json) | `pnpm a:kyb-gate` | 금고 흐름 전체. 지갑이 보내는 tx의 가스 한도를 노드 추정값의 125%로 바꾼 뒤(`shared/lib/maroo.ts`의 `walletFor`) 첫 테스트넷 실행 | 2026-09-27 08:38, 블록 19227199\~19227225 | 같은 거부와 통과, 통과 tx는 한도의 약 80%를 씁니다 | 5 `EasNoAttestationReceived`, 6b와 7c `EasAttestationRevoked`(같은 지갑의 재실행, 트러블슈팅 T8), 6d 성공. 통과 tx 12건 모두 가스 한도의 80.0%(SDK의 `deployPclProxy`, `changeContractPolicies` 포함), 거부 tx 셋은 고정 한도 300,000의 50.0%. 구매 기업 128.19 OKRW(협력사 A가 받은 100과 가스), 발급자 5.86 OKRW 사용 |
 | [probe-send-gas-20260926T052147Z.json](evidence/live/probe-send-gas-20260926T052147Z.json) | `pnpm a:probe-send-gas` | 구매 기업에서 자기 협력사 A로 1 OKRW 단순 이체. `eth_estimateGas`(1, 100 OKRW, 에이전트 지갑이 보낼 때), 가스 21,000으로 `eth_call`, 가스 21,000·추정값·추정값의 125%로 실제 전송 | 2026-09-26 05:21 | 2026-09-26 판 문서 예시대로면 21,000 | 추정 104,017(일반 계정, 금액과 무관), 283,560(에이전트 지갑). `eth_call`은 21,000으로 통과. 21,000 전송은 되돌려지고 21,000을 모두 씀(수수료 0.189 OKRW). 추정값 전송 성공(수수료 0.936153 OKRW), 125% 전송도 104,017만 씀. 04:30 실행([probe-send-gas-20260926T043013Z.json](evidence/live/probe-send-gas-20260926T043013Z.json))의 283,524는 구매 기업 지갑이 에이전트 79의 지갑이던 때의 값 |
+| [watch-privacy/2026-10-23.json](evidence/live/watch-privacy/2026-10-23.json) | `pnpm a:watch-privacy` | Cosmos REST의 Clairveil 조회 경로 13개, 회로 설정, 빈 예치 요청, 공개 예치 calldata의 4층 시험, SDK 예치 준비(Cosmos REST), 탐색기의 Privacy tx, 문서와 릴리스 | 2026-10-23 06:47 UTC | 조회 경로 11개 응답, proving 재료 없음 | 조회 경로 11개가 200, `privacy_scan`과 `commitment_paths_at_root`가 501, `manifest_available` false, 4층 시험 `EasNoAttestationReceived`(컨트랙트 정책), SDK가 증명 공급자까지 감, Privacy tx 251건 |
+| [probe-public-privacy-20261023T064628Z.json](evidence/live/probe-public-privacy-20261023T064628Z.json), [probe-public-privacy-20261023T064922Z.json](evidence/live/probe-public-privacy-20261023T064922Z.json) | `pnpm a:probe-public` | 공개된 성공 예치(2026-09-17, 2026-09-01)의 calldata를 원래 지갑, 구매 기업, 인증 지갑(주소 비공개)에서 직전 블록과 최신 블록으로 | 2026-10-23 06:46, 06:49 UTC | 다른 지갑은 Privacy 정책에서 막힘 | 2026-09-17 예치: 원래 지갑 직전 블록 통과, 구매 기업 `EasNoAttestationReceived`, 인증 지갑 최신 블록 `SDKInvalidRequest()`. 2026-09-01 예치: 직전 블록에서 모든 지갑 `InternalError()` |
 | [reject-gas-20260926T171442Z.json](evidence/live/reject-gas-20260926T171442Z.json), [reject-gas-20260926T171444Z.json](evidence/live/reject-gas-20260926T171444Z.json) | `pnpm a:reject-gas` | 금고 흐름 두 번(5, 6b, 7c)과 트랙 2 실증 두 번(4b)에서 정책에 걸린 tx 여덟 건의 영수증과 tx | 2026-09-26 17:14 | 2026-09-26 판 문서대로면 제출 시점에 걸러져 가스를 내지 않습니다 | 여덟 건 모두 블록에 들어가 되돌려졌고 가스 한도의 50.0%를 씀. 청구 150,000/300,000(1.35 OKRW), 결제 363,982/727,965와 364,011/728,023(약 3.28 OKRW) |
 
 이전 실행 기록(`inspect-privacy-boundary-20260925T183013Z.json`, `probe-first-failure-20260925T183014Z.json`)도 같은 폴더에 남아 있습니다. 새 기록은 정책 결합 방식과 `eth_estimateGas` 결과를 더 담았습니다.
@@ -39,8 +41,8 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 
 ### 검증하지 못한 것
 
-- 테스트넷에서 유효한 Privacy 상태 변경. 현재 verifier와 맞는 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았습니다.
-- Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지. 본인 인증 증명이 있는 지갑과 없는 지갑 모두 요청 검증에서 먼저 막혀 정책 층에 닿지 못했습니다.
+- 이 레포가 만든 요청의 테스트넷 Privacy 상태 변경. 테스트넷 검증 키와 짝인 proving 재료가 공개되지 않았습니다. 차폐 상태 조회 경로는 Cosmos REST에서 응답합니다(2026-10-23, [감시 기록](evidence/live/watch-privacy/2026-10-23.json)).
+- 정책 평가가 증명 검증보다 먼저인지. 2026-10-23에 공개된 성공 예치의 calldata로 다시 시험해 모양을 갖춘 요청은 Privacy 컨트랙트 정책까지 가는 것을 확인했지만, 예치 증명이 보낸 지갑에 묶이지 않아 검증을 지난 것인지는 가리지 못했습니다.
 - 금고 흐름 이외의 경로에서 PCL 거부를 tx로 남기는 것. 금고 흐름 밖에서 보낸 tx는 전역 정책을 통과한 단순 이체(가스 확인, 진행자 배분)입니다.
 
 ## 1-1. 코드 대조 `[코드 대조]`
@@ -52,6 +54,7 @@ Track A 문서가 기대는 실행 기록을 모았습니다. 기록 파일은 �
 | [abi-compare-20260926T040350Z.json](evidence/code/abi-compare-20260926T040350Z.json) | `pnpm a:abi-compare` | `@maroo-chain/contracts` 0.0.9의 `IPrivacy` ABI와 ClairveilJS `fixtures/evm-privacy-precompile-v0.3.1.json`(함수 선택자, 이벤트 서명, 정규화한 ABI sha256). 정규화 규칙은 ClairveilJS `tools/verify-evm-contract.js`와 같습니다 | 함수 9개, 이벤트 5개 모두 같고 sha256도 같음(`ee29aa6a…cb31b`). Maroo ABI의 오류 50개는 대조 범위 밖 |
 | [clairveiljs-tests-20260926T040910Z.json](evidence/code/clairveiljs-tests-20260926T040910Z.json) | `pnpm sdk:check` | ClairveilJS `faf220d5`의 자체 검사: EVM 계약 검증, 단위 테스트, Go fixture conformance 테스트(Node 24.19) | EVM 계약 v0.3.1 검증 통과. conformance 113/113 통과. 단위 575개 중 503 통과, 71 건너뜀(fixture가 필요한 것, SDK 설정), 1 실패: Web Locks API가 없을 때의 오류를 기대하는 테스트인데 Node 24에는 `navigator.locks`가 있어 전제가 맞지 않음. SDK가 Clairveil fixture와 맞는다는 근거이고 Maroo 호환 근거는 아님 |
 | [probe-sdk-deposit-20260926T041213Z.json](evidence/code/probe-sdk-deposit-20260926T041213Z.json) | `pnpm a:probe-sdk` | ClairveilJS EVM 예치 준비(`prepareDeposit`)를 Maroo가 공개한 값(RPC, chain ID 450815, Privacy 주소, `atokrw`)과 모든 조회를 거절하는 차폐 상태 어댑터로 실행. 버리는 키로 서명, tx 없음 | 어댑터 없이는 프로필 생성에서 Cosmos RPC 요구. 어댑터를 넣으면 `fetchCircuitConfig`, `fetchAssetByDenom` 조회에서 멈추고 prover에 닿지 않음. SDK 필수 조회 12개 기록 |
+| [probe-sdk-deposit-20261023T064326Z.json](evidence/code/probe-sdk-deposit-20261023T064326Z.json) | `pnpm a:probe-sdk --rest` | ClairveilJS EVM 예치 준비에 2026-10-23 판 문서가 Cosmos REST로 적은 주소를 넣었을 때 | 회로 설정, `atokrw` 자산 등록, 자산 ID 조회를 읽고 증명 공급자까지 갔습니다. 거절하는 어댑터로는 회로 설정 조회에서 멈춥니다 |
 
 ## 2. Clairveil 로컬 `[Local]`
 

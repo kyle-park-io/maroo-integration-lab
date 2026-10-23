@@ -153,7 +153,7 @@ async function step4() {
   rows.push(rowOf("가스 한도 21,000으로 보낸 1 OKRW 이체", "[Live Testnet] tx", GAS_21K_TX, await explainTx(GAS_21K_TX, { abi })));
 
   // (4) Privacy 정상 경로에 필요한 공개 자료. 문서로 확인한 부재라 라벨이 다르다.
-  rows.push({ case: "Privacy 정상 경로 재료", label: "[Docs Only]", method: "Maroo Docs", selector: "-", outcome: "회로 산출물, 차폐 상태 조회 경로, 예시 입력이 공개되지 않음", family: "-", class: "인프라·자료 부재", scope: "-", next: "Maroo에 요청할 목록으로 정리" });
+  rows.push({ case: "Privacy 정상 경로 재료", label: "[Docs Only]", method: "Maroo Docs", selector: "-", outcome: "테스트넷 검증 키와 짝인 proving 재료가 공개되지 않음(차폐 상태 조회는 Cosmos REST에서 응답)", family: "-", class: "인프라·자료 부재", scope: "-", next: "Maroo에 요청할 목록으로 정리" });
 
   // (5) 잔액보다 큰 금액의 예치: 준비 부족은 체인이 규칙으로 막은 것과 구분한다.
   const balance = await pub.getBalance({ address: buyer });
@@ -173,15 +173,15 @@ async function step4() {
   console.log("  | --- | --- | --- | --- | --- | --- | --- | --- |");
   for (const r of rows) console.log(`  | ${r.case} | ${r.label} | ${r.selector} | ${r.outcome} | ${r.family} | ${r.class} | ${r.scope} | ${r.next} |`);
   console.log("\n  같은 tx 하나를 자세히 풀려면 pnpm explain <tx 해시>를 실행합니다.");
-  console.log("  Maroo Docs에서 찾지 못한 선행 자료 [Docs Only]: 현재 테스트넷 verifier와 맞는 회로 버전과 proving 산출물,");
-  console.log("  차폐 상태(Merkle witness, nullifier) 조회 경로, 성공한 Privacy 호출의 예시 입력, prover 엔드포인트");
+  console.log("  Maroo Docs에서 찾지 못한 선행 자료 [Docs Only]: 테스트넷 검증 키와 짝인 proving 산출물, prover 엔드포인트.");
+  console.log("  차폐 상태 조회는 2026-10-23 판 문서가 Cosmos REST로 적은 주소에서 응답합니다 [Live Testnet](pnpm a:watch-privacy).");
   const file = writeEvidence(LIVE_DIR, "step4-diagnose", { rpc: RPC, checkedAt: new Date().toISOString(), label: "조회와 시뮬레이션, 이전 단계 기록. 새 tx 없음", rows });
   console.log(`\n  기록: ${rel(file)}`);
 }
 
 // 5단계에 두 줄로 보이는 목록. 참가자 가이드의 "테스트넷 Privacy까지 남은 것"과 A 가이드 6절, 8절이 기준이다.
 const NEXT = [
-  ["Maroo에서 받아야 할 재료", "현재 verifier와 맞는 회로 버전과 proving 산출물, 차폐 상태 조회 경로, 성공한 예치·지급 예시 입력, prover 엔드포인트(A 가이드 6절)"],
+  ["Maroo에서 받아야 할 재료", "테스트넷 검증 키와 짝인 proving 산출물이나 prover 엔드포인트(A 가이드 6절). 차폐 상태 조회는 Cosmos REST에서 응답합니다"],
   ["프로덕션 전에 남은 것", "차폐 금액 상한, 참조 구현의 외부 감사와 trusted setup, 규제기관 열람, 기관 KYB 경로, 키 보관과 지급 원장 대사, 금고 회수 권한(A 가이드 8절)"],
 ] as const;
 
@@ -206,7 +206,7 @@ async function step5() {
   console.log(local
     ? "  - Clairveil 로컬: 예치, 지급, 스캔, 해독, 인출을 끝까지 실행했습니다. Maroo 테스트넷 호환성의 증거는 아닙니다."
     : "  - Clairveil 로컬: 3단계 기록이 없습니다.");
-  console.log("  - Maroo 테스트넷 Privacy: 요청 검증(SDKInvalidRequest)까지 진단했습니다. 회로 산출물과 상태 조회 경로가 있어야 다음 층으로 갑니다.");
+  console.log("  - Maroo 테스트넷 Privacy: 요청 검증(SDKInvalidRequest)까지 진단했습니다. 테스트넷 검증 키와 짝인 proving 재료가 있어야 내 요청이 다음 층으로 갑니다.");
   console.log("\n  Privacy 정상 경로까지 남은 것");
   for (const [k, v] of NEXT) console.log(`  - ${k}: ${v}`);
   lines.push("", "## Privacy 정상 경로까지 남은 것", "", ...NEXT.map(([k, v]) => `- ${k}: ${v}`));

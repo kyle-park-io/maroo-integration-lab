@@ -232,7 +232,7 @@ Maroo 문서와 도구를 쓰면서 막힌 지점의 목록입니다. 열은 트
 
 ### A
 
-- Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 회로 산출물, 차폐 상태 조회 경로, 성공한 예시 입력이 공개되지 않았고, 가이드 6절에 최초 실패 계층과 필요한 재료를 적었습니다. 공식 SDK(ClairveilJS)의 예치 경로로도 시험했고, 증명을 만들기 전 회로 설정과 자산 등록 조회에서 멈췄습니다.
+- Maroo 테스트넷에서 유효한 Privacy 상태 변경은 실행하지 못했습니다. 테스트넷 검증 키와 짝인 proving 재료(proving 키나 prover)가 공개되지 않았고, 가이드 6절에 최초 실패 계층과 필요한 재료를 적었습니다. 차폐 상태 조회 경로는 2026-10-23 판 문서가 Cosmos REST로 적은 주소에서 응답하고, 공식 SDK(ClairveilJS)의 예치 준비가 그 주소로 증명 공급자까지 갑니다(아래 「제출 뒤 고친 것」).
 - 가이드의 권고(주기 총액 예치, 일괄 지급 크기 고정, 원장 상태)는 검증하지 않은 설계입니다.
 
 ### B
@@ -257,7 +257,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 
 | 확인할 것 | 지금 상태 | 확인 방법 | 풀어야 하는 쪽 |
 | --- | --- | --- | --- |
-| 테스트넷 Privacy 정상 경로에 필요한 재료 네 가지(회로 버전과 proving 산출물, 차폐 상태 조회 경로, 성공한 예시 입력, prover 엔드포인트) | 공개되지 않음. 예치 요청이 `SDKInvalidRequest()`, ClairveilJS 예치 준비가 회로 설정 조회에서 멈춤 | 공개되면 `pnpm a:probe`, `pnpm a:probe-sdk`를 다시 실행해 3층과 5층을 넘는지 | Maroo |
+| 테스트넷 Privacy 정상 경로에 필요한 proving 재료(테스트넷 검증 키와 짝인 proving 산출물이나 prover 엔드포인트) | 공개되지 않았습니다. 차폐 상태 조회는 Cosmos REST에서 응답하고, 공식 SDK 예치 준비는 증명 공급자까지 갑니다(2026-10-23) | `pnpm a:watch-privacy`가 매일 확인하고, 공개되면 `pnpm a:probe-sdk --rest`의 증명 공급자 자리에 연결해 5층을 시험 | Maroo |
 | Privacy 컨트랙트 정책이 요청 검증보다 먼저 평가되는지 | 두 지갑 모두 요청 검증에서 먼저 막혀 가릴 수 없는 상태 | 유효한 요청을 만들 수 있게 되면 본인 인증 증명이 없는 지갑으로 같은 요청 | Maroo, 이 레포 |
 | Clairveil v0.4.0 인출 스냅샷 조건이 Maroo 테스트넷에도 있는지 | 로컬에서만 재현(단독 인출 실패, 같은 블록 우회) | 테스트넷 Privacy 정상 경로가 열린 뒤 인출 한 번 | Maroo |
 | 에이전트 한도의 전역 범위 귀속(다른 컨트랙트가 에이전트의 호출을 옮길 때) | 컨트랙트 범위, 직접 보낸 경우만 확인 | 전역 정책 설정 권한이 필요해 Maroo 쪽 시험이 필요 | Maroo |
@@ -275,6 +275,7 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | `pnpm a:probe-global --over-limit` | KYC 증명이 없는 지갑이 건당 한도를 넘는 금액을 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출로 보낼 때 `eth_call`과 `eth_estimateGas`의 결과를 견줍니다(잔액 상태 덮어쓰기) | [probe-global-compare-20261023T042452Z.json](track-a-explain/evidence/live/probe-global-compare-20261023T042452Z.json) |
 | `pnpm a:chain-info` | 테스트넷 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부, Clairveil 조회 경로의 응답 코드를 기록합니다 | [chain-info-20261023T045537Z.json](track-a-explain/evidence/live/chain-info-20261023T045537Z.json) |
 | `pnpm a:local --operator` | 정산 대행사(운영자) 키를 더하고, 금액만 담은 사용자 공개를 대행사에게 보내는 지급 세 건을 실행합니다. 대행사의 협력사별 합계를 감사인 합계와 견줍니다(`[Local]`) | [vendor-settlement-20261023T055418Z.md](track-a-explain/evidence/local/vendor-settlement-20261023T055418Z.md) |
+| `pnpm a:watch-privacy`, `pnpm a:probe-public`, `pnpm a:probe-sdk --rest` | Privacy 준비 상태 감시(조회 경로, proving 재료, 4층 시험, SDK 예치 준비, Privacy tx 수, 문서 변경, Clairveil 릴리스)와, 공개된 성공 Privacy tx를 다른 지갑과 블록에서 시뮬레이션하는 명령, 공식 SDK에 Cosmos REST를 넣은 예치 준비. GitHub Actions(`watch-privacy.yml`)가 감시를 하루 한 번 돌립니다(`[Live Testnet]`, 조회만) | [2026-10-23.json](track-a-explain/evidence/live/watch-privacy/2026-10-23.json) |
 | `pnpm c:app`, `pnpm c:app-record` | 트랙 2 레퍼런스 웹 앱. 소유자가 에이전트 한도를 저장하고 에이전트가 결제를 요청하면 `eth_estimateGas`로 먼저 검사하고, 거부 해석기의 결과를 사유마다 다른 사용자 문구로 보여 줍니다. 서명은 서버가 하고, 보냈는지 모르는 결제는 다시 읽기 전까지 새 결제를 받지 않습니다(`[Live Testnet]`) | [agent-app-20261023T062617Z.json](track-c-activate/evidence/live/agent-app-20261023T062617Z.json) |
 | `pnpm a:audit-access`, `pnpm b:audit-drill` | 로컬 감사 키를 내부 감사팀, 외부감사인, 규제기관의 2-of-3 몫으로 나누고, 요청한 역할을 뺀 두 역할이 승인한 tx의 감사 disclosure만 부분값으로 엽니다(`[Local]`). A 명령은 요청, 승인, 열람의 해시를 EAS 증명으로 남기고(`[Live Testnet]`), B 명령은 참가자가 요청 범위를 읽고 승인할지 정하는 연습입니다 | [audit-access-20261023T054254Z.json](track-a-explain/evidence/live/audit-access-20261023T054254Z.json) |
 
@@ -292,3 +293,4 @@ A 가이드 [8절](track-a-explain/integration-guide.md#8-프로덕션-전에-�
 | 2026-10-23 | 레시피 명령 넷이 실패 경로에서 잘못 동작했습니다. `c:agent-limit`은 에이전트가 없을 때 조회만 하는 `pnpm c:grounding`으로 등록하라고 안내했고, `a:probe-send-gas`는 잔액 0인 지갑에서 `TypeError`로 멈췄고, `c:judge`는 `MAROO_LAB_OUT`을 따르지 않아 커밋된 예시 판정 파일을 바꿨고, `a:kyb-gate`와 `a:inspect`는 잔액 부족과 RPC 끊김에서 Node 스택을 찍었습니다 | 2026-10-15에 잔액 0인 새 지갑과 끊긴 RPC 주소로 레시피를 돌려 찾았고, 2026-10-23에 같은 조건으로 다시 재현했습니다 | 등록 안내를 `pnpm c:grounding --write`로 고치고 README의 C 행에 등록 단계를 넣었습니다. `a:probe-send-gas`는 시작할 때 잔액을 확인하고 추정 거부를 RPC 오류로 보여 줍니다. `c:judge`는 판정 결과를 `MAROO_LAB_OUT` 아래에 씁니다. A와 C의 레시피 명령 16개가 실패하면 스택 대신 이유와 다음 할 일을 찍습니다(`shared/lib/recipe-errors.ts`, 단위 테스트 7개) |
 | 2026-10-23 | 같은 숫자를 여러 문서에 적다가 넷이 어긋났습니다. 검증 표는 Mermaid 그림을 다섯 개로 적었고(실제 8개), A 트랙 README는 레시피 스크립트를 여섯 개로 적었고 레시피 문서 표에서 `a:probe-send-gas`와 `a:reject-gas`가 빠졌고, README와 A 트랙 README는 거부 tx `0xa4c7…557f`의 근거로 그 tx가 없는 기록(`reject-gas-20260926T171442Z.json`)을 걸었고, `c:agent-limit` 주석은 한 번 실행에 100 OKRW 안팎이 든다고 적었습니다 | 2026-10-15에 문서끼리, 문서와 코드를 대조했습니다 | 숫자를 고치고, 레포에서 센 값과 기록을 문서와 대조하는 단위 테스트(`shared/docs-facts.test.ts`)를 더했습니다. `c:agent-limit`은 이제 두 지갑에서 빠진 OKRW를 기록하고, 2026-10-23 실행에서 31.03 OKRW였습니다 |
 | 2026-10-23 | Privacy 예치 진단 결과를 「전역 정책을 통과하고 요청 검증에서 처음 막혔다」로 적었습니다 | 2026-10-23 판 PCL 정책 강제 문서가 전역 정책을 실행 전과 실행이 성공한 뒤에 두 번 평가한다고 적어, 실행 중에 되돌려진 요청은 실행 뒤 재검사까지 가지 않는다는 것을 확인했습니다 | 「전역 정책 거부 없이 요청 검증에서 처음 막혔다」로 범위를 좁혔습니다(README, A 가이드, 레시피, 증거 문서, C 증거). README 첫 화면 아래에 질문별 답과 근거 명령 표를 더했습니다 |
+| 2026-10-23 | 「차폐 상태 조회 경로가 공개되지 않았다」고 적고 Maroo에서 받아야 할 재료를 네 가지(회로 산출물, 조회 경로, 성공한 예시 입력, prover)로 적었습니다. 근거로 든 「Cosmos REST의 Clairveil 조회 경로 501」은 proto에 없는 `/params` 경로 하나를 부른 결과였습니다. 「Privacy 컨트랙트 정책에는 도달하지 못했다」고도 적었습니다 | Privacy 준비 상태 감시(`pnpm a:watch-privacy`)를 만들며 Clairveil proto의 HTTP 경로를 하나씩 불렀습니다. 2026-09-26 판 문서는 `api-testnet.maroo.io`를 Indexer로 적었고 2026-10-23 판은 Cosmos REST로 적습니다. 탐색기에 공개된 성공 Privacy tx의 calldata를 다른 지갑에서 시뮬레이션했습니다 | 조회 경로 11개가 응답하고 `privacy_scan`, `commitment_paths_at_root` 두 경로만 501이라는 것, 공식 SDK 예치 준비가 그 주소로 증명 공급자까지 간다는 것, 남은 재료가 proving 키나 prover 하나라는 것, 공개된 성공 예치의 calldata가 본인 인증 증명 없는 지갑에서 Privacy 컨트랙트 정책(`EasNoAttestationReceived`)으로 막힌다는 것을 가이드 0절, 1절, 6절, 8절, README, FAQ, B와 C 문서, 스킬에 적었습니다. 거부 해석기가 정책 인식 프리컴파일의 거부를 전역 정책으로 판정하던 것도 고쳤습니다 | [감시 기록](track-a-explain/evidence/live/watch-privacy/2026-10-23.json), [공개 tx 시뮬레이션 기록](track-a-explain/evidence/live/probe-public-privacy-20261023T064628Z.json), [SDK 진단 기록](track-a-explain/evidence/code/probe-sdk-deposit-20261023T064326Z.json) |

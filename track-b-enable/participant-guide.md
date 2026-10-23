@@ -119,7 +119,7 @@ pnpm b:step 4
 | 성공 | 2단계 6d(영수증에 `PolicyCheckPassed` 있음), 3단계 인출 |
 | 정책 거부 | 2단계 5, 6b, 7c, 협력사 B `claim()` 재시뮬레이션(PCL 정책 위반, 컨트랙트 정책), 구매 기업이 2,000,001 OKRW를 `fund()`에 싣는 시뮬레이션(PCL 정책 위반, 전역 정책) |
 | 증명·입력 거부 | Privacy 예치의 `SDKInvalidRequest()`(프리컴파일 요청 검증), 협력사 A가 부른 `fund()`의 `NotBuyer()`(대상 컨트랙트 로직), 가스 한도 21,000으로 보낸 이체(가스 부족) |
-| 인프라·자료 부재 | 공개되지 않은 회로 산출물과 차폐 상태 조회 경로, 잔액 부족(노드 검사) |
+| 인프라·자료 부재 | 공개되지 않은 proving 재료(테스트넷 검증 키와 짝인 proving 키나 prover), 잔액 부족(노드 검사) |
 
 성공 기준: 표의 각 행이 왜 그 분류인지 옆 사람에게 설명할 수 있습니다.
 
@@ -170,7 +170,7 @@ pnpm b:audit-drill
 | Maroo에서 받아야 할 재료 | 지금 상태 |
 | --- | --- |
 | 현재 테스트넷 verifier와 맞는 회로 버전과 proving 산출물 | 공개되지 않음. 예치 요청이 `SDKInvalidRequest()`에서 멈춤 `[Live Testnet]` |
-| 차폐 상태 조회 경로(Merkle 경로, nullifier 사용 여부, 암호화 노트) | 공개되지 않음. 공식 SDK(ClairveilJS)는 필수 조회 12개를 요구하고 회로 설정 조회에서 멈춤 `[코드 대조]` |
+| 차폐 상태 조회 경로(Merkle 경로, nullifier 사용 여부, 암호화 노트) | 2026-10-23 판 문서가 Cosmos REST로 적은 주소에서 응답합니다. 공식 SDK의 예치 준비가 그 주소로 증명 공급자까지 갑니다. 필수 조회 가운데 `privacy_scan`, `commitment_paths_at_root`는 501입니다 `[Live Testnet]` |
 | 성공한 예치와 지급의 예시 입력 | 공개되지 않음 |
 | prover 엔드포인트 | 공개되지 않음 |
 

@@ -38,7 +38,7 @@ Maroo를 처음 붙이는 개발자가 먼저 묻는 질문마다 20초 안에 �
 | `SDKInvalidRequest`는 정책 거부인가 | 아닙니다. 모든 프리컴파일이 함께 쓰는 인자 없는 요청 검증 오류라, 형식, 자산 등록, 증명 검증 가운데 어디서 막혔는지는 가릴 수 없습니다. 이 레포의 예치 요청은 Privacy 정책을 평가하는 단계까지 가지 못했습니다 | `pnpm a:probe`, `pnpm explain --examples`. [A 가이드 6절](track-a-explain/integration-guide.md#테스트넷-privacy의-최초-실패-계층) |
 | 로컬 결과를 테스트넷 성공으로 적으면 안 되는 이유 | 로컬 검증 키는 setup이 돌 때마다 새로 만드는 키라 Maroo의 키와 같을 수 없고, 전송과 인출 증명은 체인 도메인과 Merkle root에도 묶입니다. 판도 다릅니다. 테스트넷 노드는 Clairveil v0.3.0에 의존하고, 이 레포의 로컬 체인은 v0.4.0입니다 | `pnpm a:chain-info`. [A 가이드 1절](track-a-explain/integration-guide.md#clairveil과-maroo-xprivacy의-관계) |
 | Maroo가 말하는 Verifiable Privacy는 Clairveil의 Privacy와 무엇이 다른가 | Clairveil의 Privacy는 금액과 거래 관계를 가리고 그 계산이 맞다는 것을 증명하며, 감사 키를 가진 사람은 모든 지급을 풉니다. Maroo 문서의 Verifiable Privacy는 여기에 규제 기관이 법이 정한 범위 안에서만 데이터에 접근하는 열람 경로(관찰자 노드)를 더한 모델이고, 그 열람 프로토콜은 아직 체인에 없다고 문서가 적습니다 | Maroo 문서 [「검증 가능한 프라이버시」](https://docs.maroo.io/concepts/privacy/verifiable-privacy/). [A 가이드 8절](track-a-explain/integration-guide.md#8-프로덕션-전에-남은-것) |
-| 테스트넷 Privacy까지 무엇이 남았는가 | Maroo 검증 키와 짝인 proving 키(또는 prover), 차폐 상태 조회 경로, 성공한 예시 입력입니다. 2026-10-23에도 Cosmos REST의 Clairveil 조회 경로(`/clairveil/privacy/v1/params`)는 501을 돌려줬습니다 | `pnpm a:probe`, `pnpm a:chain-info`. [A 가이드 6절](track-a-explain/integration-guide.md#테스트넷-privacy의-최초-실패-계층), [노드 정보 기록](track-a-explain/evidence/live/chain-info-20261023T045537Z.json) |
+| 테스트넷 Privacy까지 무엇이 남았는가 | Maroo 검증 키와 짝인 proving 키(또는 prover) 하나입니다. 2026-10-23 판 문서가 Cosmos REST로 적은 주소에서 차폐 상태 조회(회로 설정, 트리 상태, Merkle 경로, nullifier, 자산 등록)가 응답하고, 공식 SDK의 예치 준비가 그 주소로 증명 공급자까지 갑니다. 공개된 성공 예치의 calldata로 4층(Privacy 정책)까지 확인했습니다. 회로 설정은 검증 키의 sha256만 주고 키 파일은 주지 않습니다 | `pnpm a:watch-privacy`, `pnpm a:probe-public`, `pnpm a:probe-sdk --rest`. [A 가이드 6절](track-a-explain/integration-guide.md#테스트넷-privacy의-최초-실패-계층), [감시 기록](track-a-explain/evidence/live/watch-privacy/2026-10-23.json) |
 
 ## 읽는 사람별 입구
 
@@ -182,7 +182,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 | `[Docs Only]` | 문서로만 확인한 내용입니다 |
 | 권고 | 이 레포가 제안하는 설계와 절차입니다. 실행으로 검증하지 않았습니다 |
 
-Maroo 테스트넷에서는 OKRW, PCL, EAS 경로를 실행하고 Privacy는 처음 막히는 층(요청 검증, `SDKInvalidRequest`)까지 진단합니다. 외부 개발자가 유효한 Privacy 증명을 만들 회로 산출물과 차폐 상태 조회 경로가 공개되지 않아, 차폐 흐름 전체는 Clairveil 로컬에서 실행합니다. 두 환경의 결과를 한 흐름의 성공으로 합치지 않습니다.
+Maroo 테스트넷에서는 OKRW, PCL, EAS 경로를 실행하고 Privacy는 처음 막히는 층(요청 검증, `SDKInvalidRequest`)까지 진단합니다. 외부 개발자가 유효한 Privacy 증명을 만들 proving 재료(테스트넷 검증 키와 짝인 proving 키나 prover)가 공개되지 않아, 차폐 흐름 전체는 Clairveil 로컬에서 실행합니다. 차폐 상태 조회 경로는 2026-10-23 판 문서가 Cosmos REST로 적은 주소에서 응답합니다. 두 환경의 결과를 한 흐름의 성공으로 합치지 않습니다.
 
 ## 레포 구조
 

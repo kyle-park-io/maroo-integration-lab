@@ -8,10 +8,12 @@
 | Maroo 테스트넷 | `pnpm a:probe` | deposit 요청 모양별로 처음 막히는 층 | `[Live Testnet]` eth_call, 거부 경로 증거 |
 | Maroo 테스트넷 | `pnpm a:probe-global` | 같은 전송을 `eth_call`과 `eth_estimateGas`로 불렀을 때 전역 정책의 평가 차이. `--over-limit`는 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출을 견줍니다 | `[Live Testnet]` 조회 |
 | Maroo 테스트넷 | `pnpm a:probe-kyc` | 카카오 본인 인증 증명이 있는 지갑과 없는 지갑에서 deposit이 처음 막히는 층 비교 | `[Live Testnet]` eth_call, 거부 경로 증거 |
+| Maroo 테스트넷 | `pnpm a:watch-privacy` | Privacy 준비 상태: 차폐 상태 조회 경로, proving 재료, 4층 시험, SDK 예치 준비, Privacy tx 수, 문서와 릴리스 변경. GitHub Actions가 하루 한 번 | `[Live Testnet]` 조회와 eth_estimateGas |
+| Maroo 테스트넷 | `pnpm a:probe-public` | 공개된 성공 Privacy 예치의 calldata를 다른 지갑과 블록에서 부를 때 막히는 층 | `[Live Testnet]` eth_call, eth_estimateGas |
 | Maroo 테스트넷 | `pnpm a:chain-info` | 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부 | `[Live Testnet]` Cosmos REST 조회 |
 | Maroo 테스트넷 | `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 오류 선택자, 계열, 전역 정책인지 컨트랙트 정책인지, 통과한 프록시 호출의 `PolicyCheckPassed`, 다음 행동 | `[Live Testnet]` 조회 |
 | 코드 대조 | `pnpm a:abi-compare` | Maroo `IPrivacy` ABI와 ClairveilJS 정식 EVM Privacy 계약(v0.3.1)의 선택자, 이벤트, 정규화 해시 | `[코드 대조]`, 체인 호출 없음 |
-| SDK와 테스트넷 조회 | `pnpm a:probe-sdk` | 공식 SDK(ClairveilJS)의 EVM 예치 준비가 Maroo 설정에서 어느 조회에 멈추는지 | `[코드 대조]`, 테스트넷 조회, tx 없음 |
+| SDK와 테스트넷 조회 | `pnpm a:probe-sdk`, `pnpm a:probe-sdk --rest` | 공식 SDK(ClairveilJS)의 EVM 예치 준비가 Maroo 설정에서 어느 조회에 멈추는지. `--rest`는 Cosmos REST를 넣었을 때 증명 공급자까지 가는지 | `[코드 대조]`, 테스트넷 조회, tx 없음 |
 | Maroo 테스트넷 | `pnpm a:kyb-gate` | OKRW 이체, 정산 금고 배포, `claim()`의 KYB 정책 거부와 통과, 증명 폐기 뒤 거부, 회수 | `[Live Testnet]` 상태 변경 tx |
 | Maroo 테스트넷 | `pnpm a:probe-send-gas` | 단순 OKRW 이체의 `eth_estimateGas` 값, 가스 21,000으로 보낸 이체의 결과, 추정값으로 보낸 이체의 결과 | `[Live Testnet]` tx 세 건 |
 | Maroo 테스트넷 | `pnpm a:reject-gas` | 정책에 거부된 tx의 영수증(상태, 쓴 가스와 한도의 비율, 수수료) | `[Live Testnet]` 조회 |
@@ -76,7 +78,7 @@ pnpm a:inspect
 pnpm a:probe
 ```
 
-- 예상 결과: 빈 요청과 모양을 갖춘 요청 모두 `eth_call`과 `eth_estimateGas`에서 `SDKInvalidRequest()`, 1 wei를 실은 요청은 잔액이 없으면 `insufficient balance for transfer`. `eth_estimateGas`는 실행 뒤 전역 정책 재검사까지 평가하지만, 실행 중에 되돌려진 요청은 재검사까지 가지 않습니다. 같은 오류가 나오면 그 요청은 전역 정책 거부보다 먼저 요청 검증에서 막힌 것입니다. 유효한 증명 없이 부르므로 거부 경로 증거로만 씁니다. 외부에서 유효한 증명을 만들 회로 산출물과 상태 조회 경로가 공개되지 않아, 테스트넷 Privacy는 이 층까지 진단합니다.
+- 예상 결과: 빈 요청과 모양을 갖춘 요청 모두 `eth_call`과 `eth_estimateGas`에서 `SDKInvalidRequest()`, 1 wei를 실은 요청은 잔액이 없으면 `insufficient balance for transfer`. `eth_estimateGas`는 실행 뒤 전역 정책 재검사까지 평가하지만, 실행 중에 되돌려진 요청은 재검사까지 가지 않습니다. 같은 오류가 나오면 그 요청은 전역 정책 거부보다 먼저 요청 검증에서 막힌 것입니다. 유효한 증명 없이 부르므로 거부 경로 증거로만 씁니다. 외부에서 유효한 증명을 만들 proving 재료가 공개되지 않아, 이 레포가 만든 요청은 이 층까지 진단합니다. 공개된 성공 예치의 calldata로 다음 층을 확인하려면 아래 `pnpm a:probe-public`을 씁니다.
 
 ```bash
 pnpm a:probe-global [보내는 주소] [받는 주소] [금액]
@@ -117,6 +119,21 @@ pnpm a:doc-claims
 ```
 
 - 문서 개선 노트 1\~5번의 근거를 다시 확인합니다. 결과는 `evidence/live/doc-claims-<시각>.json`에 남습니다.
+
+```bash
+pnpm a:probe-public [tx 해시]
+```
+
+- 테스트넷 탐색기에 공개된 성공 Privacy 예치의 calldata(유효한 증명 포함)를 원래 지갑, 구매 기업 지갑, 지갑 파일에 있으면 인증 지갑에서 직전 블록과 최신 블록 상태로 `eth_call`과 `eth_estimateGas`만 불러, 어느 층에서 막히는지 확인합니다. 인자가 없으면 가장 최근 성공 예치를 고릅니다. 잔액은 상태 덮어쓰기로 늘리고, 인증 지갑의 주소는 사유와 인자에서도 「(비공개)」로 바꿔 남깁니다.
+- 예상 결과(2026-10-23, 2026-09-17 블록 18351926의 예치): 원래 지갑은 직전 블록에서 통과하고 최신 블록에서 `SDKInvalidRequest()`. 구매 기업 지갑은 두 블록 모두 `EasNoAttestationReceived(구매 기업)`(Privacy 주소에 묶인 컨트랙트 정책). 인증 지갑은 직전 블록에서 `EasNoAttestationReceived`(그때는 증명이 없었음), 최신 블록에서 정책을 지나 `SDKInvalidRequest()`. `[Live Testnet]` [기록](evidence/live/probe-public-privacy-20261023T064628Z.json)
+
+```bash
+pnpm a:watch-privacy
+```
+
+- Maroo가 proving 재료를 공개했는지 매번 같은 값으로 확인합니다. 노드 판, Clairveil 차폐 상태 조회 경로 13개의 응답 코드, 회로 설정이 proving 산출물을 내주는지, 빈 예치 요청과 4층 시험의 사유, 공식 SDK에 Cosmos REST를 넣은 예치 준비(`pnpm a:probe-sdk --rest`, `vendor/clairveiljs` 의존성이 있을 때), Privacy 프리컴파일 tx 수와 함수별 성공 수, Maroo 문서 Privacy 페이지의 내용 해시, Clairveil 최신 릴리스, `@maroo-chain` 패키지 최신 판을 읽습니다. 10초 안팎 걸립니다.
+- 기록은 `evidence/live/watch-privacy/<날짜>.json`에 남고, 이전 날짜의 기록과 달라진 값을 출력합니다. GitHub Actions(`.github/workflows/watch-privacy.yml`)가 하루 한 번 같은 명령을 돌려 기록을 실행 결과에 붙이고, proving 재료가 보이면 이슈를 하나 엽니다. 저장소에 커밋하지는 않습니다.
+- 2026-10-23의 결과: 조회 경로 11개가 200, `privacy_scan`과 `commitment_paths_at_root`가 501, 회로 설정의 `manifest_available`이 false, SDK 예치 준비는 증명 공급자까지 갑니다. `[Live Testnet]` [첫 기록](evidence/live/watch-privacy/2026-10-23.json)
 
 ## 4. KYB 관문이 걸린 정산 금고 `[Live Testnet]`
 
