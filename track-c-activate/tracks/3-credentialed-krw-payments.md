@@ -34,6 +34,8 @@ OKRW, PCL, EAS.
 
 ## 7. 각 primitive가 필요한 이유
 
+primitive마다 이 트랙에서 맡는 일과 그 서술의 근거 라벨을 적었습니다.
+
 | primitive | 이 트랙에서 하는 일 | 근거 |
 | --- | --- | --- |
 | OKRW | 결제 대금 | `[Docs Only]` |
@@ -42,13 +44,15 @@ OKRW, PCL, EAS.
 
 ## 8. 최소 연동 요건
 
+제출물이 채워야 할 요건 다섯 가지입니다. 요건마다 내용, 확인하는 환경, 판정 방법을 적었습니다.
+
 | 요건 | 내용 | 환경 | 판정 방법 |
 | --- | --- | --- | --- |
 | R1 자격 | 앱이 정한 자격을 담은 스키마를 등록하고, 증명을 발급하고 Indexer에 색인 | `[Live Testnet]` | `register`, `attest`, `indexAttestation` tx |
 | R2 정책 | 결제 컨트랙트를 `deployPclProxy`로 배포하고, 상태를 바꾸는 선택자에 R1의 스키마를 쓰는 정책을 묶음 | `[Live Testnet]` | `IPcl.contractPolicies(프록시)`에 정책과 선택자 |
 | R3 결제 | 자격이 있는 사용자의 OKRW 결제 성공 | `[Live Testnet]` | 성공 tx |
 | R4 거부 | 서로 다른 거부 사유 두 가지 이상(증명 없음, 폐기, 한도 초과 가운데) | `[Live Testnet]` | 되돌려진 tx나 `eth_estimateGas` 기록과 해석한 사유 코드 |
-| R5 사전 검사 | 앱이 보내기 전에 `eth_estimateGas`로 검사하고, `AnyOfRejected` 안쪽 사유까지 풀어 사용자에게 다음 행동을 보여 줌 | 제품 | 데모와 코드 위치 |
+| R5 사전 검사 | 앱이 보내기 전에 `eth_estimateGas`로 검사하고, `AnyOfRejected` 안쪽 사유까지 풀어 사용자에게 다음 행동을 보여 줍니다 | 제품 | 데모와 코드 위치 |
 
 ## 9. 제출자가 연동을 증명하는 방법
 
@@ -63,13 +67,15 @@ OKRW, PCL, EAS.
 
 ## 11. 심사 기준과 배점
 
+기준마다 배점과, 그 배점을 받는 제출이 갖춰야 할 모습을 적었습니다.
+
 | 기준 | 배점 | 높은 점수를 받는 제출 |
 | --- | --- | --- |
-| 자격 모델과 정책 설계 | 30 | 자격, 발급 주체, 폐기, 한도가 서비스 규칙과 맞고, 전역 정책과 겹치는 부분을 설명함 |
-| 거부 처리와 사용자 경험 | 20 | 사유마다 사용자가 할 수 있는 다음 행동이 나옴 |
+| 자격 모델과 정책 설계 | 30 | 자격, 발급 주체, 폐기, 한도가 서비스 규칙과 맞고, 전역 정책과 겹치는 부분을 설명합니다 |
+| 거부 처리와 사용자 경험 | 20 | 사유마다 사용자가 할 수 있는 다음 행동이 나옵니다 |
 | 증거와 재현성 | 20 | 자동 판정 통과, README 명령으로 재현 |
-| 문제와 사용자 가치 | 20 | 실제 서비스 규칙에서 출발함 |
-| 완성도와 데모 | 10 | 성공과 두 가지 거부를 모두 보여 줌 |
+| 문제와 사용자 가치 | 20 | 실제 서비스 규칙에서 출발합니다 |
+| 완성도와 데모 | 10 | 성공과 두 가지 거부를 모두 보여 줍니다 |
 
 ## 12. 프로젝트 예시
 
@@ -81,10 +87,12 @@ OKRW, PCL, EAS.
 
 ## 13. 시작에 필요한 참고 자료
 
+참가자가 읽을 문서를 모았습니다. 왼쪽 칸이 자료이고 오른쪽 칸이 그것을 쓰는 단계입니다.
+
 | 자료 | 쓰는 곳 |
 | --- | --- |
 | [PCL 정책 템플릿](https://docs.maroo.io/concepts/compliance/pcl-policy-templates/), [조합 정책](https://docs.maroo.io/concepts/compliance/pcl-composite-policies/), [사유 코드](https://docs.maroo.io/concepts/compliance/pcl-reason-codes/) | 정책 설계와 거부 해석 |
-| [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) | 결제 컨트랙트 배포. 빈 초기화 데이터는 되돌려지므로 초기화 호출을 넣음 |
+| [deployPclProxy](https://docs.maroo.io/apis/contract/contract-pcl-deploy-pcl-proxy/) | 결제 컨트랙트 배포. 빈 초기화 데이터는 되돌려지므로 초기화 호출을 넣습니다 |
 | [EAS 프리컴파일](https://docs.maroo.io/concepts/identity/eas-precompile-overview/) | SchemaRegistry, EAS, Indexer 주소 찾기 |
 | 이 레포의 [KYB 관문 금고 흐름](../../track-a-explain/recipe/pcl-kyb-gate.ts)과 [금고 컨트랙트](../../shared/contracts/SettlementVault.sol) | 스키마 등록, 증명 발급과 색인, 정책 바인딩, 거부와 통과, 폐기의 기준 구현 |
 | `pnpm c:grounding` | 템플릿 등록 상태, 전역 정책, 주소별 24시간 사용량 조회 |
