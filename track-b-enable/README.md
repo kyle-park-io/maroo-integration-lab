@@ -20,6 +20,7 @@ Track B가 제출하는 파일을 용도별로 모았습니다. 파일 열에서
 | 실행 데모 | [demo/](demo/) | `pnpm b:check`, `b:prepare`, `b:fund`, `b:step 1~5`, `b:audit-drill`, `b:reset`, `b:smoke`. 단계마다 예상 결과와 성공 기준을 먼저 출력하고, 실패하면 트러블슈팅 번호를 안내. 공용 흐름은 `shared/lib/`(Track A와 같은 코드) |
 | 테스트넷 증거 | [evidence.md](evidence.md) | 1단계 조회, 2단계 상태 변경 tx, 4단계 분류, 3단계 로컬 기록 |
 | 워크샵 패키지 | [participant-guide.md](participant-guide.md), [facilitator-guide.md](facilitator-guide.md) | 학습 목표 여섯 개, 사전 준비와 확인 방법, 75분 시간표, 단계별 성공 기준, 토론 질문과 답변 방향, 끝난 뒤 다음 단계. Clairveil 빌드는 사전 준비로 뺌 |
+| 파일럿 자료 | [아젠다](pilot/agenda.pdf), [참가자 사전 안내](pilot/participant-notice.pdf), [진행 기록표](pilot/observation-sheet.pdf). 원본은 같은 이름의 `.md` | 파일럿 한 회를 열 때 건네는 양식 세 가지. 아젠다: 학습 목표, 블록별 시각과 길이(합 75분), 준비물, 늦어질 때 줄일 블록. 사전 안내: 전날 할 일과 확인 명령. 진행 기록표: 단계별 실제 시간과 막힌 화면을 적는 칸 |
 | 트러블슈팅 | [troubleshooting.md](troubleshooting.md) | 오류 10개(증상, 원인, 확인, 해결)와 라이브 서비스가 멈췄을 때의 대체 진행 |
 | 검증 | [facilitator-guide.md의 검증과 초기화](facilitator-guide.md#검증과-초기화) | 스모크 테스트(`pnpm b:smoke`), 깨끗한 환경에서 시작하는 순서, 초기화(`pnpm b:reset`) |
 | 워크스루 영상 | [영상](https://youtu.be/izaYyAegKOA) | 참가자가 무엇을 만들고 어느 순간에 성공을 확인하는지, 5\~8분 |
