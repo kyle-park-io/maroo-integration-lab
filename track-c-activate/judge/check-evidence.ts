@@ -20,8 +20,9 @@ import path from "node:path";
 import { decodeFunctionData, getAddress, size, type Address, type Hex } from "viem";
 import { identityRegistryAbi } from "@maroo-chain/viem";
 import { iPclAbi } from "@maroo-chain/contracts/abi/precompiles/pcl/IPcl";
-import { iPrivacyAbi } from "@maroo-chain/contracts/abi/precompiles/privacy/IPrivacy";
-import { PCL, RPC, decodeRaw, publicClient as pub } from "../../shared/lib/maroo.ts";
+import { PCL, publicClient as pub } from "../../shared/lib/maroo.ts";
+import { FAMILY_LABEL, SCOPE_LABEL, classifyRevert } from "../../shared/lib/explain.ts";
+import { explainTx, loadAbi } from "../../shared/lib/explain-chain.ts";
 import { outPath } from "../../shared/lib/paths.ts";
 import { describePolicy, type PolicySet } from "../../shared/lib/pcl-policy.ts";
 import { judge, type Checked, type Item, type Verdict } from "./rules.ts";
@@ -34,19 +35,9 @@ if (!file) {
 }
 const raw = JSON.parse(fs.readFileSync(file, "utf8"));
 const items: Item[] = Array.isArray(raw) ? raw : raw.items;
-const errorsAbi = [...iPclAbi, ...iPrivacyAbi].filter((x) => x.type === "error");
 
-// 직전 블록 상태로 같은 호출을 다시 시뮬레이션해 거부 사유를 읽는다.
-async function replayReason(tx: { from: Address; to: Address | null; input: Hex; value: bigint }, block: bigint): Promise<string | undefined> {
-  if (!tx.to) return undefined;
-  const res = await fetch(RPC, {
-    method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ from: tx.from, to: tx.to, data: tx.input, value: `0x${tx.value.toString(16)}` }, `0x${(block - 1n).toString(16)}`] }),
-  });
-  const body = (await res.json()) as { error?: { message: string; data?: Hex } };
-  if (!body.error) return "다시 시뮬레이션하면 통과(전역 정책 거부이거나 상태가 달랐음)";
-  return body.error.data && body.error.data !== "0x" ? decodeRaw(body.error.data, errorsAbi) : body.error.message;
-}
+// 거부 사유와 계열, 걸린 정책, 통과 기록은 거부 해석기(pnpm explain 과 같은 코드)로 읽는다.
+const abi = loadAbi();
 
 const chainId = await pub.getChainId();
 const verdicts: Checked[] = [];
@@ -77,11 +68,26 @@ for (const item of items) {
       else if (tx.to && getAddress(tx.to) !== getAddress(item.target)) fail(`받는 주소 ${tx.to} 가 target 과 다름`);
       if (/거부/.test(item.expected ?? "")) {
         if (receipt.status !== "reverted") fail("거부를 예상했는데 성공한 tx");
-        reason = await replayReason(tx, receipt.blockNumber);
+        const e = await explainTx(item.txHash, { abi });
+        reason = e.decoded?.text ?? e.replayNote;
         if (item.actual && reason && !reason.startsWith(item.actual.replace(/\(.*$/, ""))) fail(`재시뮬레이션 사유 ${reason} 가 actual(${item.actual})과 다름`);
         else pass(`거부 사유 ${reason}`);
+        if (e.decoded) pass(`계열 ${FAMILY_LABEL[e.decoded.family]}${e.decoded.selector ? `, 선택자 ${e.decoded.selector}` : ""}`);
+        // PCL 정책 거부라면 컨트랙트 정책인지 확인한다. 대상이 PCL 프록시가 아니거나 전역 정책에서 난 거부는 이 제출물이 건 정책의 증거가 아니다.
+        if (e.decoded?.family === "pcl-policy" && e.scope) {
+          if (e.scope.scope === "global") fail(`정책 거부가 전역 정책에서 났습니다. ${e.scope.note}`);
+          else pass(`걸린 정책 ${SCOPE_LABEL[e.scope.scope]}. ${e.scope.note}`);
+        }
       } else if (/통과|성공/.test(item.expected ?? "")) {
         if (receipt.status !== "success") fail("통과를 예상했는데 되돌려진 tx");
+        else {
+          // PCL 프록시를 지난 통과 tx 는 영수증에 PCL 의 PolicyCheckPassed 가 남는다(IPcl.postCall).
+          const e = await explainTx(item.txHash, { abi });
+          if (e.target?.isProxy) {
+            if (e.policyCheckPassed) pass("PolicyCheckPassed 있음. PCL 컨트랙트 정책을 통과한 tx");
+            else fail("PCL 프록시를 부른 통과 tx인데 영수증에 PolicyCheckPassed가 없음");
+          }
+        }
       } else {
         fail(`expected(${item.expected ?? "없음"})에 '거부', '통과', '성공' 가운데 하나가 있어야 영수증 상태를 판정할 수 있음`);
       }
@@ -106,7 +112,7 @@ for (const item of items) {
     }
   } else if (item.rpcLog) {
     const e = item.rpcLog.error;
-    reason = e?.data && e.data !== "0x" ? decodeRaw(e.data, errorsAbi) : e?.message;
+    reason = e?.data && e.data !== "0x" ? classifyRevert({ data: e.data, extraAbi: abi }).text : e?.message;
     if (!reason) fail("rpcLog 에 오류 응답이 없음");
     else pass(`${item.rpcLog.method} 기록의 사유 ${reason}`);
   } else {
