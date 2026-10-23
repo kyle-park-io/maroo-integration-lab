@@ -12,6 +12,8 @@
 | 코드 대조 | `pnpm a:abi-compare` | Maroo `IPrivacy` ABI와 ClairveilJS 정식 EVM Privacy 계약(v0.3.1)의 선택자, 이벤트, 정규화 해시 | `[코드 대조]`, 체인 호출 없음 |
 | SDK와 테스트넷 조회 | `pnpm a:probe-sdk` | 공식 SDK(ClairveilJS)의 EVM 예치 준비가 Maroo 설정에서 어느 조회에 멈추는지 | `[코드 대조]`, 테스트넷 조회, tx 없음 |
 | Maroo 테스트넷 | `pnpm a:kyb-gate` | OKRW 이체, 정산 금고 배포, `claim()`의 KYB 정책 거부와 통과, 증명 폐기 뒤 거부, 회수 | `[Live Testnet]` 상태 변경 tx |
+| Maroo 테스트넷 | `pnpm a:probe-send-gas` | 단순 OKRW 이체의 `eth_estimateGas` 값, 가스 21,000으로 보낸 이체의 결과, 추정값으로 보낸 이체의 결과 | `[Live Testnet]` tx 세 건 |
+| Maroo 테스트넷 | `pnpm a:reject-gas` | 정책에 거부된 tx의 영수증(상태, 쓴 가스와 한도의 비율, 수수료) | `[Live Testnet]` 조회 |
 | Maroo 테스트넷 | `pnpm a:doc-claims` | 문서 개선 노트의 근거가 되는 문서 문장과 체인 동작 | `[Live Testnet]` 조회와 eth_call |
 | Clairveil 로컬 | `pnpm a:local` | 차폐 정산 전체 흐름, 역할마다 볼 수 있는 것, 제3자에게 공개되는 것 | `[Local]` |
 

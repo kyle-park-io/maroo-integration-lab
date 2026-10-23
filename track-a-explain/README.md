@@ -9,7 +9,7 @@
 - `[Live Testnet]` KYB 증명이 없는 협력사의 청구는 PCL 정책이 `EasNoAttestationReceived`로 거부했고, 증명을 색인한 뒤의 청구는 통과했습니다([금고 흐름 기록](evidence/live/pcl-kyb-gate-20260926T000141Z.json), 탐색기의 [거부 tx](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)와 [통과 tx](https://explorer-testnet.maroo.io/tx/0x4d67c0dbf81db9c0f6e80bbe9c1d5676495800d0e7b4c643bed4df3a529cb81d)).
 - `[Live Testnet]` Privacy 예치 요청은 전역 정책을 통과하고 요청 검증(`SDKInvalidRequest()`)에서 처음 막혔습니다([진단 기록](evidence/live/probe-first-failure-20260925T193314Z.json)).
 - `[Local]` 협력사 B에게 보낸 15는 협력사 B, 구매 기업, 감사인이 각자 키로 풀었고, 제3자가 읽는 지급 tx에는 금액 필드가 없습니다([로컬 기록](evidence/local/vendor-settlement-20260926T041658Z.md)).
-- `[Live Testnet]` PCL 정책에 거부된 tx는 2026-09-26 판 문서와 달리 블록에 남아 가스 한도의 절반을 냈습니다(2026-10-23 판 문서는 실행 중과 실행 후의 거절이 블록에 포함되며 가스비가 부과된다고 고쳤습니다. [영수증 기록](evidence/live/reject-gas-20260926T171442Z.json), 탐색기에 [150,000 / 300,000, 50%](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)로 보임).
+- `[Live Testnet]` PCL 정책에 거부된 tx는 2026-09-26 판 문서와 달리 블록에 남아 가스 한도의 절반을 냈습니다(2026-10-23 판 문서는 실행 중과 실행 후의 거절이 블록에 포함되며 가스비가 부과된다고 고쳤습니다. [영수증 기록](evidence/live/reject-gas-20260926T171444Z.json), 탐색기에 [150,000 / 300,000, 50%](https://explorer-testnet.maroo.io/tx/0xa4c7a3b9c025ce79c25f60d3f0b6e9e11deefb4e828d1e99bd163312c8cd557f)로 보임).
 
 ## 읽는 순서
 
@@ -25,7 +25,7 @@
 | 결과물 | 파일 | 담은 것 |
 | --- | --- | --- |
 | 기관 연동 가이드 | [integration-guide.md](integration-guide.md) | 공급업체 정산 여정으로 짠 0\~8절과 부록. 아키텍처 다이어그램, 시퀀스 다이어그램, 노트 상태 다이어그램. 온체인, 오프체인, 지갑, prover, auditor, policy 경계 표. 상태 전이, 가시성, 키와 서비스 책임, 실패 분류와 최초 실패 계층, 4\~8주 PoC 설계, 프로덕션 전에 남은 것. 문서 확인(`[Docs Only]`), 직접 검증(`[Live Testnet]`, `[Local]`), 제안(권고)을 문장마다 표시 |
-| 실행 레시피 | [runnable-recipe.md](runnable-recipe.md), [recipe/](recipe/) | TypeScript 스크립트 여섯 개와 Solidity 금고. 준비, 입력값, 예상 결과, 확인 방법, 오류 처리. 테스트넷과 로컬의 검증 범위를 나눔 |
+| 실행 레시피 | [runnable-recipe.md](runnable-recipe.md), [recipe/](recipe/) | `pnpm a:*` 명령 12개의 TypeScript 스크립트와 Solidity 금고. 준비, 입력값, 예상 결과, 확인 방법, 오류 처리. 테스트넷과 로컬의 검증 범위를 나눔 |
 | 기관 FAQ | [faq.md](faq.md) | 질문 9개. prover에 보이는 것, 감사, disclosure, 키 보관, KYB와 PCL, 사전 검사, 재시도와 이중 지급, 업그레이드, 프로덕션 준비도 |
 | 문서 개선 노트 | [documentation-improvement-notes.md](documentation-improvement-notes.md) | Maroo Docs 7개, Clairveil 1개. 항목마다 멈추는 사람과 단계, 잘못 믿게 되는 것, 확인 비용, 재현 명령, 고친 문구 제안 |
 | 기술 워크스루 영상 | [영상](https://youtu.be/WAof3FSU_Uw) | 시니어 엔지니어 대상 아키텍처 리뷰와 실행 경로 시연, 12\~18분 |
