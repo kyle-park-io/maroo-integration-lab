@@ -143,7 +143,7 @@ pnpm review --local    # 로컬 차폐 정산까지(1분 더)
 | A | `pnpm a:probe-send-gas` | 10초 안팎 | `가스 한도 21000: reverted, 쓴 가스 21000` | 약 4(자기 협력사 지갑으로 옮기는 2 포함) |
 | B | `pnpm b:smoke` | 91초 | `모두 통과. 91초` | 2단계가 약 260 |
 | B | `pnpm b:step 1` \~ `pnpm b:step 5` | 워크샵 75분 | 단계마다 예상 결과와 성공 기준을 먼저 보이고, 실패하면 트러블슈팅 번호를 안내 | 2단계가 약 260 |
-| C | `pnpm c:agent-limit` | 20초 안팎 | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 30. 처음 한 번은 에이전트 지갑에 보낼 가스용 30이 더 듭니다 |
+| C | `pnpm c:agent-limit`. 구매 기업 지갑에 에이전트가 없으면 `pnpm c:grounding --write`로 먼저 등록합니다(tx 한 건) | 20초 안팎(등록 제외) | `[예상대로 거부] 4b) 에이전트 결제 8 OKRW(한도 초과) : ExceededAgentTransferLimit(…)` | 약 30. 처음 한 번은 에이전트 지갑에 보낼 가스용 30이 더 듭니다 |
 | C | `pnpm c:judge <evidence.json> --track 2` | 5초 안 | `✓ R4 ExceededAgentTransferLimit 거부` | 없음(조회) |
 
 - 역할 지갑 파일 형식은 [testnet.env.example](testnet.env.example)에 있습니다. 실제 키는 `~/.config/maroo-integration-lab/testnet.env`(권한 600)에만 두고 레포에 올리지 않습니다. 다른 위치를 쓰려면 `MAROO_LAB_ENV`를 지정합니다.
