@@ -16,7 +16,7 @@ import { pathToFileURL } from "node:url";
 import { parseAbi } from "viem";
 import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 import { ROOT } from "../../shared/lib/paths.ts";
-import { OKRW, PRIVACY, RPC, publicClient as pub, writeEvidence } from "../../shared/lib/maroo.ts";
+import { OKRW, PRIVACY, REST, RPC, publicClient as pub, writeEvidence } from "../../shared/lib/maroo.ts";
 
 const sdkDir = path.join(ROOT, "vendor/clairveiljs");
 if (!fs.existsSync(path.join(sdkDir, "node_modules"))) {
@@ -85,12 +85,52 @@ console.log(`2) 예치 준비가 멈춘 곳: ${stoppedAt}`);
 console.log(`   부른 조회(순서대로, 중복 제거): ${firstCalls.join(", ")}. 증명 공급자 도달: ${proverReached ? "예" : "아니요"}`);
 console.log(`3) SDK 차폐 상태 어댑터의 필수 조회 ${state.privacyStateAdapterRequiredMethods.length}개: ${state.privacyStateAdapterRequiredMethods.join(", ")}`);
 
+// 4. --rest: 2026-10-23 판 Maroo 문서가 Cosmos REST 로 적은 주소를 SDK 프로필에 넣는다. SDK 는 자기 REST 어댑터로 차폐 상태를 읽는다.
+//    Cosmos RPC(CometBFT)는 Maroo 가 공개하지 않아, 프로필 형식을 채우려고 EVM JSON-RPC 주소를 넣는다(EVM 예치 준비에서는 쓰이지 않았다).
+let withRest: Record<string, unknown> | undefined;
+if (process.argv.includes("--rest")) {
+  const nodeInfo = await (await fetch(`${REST}/cosmos/base/tendermint/v1beta1/node_info`)).json() as { default_node_info: { network: string } };
+  const fetched: string[] = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const u = String(input instanceof Request ? input.url : input);
+    if (u.startsWith(REST)) fetched.push(u.slice(REST.length).split("?")[0]);
+    return realFetch(input, init);
+  }) as typeof fetch;
+  const restProfile = { ...baseProfile, chainId: nodeInfo.default_node_info.network, accountPrefix: "maroo", rpc: RPC, rest: REST };
+  let reached: Record<string, unknown> | undefined;
+  let stop = "";
+  try {
+    const c = sdk.createClairveilBrowserDappClient({ profile: restProfile });
+    const i2 = c.evmAccountIdentity(acct.address);
+    const sig2 = await acct.signMessage({ message: c.buildRootSigningMessage(i2.address, i2.pubKeyHex) });
+    await c.prepareDeposit({
+      address: i2.address, pubKeyHex: i2.pubKeyHex, signatureBase64: Buffer.from(sig2.slice(2), "hex").toString("base64"),
+      evmWallet: { getChainId: async () => evmChainId, sendTransaction: async () => { throw new Error("보내지 않는다"); } },
+      amount: `1${mintDenom}`,
+      depositProofProvider: async (req: Record<string, unknown>) => {
+        reached = { keys: Object.keys(req ?? {}) };
+        throw new Error("증명 공급자까지 왔다");
+      },
+    });
+    stop = "멈추지 않음";
+  } catch (e) {
+    stop = (e as Error).message.split("\n")[0];
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+  withRest = { profileChainId: restProfile.chainId, stoppedAt: stop, proverReached: !!reached, proverRequestKeys: (reached as { keys?: string[] } | undefined)?.keys, restQueries: [...new Set(fetched)] };
+  console.log(`4) Cosmos REST(${REST})를 넣은 예치 준비가 멈춘 곳: ${stop}`);
+  console.log(`   읽은 REST 경로: ${[...new Set(fetched)].join(", ") || "없음"}. 증명 공급자 도달: ${reached ? "예" : "아니요"}`);
+}
+
 const file = writeEvidence(path.join(ROOT, "track-a-explain/evidence/code"), "probe-sdk-deposit", {
   checkedAt: new Date().toISOString(),
   label: "SDK 실행과 테스트넷 조회(chain ID, mintDenom). tx 없음, 버리는 키로 서명, 거절된 조회는 채우지 않음",
   clairveiljs: sdkCommit, rpc: RPC, chainId, mintDenom,
   profileWithoutAdapter: withoutAdapter,
   prepareDeposit: { stoppedAt, calledInOrder: called, firstCalls, proverReached },
+  ...(withRest ? { prepareDepositWithRest: withRest } : {}),
   requiredStateQueries: state.privacyStateAdapterRequiredMethods, optionalStateQueries: state.privacyStateAdapterOptionalMethods,
 });
 console.log(`기록: ${path.relative(ROOT, file)}`);

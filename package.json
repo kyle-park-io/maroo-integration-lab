@@ -43,6 +43,8 @@
     "sdk:check": "node shared/check-clairveiljs.ts",
     "a:probe-sdk": "node track-a-explain/recipe/probe-sdk-deposit.ts",
     "a:chain-info": "node track-a-explain/recipe/chain-info.ts",
+    "a:watch-privacy": "node track-a-explain/recipe/watch-privacy.ts",
+    "a:probe-public": "node track-a-explain/recipe/probe-public-privacy-tx.ts",
     "explain": "node track-a-explain/recipe/explain.ts"
   },
   "dependencies": {

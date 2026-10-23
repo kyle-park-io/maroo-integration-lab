@@ -1,0 +1,141 @@
+{
+  "checkedAt": "2026-10-23T06:47:12.159Z",
+  "label": "[Live Testnet] 조회와 eth_estimateGas, tx 없음",
+  "node": {
+    "app": "marood 0.10.0 (71dcd931be)",
+    "clairveil": "v0.3.0",
+    "privacyPrecompileActive": true
+  },
+  "privacyRest": {
+    "/clairveil/privacy/v1/circuit_config": 200,
+    "/clairveil/privacy/v1/tree_state": 200,
+    "/clairveil/privacy/v1/audit_config": 200,
+    "/clairveil/privacy/v1/disclosure_config": 200,
+    "/clairveil/privacy/v1/assets/by_denom/atokrw": 200,
+    "/clairveil/privacy/v1/reserve/atokrw": 200,
+    "/clairveil/privacy/v1/nullifiers": 200,
+    "/clairveil/privacy/v1/events": 200,
+    "/clairveil/privacy/v1/scan_events": 200,
+    "/clairveil/privacy/v1/privacy_scan": 501,
+    "/clairveil/privacy/v1/commitment_paths_at_root": 501,
+    "/clairveil/privacy/v1/merkle_path/{commitment}": 200,
+    "/clairveil/privacy/v1/commitment/{commitment}": 200
+  },
+  "provingMaterial": {
+    "manifestAvailable": false,
+    "artifactFiles": 0,
+    "activeSet": "privacy-note-v1",
+    "verifyingKeys": {
+      "deposit": "a5c1c997d37ea5ec58b2a8f3a8089a1f4d9782b20c3deacc3938c25ffc6ace4d",
+      "spend": "8e42b7766aabd8c013ea63805594b03a860e45db8eea95c4a095cb2776ea2bfe",
+      "joinsplit": "2d8da7dd22513c5da32bc7a6241a2e266a9e4e1e0915e09613123b878a4b2420",
+      "batch-joinsplit-16x32-v1": "5c3514475be2d19b4c16a342c24532ba86444bbb4ccc7a5d7dcfe5b695c507d5"
+    }
+  },
+  "firstFailure": {
+    "family": "sdk",
+    "name": "SDKInvalidRequest",
+    "text": "SDKInvalidRequest()"
+  },
+  "sdkProbe": {
+    "stoppedAt": "증명 공급자까지 왔다",
+    "proverReached": true
+  },
+  "layer4": {
+    "tx": "0x8427ef35edb727e3874e143f8b485b4c0b3060277e0f473274b72671c4b29fd5",
+    "name": "EasNoAttestationReceived",
+    "scope": "contract",
+    "text": "EasNoAttestationReceived(0x720989a26EfC40b007d778e54382879cdaf389e8)"
+  },
+  "precompileTx": {
+    "total": 251,
+    "latest": "2026-09-21T04:40:01.000000Z",
+    "bySelector": [
+      {
+        "selector": "0x8ad7ab1c",
+        "name": "transferWithAuthorization",
+        "total": 126,
+        "success": 126
+      },
+      {
+        "selector": "0xe6eb7771",
+        "name": "deposit",
+        "total": 40,
+        "success": 33
+      },
+      {
+        "selector": "0x68a36263",
+        "name": "알 수 없음",
+        "total": 35,
+        "success": 33
+      },
+      {
+        "selector": "0x43fd6967",
+        "name": "transfer",
+        "total": 23,
+        "success": 21
+      },
+      {
+        "selector": "0x0272cf35",
+        "name": "singleProofBatchTransferWithAuthorization",
+        "total": 18,
+        "success": 18
+      },
+      {
+        "selector": "0xce4f349c",
+        "name": "withdraw",
+        "total": 8,
+        "success": 8
+      },
+      {
+        "selector": "0x",
+        "name": "알 수 없음",
+        "total": 1,
+        "success": 0
+      }
+    ],
+    "read": 251,
+    "latestSuccessfulDeposit": "0x8427ef35edb727e3874e143f8b485b4c0b3060277e0f473274b72671c4b29fd5"
+  },
+  "docs": {
+    "/apis/contract/contract-privacy-batch-transfer-with-authorization/": "ed30e4e87557b8ce",
+    "/apis/contract/contract-privacy-batch-transfer/": "748c0e64e7fdf531",
+    "/apis/contract/contract-privacy-deposit/": "c882c3df48d6f844",
+    "/apis/contract/contract-privacy-single-proof-batch-transfer-with-authorization/": "b263ade289d0613f",
+    "/apis/contract/contract-privacy-single-proof-batch-transfer/": "ef21eb4f16b2fbcf",
+    "/apis/contract/contract-privacy-transfer-with-authorization/": "4b087dc6ca2e570e",
+    "/apis/contract/contract-privacy-transfer/": "3bccc93f720f1b18",
+    "/apis/contract/contract-privacy-withdraw-with-authorization/": "70118a91687636f6",
+    "/apis/contract/contract-privacy-withdraw/": "e6697a41983c6a9f",
+    "/concepts/privacy/": "f3e10b9dd2e74140",
+    "/concepts/privacy/privacy-authorization-eip712-domain/": "a9b0ae59003aa8aa",
+    "/concepts/privacy/privacy-policy-aware-precompile/": "deb0727d19d3035e",
+    "/concepts/privacy/privacy-precompile-overview/": "6843fdae1b5976c6",
+    "/concepts/privacy/verifiable-privacy/": "c9fdbc3ce3dc3ae5"
+  },
+  "clairveilLatest": "v0.6.1",
+  "npm": {
+    "@maroo-chain/viem": "0.4.0",
+    "@maroo-chain/contracts": "0.0.9"
+  },
+  "readiness": {
+    "ready": false,
+    "done": [
+      "차폐 상태 조회 경로 11개가 응답합니다(circuit_config, tree_state, audit_config, disclosure_config, assets/by_denom/atokrw, reserve/atokrw, nullifiers, events, scan_events, merkle_path/{commitment}, commitment/{commitment}).",
+      "공식 SDK의 예치 준비가 Cosmos REST로 차폐 상태를 읽고 증명 공급자까지 갑니다.",
+      "4층 시험: 공개된 성공 예치의 calldata를 본인 인증 증명 없는 지갑에서 부르면 EasNoAttestationReceived(Privacy 컨트랙트 정책)로 막힙니다."
+    ],
+    "reasons": [
+      "테스트넷 검증 키와 짝인 proving 재료가 공개되지 않았습니다(회로 설정의 manifest_available 이 false 이고 산출물 파일 이름이 비어 있음). 외부에서 만든 증명은 5층(증명 검증)을 지나지 못합니다.",
+      "조회 경로 /clairveil/privacy/v1/privacy_scan의 응답이 501입니다.",
+      "조회 경로 /clairveil/privacy/v1/commitment_paths_at_root의 응답이 501입니다."
+    ],
+    "next": [
+      "다음 기록까지 기다립니다. Maroo 에서 proving 키나 prover 엔드포인트를 받으면 pnpm a:probe-sdk --rest 의 증명 공급자 자리에 연결합니다."
+    ]
+  },
+  "changesSince": {
+    "previous": null,
+    "changes": []
+  }
+}

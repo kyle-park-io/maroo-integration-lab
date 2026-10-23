@@ -1,0 +1,141 @@
+{
+  "checkedAt": "2026-10-23T06:46:28.052Z",
+  "label": "[Live Testnet] eth_call 과 eth_estimateGas, tx 없음",
+  "tx": {
+    "hash": "0x8427ef35edb727e3874e143f8b485b4c0b3060277e0f473274b72671c4b29fd5",
+    "block": "18351926",
+    "status": "success",
+    "from": "0x2d17c8288ed47bfc2b3e01dc7536dcf19a788af3",
+    "selector": "0xe6eb7771",
+    "value": "1000000000000000000"
+  },
+  "note": "비원래 지갑은 잔액을 상태 덮어쓰기로 늘렸습니다. 인증 지갑의 주소는 남기지 않습니다.",
+  "rows": [
+    {
+      "wallet": "원래 지갑",
+      "from": "0x2d17c8288ed47bfc2b3e01dc7536dcf19a788af3",
+      "block": 18351925,
+      "method": "eth_call",
+      "outcome": "통과"
+    },
+    {
+      "wallet": "원래 지갑",
+      "from": "0x2d17c8288ed47bfc2b3e01dc7536dcf19a788af3",
+      "block": 18351925,
+      "method": "eth_estimateGas",
+      "outcome": "통과"
+    },
+    {
+      "wallet": "원래 지갑",
+      "from": "0x2d17c8288ed47bfc2b3e01dc7536dcf19a788af3",
+      "block": "latest",
+      "method": "eth_call",
+      "outcome": "SDKInvalidRequest()",
+      "family": "sdk",
+      "name": "SDKInvalidRequest",
+      "args": []
+    },
+    {
+      "wallet": "원래 지갑",
+      "from": "0x2d17c8288ed47bfc2b3e01dc7536dcf19a788af3",
+      "block": "latest",
+      "method": "eth_estimateGas",
+      "outcome": "SDKInvalidRequest()",
+      "family": "sdk",
+      "name": "SDKInvalidRequest",
+      "args": []
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": 18351925,
+      "method": "eth_call",
+      "outcome": "EasNoAttestationReceived(0x720989a26EfC40b007d778e54382879cdaf389e8)",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "0x720989a26EfC40b007d778e54382879cdaf389e8"
+      ]
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": 18351925,
+      "method": "eth_estimateGas",
+      "outcome": "EasNoAttestationReceived(0x720989a26EfC40b007d778e54382879cdaf389e8)",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "0x720989a26EfC40b007d778e54382879cdaf389e8"
+      ]
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": "latest",
+      "method": "eth_call",
+      "outcome": "EasNoAttestationReceived(0x720989a26EfC40b007d778e54382879cdaf389e8)",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "0x720989a26EfC40b007d778e54382879cdaf389e8"
+      ]
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": "latest",
+      "method": "eth_estimateGas",
+      "outcome": "EasNoAttestationReceived(0x720989a26EfC40b007d778e54382879cdaf389e8)",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "0x720989a26EfC40b007d778e54382879cdaf389e8"
+      ]
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": 18351925,
+      "method": "eth_call",
+      "outcome": "EasNoAttestationReceived((비공개))",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "(비공개)"
+      ]
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": 18351925,
+      "method": "eth_estimateGas",
+      "outcome": "EasNoAttestationReceived((비공개))",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "(비공개)"
+      ]
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": "latest",
+      "method": "eth_call",
+      "outcome": "SDKInvalidRequest()",
+      "family": "sdk",
+      "name": "SDKInvalidRequest",
+      "args": []
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": "latest",
+      "method": "eth_estimateGas",
+      "outcome": "SDKInvalidRequest()",
+      "family": "sdk",
+      "name": "SDKInvalidRequest",
+      "args": []
+    }
+  ]
+}

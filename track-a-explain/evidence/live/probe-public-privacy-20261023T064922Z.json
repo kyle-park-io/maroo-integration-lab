@@ -1,0 +1,143 @@
+{
+  "checkedAt": "2026-10-23T06:49:22.376Z",
+  "label": "[Live Testnet] eth_call 과 eth_estimateGas, tx 없음",
+  "tx": {
+    "hash": "0xca354853fc40dedd07ba6901ea79762d32e08a13bc0533a5e6d99b51a33fb79f",
+    "block": "17007256",
+    "status": "success",
+    "from": "0x44d41dae1471b95794f5d1cb968d88f72854a878",
+    "selector": "0xe6eb7771",
+    "value": "10000000000000000000"
+  },
+  "note": "비원래 지갑은 잔액을 상태 덮어쓰기로 늘렸습니다. 인증 지갑의 주소는 남기지 않습니다.",
+  "rows": [
+    {
+      "wallet": "원래 지갑",
+      "from": "0x44d41dae1471b95794f5d1cb968d88f72854a878",
+      "block": 17007255,
+      "method": "eth_call",
+      "outcome": "InternalError()",
+      "family": "pcl-config",
+      "name": "InternalError",
+      "args": []
+    },
+    {
+      "wallet": "원래 지갑",
+      "from": "0x44d41dae1471b95794f5d1cb968d88f72854a878",
+      "block": 17007255,
+      "method": "eth_estimateGas",
+      "outcome": "InternalError()",
+      "family": "pcl-config",
+      "name": "InternalError",
+      "args": []
+    },
+    {
+      "wallet": "원래 지갑",
+      "from": "0x44d41dae1471b95794f5d1cb968d88f72854a878",
+      "block": "latest",
+      "method": "eth_call",
+      "outcome": "EasAttestationRevoked(0x44D41Dae1471b95794f5d1cb968D88f72854A878)",
+      "family": "pcl-policy",
+      "name": "EasAttestationRevoked",
+      "args": [
+        "0x44D41Dae1471b95794f5d1cb968D88f72854A878"
+      ]
+    },
+    {
+      "wallet": "원래 지갑",
+      "from": "0x44d41dae1471b95794f5d1cb968d88f72854a878",
+      "block": "latest",
+      "method": "eth_estimateGas",
+      "outcome": "EasAttestationRevoked(0x44D41Dae1471b95794f5d1cb968D88f72854A878)",
+      "family": "pcl-policy",
+      "name": "EasAttestationRevoked",
+      "args": [
+        "0x44D41Dae1471b95794f5d1cb968D88f72854A878"
+      ]
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": 17007255,
+      "method": "eth_call",
+      "outcome": "InternalError()",
+      "family": "pcl-config",
+      "name": "InternalError",
+      "args": []
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": 17007255,
+      "method": "eth_estimateGas",
+      "outcome": "InternalError()",
+      "family": "pcl-config",
+      "name": "InternalError",
+      "args": []
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": "latest",
+      "method": "eth_call",
+      "outcome": "EasNoAttestationReceived(0x720989a26EfC40b007d778e54382879cdaf389e8)",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "0x720989a26EfC40b007d778e54382879cdaf389e8"
+      ]
+    },
+    {
+      "wallet": "구매 기업(본인 인증 증명 없음)",
+      "from": "0x720989a26EfC40b007d778e54382879cdaf389e8",
+      "block": "latest",
+      "method": "eth_estimateGas",
+      "outcome": "EasNoAttestationReceived(0x720989a26EfC40b007d778e54382879cdaf389e8)",
+      "family": "pcl-policy",
+      "name": "EasNoAttestationReceived",
+      "args": [
+        "0x720989a26EfC40b007d778e54382879cdaf389e8"
+      ]
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": 17007255,
+      "method": "eth_call",
+      "outcome": "InternalError()",
+      "family": "pcl-config",
+      "name": "InternalError",
+      "args": []
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": 17007255,
+      "method": "eth_estimateGas",
+      "outcome": "InternalError()",
+      "family": "pcl-config",
+      "name": "InternalError",
+      "args": []
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": "latest",
+      "method": "eth_call",
+      "outcome": "SDKInvalidRequest()",
+      "family": "sdk",
+      "name": "SDKInvalidRequest",
+      "args": []
+    },
+    {
+      "wallet": "인증 지갑(주소 비공개)",
+      "from": "(비공개)",
+      "block": "latest",
+      "method": "eth_estimateGas",
+      "outcome": "SDKInvalidRequest()",
+      "family": "sdk",
+      "name": "SDKInvalidRequest",
+      "args": []
+    }
+  ]
+}

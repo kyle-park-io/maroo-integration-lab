@@ -1,0 +1,57 @@
+# Maroo testnet Privacy readiness watch (pnpm a:watch-privacy).
+# Runs once a day, read-only against the testnet (queries and eth_estimateGas, no transactions, no keys).
+# The record is kept as a workflow artifact and in the job summary; nothing is committed.
+# When proving material for the testnet verifying keys appears, it opens one issue labelled privacy-watch.
+name: watch-privacy
+
+on:
+  schedule:
+    - cron: "30 0 * * *" # 09:30 KST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-24.04
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Fetch pinned Clairveil and ClairveilJS dependencies for the SDK probe
+        run: |
+          pnpm setup:clairveil
+          (cd vendor/clairveiljs && npm ci --ignore-scripts --no-audit --no-fund)
+      - name: Watch
+        id: watch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pnpm a:watch-privacy | tee watch.txt
+      - name: Job summary
+        if: always()
+        run: |
+          { echo '```text'; cat watch.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: watch-privacy-${{ github.run_id }}
+          path: track-a-explain/evidence/live/watch-privacy/
+      - name: Open an issue when proving material appears
+        if: steps.watch.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(gh issue list --label privacy-watch --state open --json number --jq length)" = "0" ]; then
+            gh label create privacy-watch --color 2347C5 --force
+            gh issue create --label privacy-watch \
+              --title "Maroo testnet Privacy: proving material appeared" \
+              --body "pnpm a:watch-privacy reported that proving material for the testnet verifying keys is available. Run pnpm a:probe-sdk --rest with a prover and test layer 5 (proof verification). Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi
