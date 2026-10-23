@@ -116,20 +116,23 @@ Clairveil은 Cosmos SDK 체인에 차폐 풀을 넣는 공개 참조 구현이�
 
 ### Maroo 안에서 한 호출이 지나가는 층
 
-정산의 호출은 Maroo 노드 안에서 아래 층을 지납니다. 층마다 무엇이 평가되는지에 따라 사전 검사 방법과 거부의 비용이 달라집니다. 모듈 내부처럼 공개되지 않은 부분은 그리지 않았습니다.
+결론: 사전 검사는 `eth_estimateGas`로 하고, 가스 한도는 추정값에 25% 안팎만 더합니다. PCL 프록시를 거치지 않는 OKRW 이체는 `eth_call`에서 전역 정책 거부가 나오지 않고, 실행 중에 거부된 tx는 블록에 들어가 가스 한도의 절반을 냅니다.
+
+정산의 호출은 Maroo 노드 안에서 아래 단계를 지납니다. 2026-10-23 판 [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/) 문서는 전역 정책을 실행 전과 실행이 성공한 뒤에 두 번 평가하고, 컨트랙트 정책은 실행 중 PCL 프록시 훅에서, Privacy 프리컴파일의 정책은 프리컴파일 경계에서 평가한다고 적습니다. 단계마다 무엇이 평가되는지에 따라 사전 검사 방법과 거부의 비용이 달라집니다. 모듈 내부처럼 공개되지 않은 부분은 그리지 않았습니다.
 
 ```mermaid
 flowchart TB
   CL["지급 서비스와 지갑<br/>viem, @maroo-chain/viem"]
   subgraph NODE["Maroo 노드"]
     RPC["JSON-RPC<br/>eth_sendRawTransaction<br/>eth_estimateGas, eth_call"]
-    ANTE["AnteHandler<br/>서명, 논스, 수수료<br/>전역 정책(PCL)"]
+    ANTE["실행 전 검사<br/>서명, 논스, 수수료<br/>전역 정책(PCL)"]
     subgraph EXEC["EVM 실행"]
-      PX["PCL 프록시(정산 금고)<br/>preCall, 구현, postCall<br/>컨트랙트 정책"]
+      PX["PCL 프록시(정산 금고)<br/>preCall, 구현, postCall<br/>컨트랙트 정책과 전역 정책"]
       PV["Privacy 프리컴파일 0x…0b<br/>자체 컨트랙트 정책"]
       PRE["OKRW 0x…01, PCL 0x…05<br/>EAS 0x…07~09, Agent 0x…0A"]
     end
-    MOD["Cosmos SDK 모듈<br/>x/okrw, x/pcl, x/eas, x/agent, x/bank<br/>x/privacy(Clairveil 계열)"]
+    POST["실행 뒤 전역 정책 재검사<br/>tx가 한 호출과 전송"]
+    MOD["Cosmos SDK 모듈<br/>x/okrw, x/pcl, x/eas, x/agent, x/bank<br/>x/privacy(Clairveil v0.3.0)"]
   end
   CL --> RPC --> ANTE
   ANTE --> PX
@@ -137,18 +140,21 @@ flowchart TB
   PX --> PRE
   PRE --> MOD
   PV --> MOD
+  EXEC --> POST
 ```
 
-| 층 | 평가되는 것 | `eth_call` | `eth_estimateGas` | 실제 tx가 거부되면 | 근거 |
-| --- | --- | --- | --- | --- | --- |
-| RPC 제출 | 문서는 브로드캐스트 전에 PCL을 평가해 거절하고, 그러면 가스를 내지 않고 블록에도 들어가지 않는다고 적습니다 | 해당 없음 | 해당 없음 | 컨트랙트 정책 거부는 제출 때 걸러지지 않았습니다(아래 행) | `[Docs Only]` [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/), `[Live Testnet]` |
-| AnteHandler 전역 정책(이름과 위치는 `[Docs Only]` 아키텍처 페이지) | 발신자와 값. KYC 증명이 없는 계정의 건당·24시간 한도, 에이전트 지갑이면 소유자 기준 평가 | PCL 프록시를 거치지 않는 이체에서는 평가하지 않습니다. PCL 프록시 호출은 프록시 훅이 평가합니다 | 평가합니다 | 이 레포는 전역 정책에 걸리는 tx를 보내지 않았습니다(사전 검사에서 걸러 냈습니다) | `[Live Testnet]` [검사 기록](evidence/live/probe-global-policy-20260925T190841Z.json) |
-| PCL 프록시의 컨트랙트 정책 | 프록시를 부른 계정과 선택자. 금고 `claim()`의 `EAS_POLICY`, 에이전트 결제의 `fund()` 한도 | 평가합니다 | 평가합니다 | 블록에 들어가 되돌려지고 가스 한도의 절반을 냄. 청구 150,000/300,000, 결제 363,982/727,965. 두 번의 실행에서 거부 tx 여덟 건 모두 50.0% | `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171442Z.json), [앞 실행](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` |
-| Privacy 프리컴파일의 자체 정책 | 호출자의 본인 인증 증명(`And(EAS_POLICY, DENYLIST_POLICY)`). PCL 프록시 없이 프리컴파일이 직접 정책을 가집니다 | 요청 검증(`SDKInvalidRequest()`)이 먼저 막아 정책까지 닿지 못했습니다 | 같습니다 | 보내지 않았습니다 | `[Docs Only]` [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/), `[Live Testnet]` 정책 조회 |
-| 프리컴파일과 모듈 | 프리컴파일이 Cosmos SDK 모듈의 상태를 읽고 씁니다. 문서의 아키텍처 페이지는 프리컴파일을 넷으로 적고 Privacy를 빼 놓았습니다 | 해당 없음 | 해당 없음 | 해당 없음 | `[Docs Only]` [Maroo 아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/), Privacy 주소는 `[Live Testnet]`, `x/privacy`와 Clairveil은 `[코드 대조]` |
+단계마다 평가되는 것, 두 사전 검사 방법이 그 단계를 거치는지, 실제 tx가 그 단계에서 거부되면 어떻게 되는지를 모은 표입니다. `eth_call`과 `eth_estimateGas` 열은 이 레포가 테스트넷에서 확인한 결과이고, 확인하지 못한 칸은 그렇게 적었습니다.
 
-- 사전 검사는 `eth_estimateGas` 한 번이면 두 층의 정책을 함께 평가합니다. PCL 프록시를 거치지 않는 OKRW 이체를 `eth_call`로만 검사하면 전역 정책 거부를 놓칩니다(6절).
-- 거부된 tx는 블록에 남습니다. 협력사가 자격 없이 청구한 시도가 탐색기에 주소와 함께 보이고, 가스 한도의 절반을 수수료로 냅니다. 한도의 절반이라는 값은 Cosmos EVM 계열의 최소 가스 비율로 보입니다. 이 레포는 체인 설정을 읽을 경로가 없어 확인하지 못했습니다. 권고: 보내기 전에 `eth_estimateGas`로 확인하고, 가스 한도는 추정값에 25% 안팎만 더합니다.
+| 단계 | 평가되는 것 | `eth_call` | `eth_estimateGas` | 실제 tx가 거부되면 | 근거 |
+| --- | --- | --- | --- | --- | --- |
+| 실행 전 검사(RPC 제출과 체인의 실행 전 검사) | 전역 정책. tx 자체의 발신자, `to`, value, 함수 선택자. KYC 증명이 없는 계정의 건당 200만 OKRW와 하루 1,000만 OKRW 한도, 에이전트 지갑이면 소유자 기준 | 평가하지 않습니다. KYC 증명이 없는 구매 기업 지갑의 2,000,001 OKRW 이체가 통과했습니다 | 거부합니다. 이 단계에서 걸렸는지 실행 뒤 재검사에서 걸렸는지는 가릴 수 없었습니다 | 제출 때 걸리면 브로드캐스트되지 않고 가스를 내지 않는다고 문서가 적습니다. 이 레포는 이 단계에 걸리는 tx를 보내지 않았습니다 | `[Docs Only]` [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/), `[Live Testnet]` [비교 기록](evidence/live/probe-global-compare-20261023T042452Z.json) |
+| PCL 프록시 훅(실행 중) | 컨트랙트 정책(프록시를 부른 계정과 선택자. 금고 `claim()`의 `EAS_POLICY`, 에이전트 결제 `fund()`의 한도)과, 프록시 호출의 계정과 선택자로 다시 평가하는 전역 정책 | 평가합니다. 금고 `fund()`로 보낸 2,000,001 OKRW가 `VolumeAboveMaxLimit`로 거부됐습니다 | 평가합니다 | 블록에 들어가 되돌려지고 가스 한도의 절반을 냅니다. 청구 150,000/300,000, 결제 363,982/727,965. 두 번의 실행에서 거부 tx 여덟 건 모두 50.0%입니다 | `[Live Testnet]` [영수증 기록](evidence/live/reject-gas-20260926T171442Z.json), [앞 실행](evidence/live/reject-gas-20260926T171444Z.json), 재현: `pnpm a:reject-gas` |
+| Privacy 프리컴파일 경계(실행 중) | 호출자의 본인 인증 증명(`And(EAS_POLICY, DENYLIST_POLICY)`). 문서는 상태를 바꾸기 전과 뒤에 평가한다고 적습니다 | 요청 검증(`SDKInvalidRequest()`)이 먼저 막아 정책까지 닿지 못했습니다 | 같습니다 | 보내지 않았습니다 | `[Docs Only]` [정책 인식 프리컴파일](https://docs.maroo.io/concepts/privacy/privacy-policy-aware-precompile/), `[Live Testnet]` 정책 조회 |
+| 실행 뒤 전역 정책 재검사 | 실행이 성공한 tx가 한 호출과 네이티브·ERC-20 전송 | 평가하지 않는다고 문서가 적습니다 | 평가한다고 문서가 적습니다 | 블록에 들어가 되돌려지고 가스를 낸다고 문서가 적습니다. 이 레포는 이 단계에서 거부된 tx를 보내지 않았습니다 | `[Docs Only]` [시뮬레이션 가이드](https://docs.maroo.io/guides/integration/simulating-pcl-checks/), [PCL 정책 강제](https://docs.maroo.io/concepts/compliance/pcl-policy-enforcement/) |
+| 프리컴파일과 모듈 | 프리컴파일이 Cosmos SDK 모듈의 상태를 읽고 씁니다. 테스트넷 노드(`marood` 0.10.0)는 빌드 의존성으로 `github.com/DELIGHT-LABS/clairveil v0.3.0`을 밝힙니다 | 해당 없음 | 해당 없음 | 해당 없음 | `[Live Testnet]` [노드 정보 기록](evidence/live/chain-info-20261023T043404Z.json), 재현: `pnpm a:chain-info`. 문서의 [아키텍처](https://docs.maroo.io/concepts/core/maroo-architecture/) 페이지는 2026-09-26 판에서 프리컴파일을 넷으로 적었고 2026-10-23 판에서 Privacy를 넣어 다섯으로 적습니다 |
+
+- 사전 검사는 `eth_estimateGas` 한 번이면 프록시 훅과 실행 뒤 재검사까지 평가합니다. PCL 프록시를 거치지 않는 OKRW 이체를 `eth_call`로만 검사하면 전역 정책 거부를 놓칩니다(6절).
+- 실행 중에 거부된 tx는 블록에 남습니다. 협력사가 자격 없이 청구한 시도가 탐색기에 주소와 함께 보이고, 가스 한도의 절반을 수수료로 냅니다. 절반이라는 값은 테스트넷 수수료 설정의 `min_gas_multiplier` 0.5이고, 2026-10-23 판 [feemarket 모듈](https://docs.maroo.io/concepts/economics/feemarket-module/) 문서도 같은 규칙을 적습니다. `[Live Testnet]` [노드 정보 기록](evidence/live/chain-info-20261023T043404Z.json). 권고: 보내기 전에 `eth_estimateGas`로 확인하고, 가스 한도는 추정값에 25% 안팎만 더합니다.
 - 단순 이체도 정책 검사 때문에 가스가 21,000을 넘습니다. 일반 계정은 약 104,000, 에이전트 지갑은 약 284,000입니다. `[Live Testnet]` [기록](evidence/live/probe-send-gas-20260926T052147Z.json)
 
 ### 투명 경로: KYB 관문을 건 정산 금고
