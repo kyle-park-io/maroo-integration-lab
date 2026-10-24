@@ -111,6 +111,11 @@ export function recordFile(dir: string, date: string): string {
   return path.join(outPath(dir), `${date}.json`);
 }
 
+// 견줄 이전 기록. 오늘 날짜 파일은 뺀다. 같은 날 두 번째 실행도 전날 기록과 견주고, 오늘 기록은 덮어쓴다.
+export function previousRecordFile(files: string[], today: string): string | undefined {
+  return files.filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f) && f !== `${today}.json`).sort().pop();
+}
+
 // tar(ustar, pax, GNU 긴 이름) 바이트에서 일반 파일의 이름과 sha256 을 읽는다. gzip 은 부른 쪽이 푼다.
 export function tarFiles(tar: Uint8Array): ArchiveFile[] {
   const buf = Buffer.from(tar.buffer, tar.byteOffset, tar.byteLength);

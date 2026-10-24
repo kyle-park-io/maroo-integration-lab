@@ -12,7 +12,8 @@
 //   Privacy 프리컴파일로 간 tx 수와 함수별 성공 수(탐색기 API)
 //   Maroo 문서의 Privacy 페이지 내용 해시(sitemap), Clairveil 최신 릴리스, @maroo-chain 패키지 최신 판
 //   Clairveil 릴리스 압축(.tar.gz)의 모든 파일 sha256 을 회로 설정의 테스트넷 검증 키와 대조(같은 파일이 있으면 준비됨으로 판정)
-// 판정은 shared/lib/privacy-watch.ts 에 있다. GitHub Actions(.github/workflows/watch-privacy.yml)가 하루 한 번 같은 명령을 돌린다.
+// 판정은 shared/lib/privacy-watch.ts 에 있다. GitHub Actions(.github/workflows/watch-privacy.yml)가 하루 두 번 같은 명령을 돌린다.
+// 예약 실행이 빠질 때를 대비한 두 번째 실행은 그날 기록을 덮어쓰고 전날 기록과 견준다(previousRecordFile).
 
 import "../../shared/lib/install-recipe-errors.ts";
 import { createHash } from "node:crypto";
@@ -27,7 +28,7 @@ import { EXPLORER, PRIVACY, REST, RPC, labValue, publicClient as pub } from "../
 import { explainCall } from "../../shared/lib/explain-chain.ts";
 import { summarizeChainInfo } from "../../shared/lib/chain-info.ts";
 import { classifyRevert } from "../../shared/lib/explain.ts";
-import { changesSince, countBySelector, matchVerifyingKeys, readiness, recordFile, tarFiles, type KeyMatch, type WatchRecord } from "../../shared/lib/privacy-watch.ts";
+import { changesSince, countBySelector, matchVerifyingKeys, previousRecordFile, readiness, recordFile, tarFiles, type KeyMatch, type WatchRecord } from "../../shared/lib/privacy-watch.ts";
 
 const save = !process.argv.includes("--no-save");
 const DIR = path.join(ROOT, "track-a-explain/evidence/live/watch-privacy");
@@ -157,7 +158,7 @@ const record: WatchRecord & Record<string, unknown> = {
   checkedAt: new Date().toISOString(), label: "[Live Testnet] 조회와 eth_estimateGas, tx 없음",
   node, privacyRest, provingMaterial, releaseArchives, firstFailure, sdkProbe, layer4, precompileTx, docs, clairveilLatest, npm,
 };
-const prevFile = fs.existsSync(DIR) ? fs.readdirSync(DIR).filter((f) => f.endsWith(".json") && f !== `${record.checkedAt.slice(0, 10)}.json`).sort().pop() : undefined;
+const prevFile = fs.existsSync(DIR) ? previousRecordFile(fs.readdirSync(DIR), record.checkedAt.slice(0, 10)) : undefined;
 const prev = prevFile ? (JSON.parse(fs.readFileSync(path.join(DIR, prevFile), "utf8")) as WatchRecord) : undefined;
 const verdict = readiness(record);
 const changes = changesSince(prev, record);

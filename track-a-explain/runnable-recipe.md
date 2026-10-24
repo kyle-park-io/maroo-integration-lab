@@ -8,7 +8,7 @@
 | Maroo 테스트넷 | `pnpm a:probe` | deposit 요청 모양별로 처음 막히는 층 | `[Live Testnet]` eth_call, 거부 경로 증거 |
 | Maroo 테스트넷 | `pnpm a:probe-global` | 같은 전송을 `eth_call`과 `eth_estimateGas`로 불렀을 때 전역 정책의 평가 차이. `--over-limit`는 PCL 프록시를 거치지 않는 이체와 PCL 프록시 호출을 견줍니다 | `[Live Testnet]` 조회 |
 | Maroo 테스트넷 | `pnpm a:probe-kyc` | 카카오 본인 인증 증명이 있는 지갑과 없는 지갑에서 deposit이 처음 막히는 층 비교 | `[Live Testnet]` eth_call, 거부 경로 증거 |
-| Maroo 테스트넷 | `pnpm a:watch-privacy` | Privacy 준비 상태: 차폐 상태 조회 경로, proving 재료, 4층 시험, SDK 예치 준비, Privacy tx 수, 문서와 릴리스 변경. GitHub Actions가 하루 한 번 | `[Live Testnet]` 조회와 eth_estimateGas |
+| Maroo 테스트넷 | `pnpm a:watch-privacy` | Privacy 준비 상태: 차폐 상태 조회 경로, proving 재료, 4층 시험, SDK 예치 준비, Privacy tx 수, 문서와 릴리스 변경. GitHub Actions가 하루 두 번 | `[Live Testnet]` 조회와 eth_estimateGas |
 | Maroo 테스트넷 | `pnpm a:probe-public` | 공개된 성공 Privacy 예치의 calldata를 다른 지갑과 블록에서 부를 때 막히는 층 | `[Live Testnet]` eth_call, eth_estimateGas |
 | Maroo 테스트넷 | `pnpm a:chain-info` | 노드 판과 빌드 의존성(Clairveil, gnark), 수수료 설정의 최소 가스 비율, EVM 단위, Privacy 프리컴파일 활성 여부 | `[Live Testnet]` Cosmos REST 조회 |
 | Maroo 테스트넷 | `pnpm explain <tx 해시>`, `pnpm explain --examples` | 실패한 tx나 호출의 오류 선택자, 계열, 전역 정책인지 컨트랙트 정책인지, 통과한 프록시 호출의 `PolicyCheckPassed`, 다음 행동 | `[Live Testnet]` 조회 |
@@ -132,7 +132,8 @@ pnpm a:watch-privacy
 ```
 
 - Maroo가 proving 재료를 공개했는지 매번 같은 값으로 확인합니다. 노드 판, Clairveil 차폐 상태 조회 경로 13개의 응답 코드, 회로 설정이 proving 산출물을 내주는지, 빈 예치 요청과 4층 시험의 사유, 공식 SDK에 Cosmos REST를 넣은 예치 준비(`pnpm a:probe-sdk --rest`, `vendor/clairveiljs` 의존성이 있을 때), Privacy 프리컴파일 tx 수와 함수별 성공 수, Maroo 문서 Privacy 페이지의 내용 해시, Clairveil 최신 릴리스, `@maroo-chain` 패키지 최신 판을 읽고, Clairveil 릴리스 압축(.tar.gz)을 모두 받아 파일마다 sha256을 테스트넷 검증 키와 견줍니다. 같은 파일이 나오면 proving 재료가 그 릴리스로 나온 것으로 보고 준비됨으로 판정합니다. 15초 안팎 걸립니다.
-- 기록은 `evidence/live/watch-privacy/<날짜>.json`에 남고, 이전 날짜의 기록과 달라진 값을 출력합니다. GitHub Actions(`.github/workflows/watch-privacy.yml`)가 하루 한 번 같은 명령을 돌려 기록을 실행 결과에 붙이고, proving 재료가 보이면 이슈를 하나 엽니다. 저장소에 커밋하지는 않고, 기록 폴더를 Actions 캐시에 두어 다음 실행이 전날 실행의 기록과 견줍니다.
+- 기록은 `evidence/live/watch-privacy/<날짜>.json`에 남고, 이전 날짜의 기록과 달라진 값을 출력합니다. GitHub Actions(`.github/workflows/watch-privacy.yml`)가 하루 두 번(09:30, 13:17 KST) 같은 명령을 돌려 기록을 실행 결과에 붙이고, proving 재료가 보이면 이슈를 하나 엽니다. 저장소에 커밋하지는 않고, 기록 폴더를 Actions 캐시에 두어 다음 실행이 전날 실행의 기록과 견줍니다.
+- 예약을 두 번 둔 까닭: [GitHub 문서](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule)는 Actions 부하가 높을 때 예약 실행이 늦어지고, 부하가 아주 높으면 대기 중인 작업이 빠질 수 있다고 적습니다. 2026-10-24 09:30 예약 실행은 시작되지 않았습니다(그날 Actions 기록에 schedule 실행 0건). 기록 파일 이름이 UTC 날짜라서, 같은 날 두 번째 실행은 그날 기록을 덮어쓰고 전날 기록과 견줍니다.
 - 2026-10-23의 결과: 조회 경로 11개가 200, `privacy_scan`과 `commitment_paths_at_root`가 501, 회로 설정의 `manifest_available`이 false, SDK 예치 준비는 증명 공급자까지 갑니다. `[Live Testnet]` [첫 기록](evidence/live/watch-privacy/2026-10-23.json)
 
 ## 4. KYB 관문이 걸린 정산 금고 `[Live Testnet]`

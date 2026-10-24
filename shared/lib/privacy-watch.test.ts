@@ -3,7 +3,16 @@ import test from "node:test";
 import path from "node:path";
 import { ROOT } from "./paths.ts";
 import { createHash } from "node:crypto";
-import { countBySelector, diffDocs, readiness, changesSince, recordFile, tarFiles, matchVerifyingKeys, type WatchRecord } from "./privacy-watch.ts";
+import { countBySelector, diffDocs, readiness, changesSince, recordFile, previousRecordFile, tarFiles, matchVerifyingKeys, type WatchRecord } from "./privacy-watch.ts";
+
+// Actions 는 예약 실행을 빠뜨릴 수 있어 하루에 두 번 돌린다. 같은 날 두 번째 실행도 전날 기록과 견줘야 한다.
+test("이전 기록은 오늘 날짜 파일을 빼고 가장 최근 날짜 파일이다", () => {
+  const files = ["2026-10-23.json", "2026-10-24.json", "notes.txt", "2026-10-22.json"];
+  assert.equal(previousRecordFile(files, "2026-10-24"), "2026-10-23.json");
+  assert.equal(previousRecordFile(files, "2026-10-25"), "2026-10-24.json");
+  assert.equal(previousRecordFile(["2026-10-24.json"], "2026-10-24"), undefined);
+  assert.equal(previousRecordFile([], "2026-10-24"), undefined);
+});
 
 test("Privacy 프리컴파일 tx 를 선택자와 결과로 센다", () => {
   const c = countBySelector([
