@@ -221,6 +221,7 @@ async function recheck() {
     getReceipt: (tx) => pub.getTransactionReceipt({ hash: tx }).catch((e) => { if (notFound(e)) return undefined; throw e; }),
     inMempool: (tx) => pub.getTransaction({ hash: tx }).then(() => true, (e) => { if (notFound(e)) return false; throw e; }),
     rebroadcast: (serialized) => pub.sendRawTransaction({ serializedTransaction: serialized }).then(() => "ok" as const, (e) => rebroadcastResult(errText(e))),
+    recheckReceipt: (tx) => pub.waitForTransactionReceipt({ hash: tx, timeout: 5_000 }).catch(() => undefined),
     resolve: async (pp, receipt) => {
       const res = await resolved(pp.tx, pp.value, weiOf(pp), receipt);
       pointToResult(pp, res.entry.id, "결과");
@@ -234,7 +235,7 @@ async function recheck() {
     },
     clearPending: () => { pending = null; persist(); },
   });
-  return { message: r.message, checkedAt: new Date().toISOString() };
+  return { message: r.message, cleared: r.cleared, checkedAt: new Date().toISOString() };
 }
 
 async function sendOwner(kind: "limit" | "topup", amount: string, send: () => Promise<Hex>, ok: string, extra: Partial<LogEntry> = {}) {

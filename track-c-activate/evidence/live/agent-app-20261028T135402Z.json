@@ -1,0 +1,547 @@
+{
+  "checkedAt": "2026-10-28T13:54:02.287Z",
+  "label": "[Live Testnet] 에이전트 한도 결제 레퍼런스 앱(pnpm c:app)의 전표 기록",
+  "cases": {
+    "success": {
+      "meaning": "한도 안 결제가 블록에 들어감",
+      "slips": [
+        1,
+        14,
+        17,
+        25,
+        29,
+        32,
+        34,
+        36,
+        38,
+        40,
+        42
+      ]
+    },
+    "rejected": {
+      "meaning": "사전 검사(eth_estimateGas)에서 PCL 이 거절해 보내지 않음",
+      "slips": [
+        2,
+        4,
+        15,
+        30
+      ]
+    },
+    "failed": {
+      "meaning": "블록에 들어갔지만 되돌려져 가스비만 나감",
+      "slips": [
+        7,
+        8
+      ]
+    },
+    "refused": {
+      "meaning": "노드가 tx 를 받지 않음(블록에 들어가지 않음)",
+      "slips": [
+        6
+      ]
+    },
+    "blocked": {
+      "meaning": "잔고가 결제 금액과 가스비 상한보다 적어 보내지 않음",
+      "slips": [
+        10
+      ]
+    },
+    "network": {
+      "meaning": "RPC 가 끊겨 보내지 않음",
+      "slips": [
+        12,
+        23
+      ]
+    },
+    "unknown": {
+      "meaning": "보냈지만 영수증 대기 시간 안에 확인하지 못함(다시 읽어 결과 전표를 남김)",
+      "slips": [
+        13,
+        16,
+        24,
+        26,
+        28,
+        31,
+        33,
+        35,
+        37,
+        39,
+        41
+      ]
+    },
+    "dropped": {
+      "meaning": "확인 중이던 tx 가 블록에 들어가지 않음(같은 논스를 다른 tx 가 써서 보내지 않음으로 정리)",
+      "slips": [
+        27
+      ]
+    }
+  },
+  "receiptMs": {
+    "count": 3,
+    "min": 1688,
+    "max": 3270
+  },
+  "log": [
+    {
+      "id": 1,
+      "at": "2026-10-23T06:05:33.600Z",
+      "kind": "pay",
+      "amount": "3",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 3 OKRW를 넣었어요. 가스비(fee)는 4.36779 OKRW였어요(블록 21425611).",
+      "tx": "0x19ef4fe6ed07e565237b62a16ae0fbc7901dc10dd7ec67dc1ba0a95142ed3b8b",
+      "receiptMs": 2180
+    },
+    {
+      "id": 2,
+      "at": "2026-10-23T06:05:35.136Z",
+      "kind": "pay",
+      "amount": "8",
+      "outcome": "rejected",
+      "stamp": "거절",
+      "body": "한도(5 OKRW)보다 큰 금액(8 OKRW)을 요청해서 PCL이 결제를 거절했어요. 사전 검사에서 막혀 tx를 보내지 않았고 가스비(fee)도 나가지 않았어요. 소유자가 한도를 올리거나, 금액을 한도 안으로 나눠 다시 요청해 주세요.",
+      "next": {
+        "action": "raise-limit",
+        "label": "소유자 칸에서 한도 올리기"
+      }
+    },
+    {
+      "id": 3,
+      "at": "2026-10-23T06:09:05.819Z",
+      "kind": "limit",
+      "amount": "5",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 숫자 문자열로 저장했어요. 2026-09-26 판 문서의 형식이라 다음 결제는 한도 형식 오류로 거절돼요. 확인한 뒤 한도 저장을 다시 눌러 주세요.",
+      "tx": "0x360d7d9b2c324b30498045e603e129bd64f879a37ed3232ef167f87744387fab",
+      "format": "string"
+    },
+    {
+      "id": 4,
+      "at": "2026-10-23T06:09:06.370Z",
+      "kind": "pay",
+      "amount": "3",
+      "outcome": "rejected",
+      "stamp": "거절",
+      "body": "에이전트 한도 값의 형식이 맞지 않아 PCL이 결제를 거절했어요. 정책은 한도를 32바이트 정수로 읽어요. 사전 검사에서 막혀 tx를 보내지 않았고 가스비(fee)도 나가지 않았어요. 소유자가 한도를 다시 저장해 주세요.",
+      "next": {
+        "action": "save-limit",
+        "label": "소유자 칸에서 한도 다시 저장하기"
+      }
+    },
+    {
+      "id": 5,
+      "at": "2026-10-23T06:09:08.263Z",
+      "kind": "limit",
+      "amount": "5",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 5 OKRW로 저장했어요(32바이트 정수).",
+      "tx": "0x653fc289b936d4911838d737361c40a67ac3292c29bf74f53694ef489ef4a121"
+    },
+    {
+      "id": 6,
+      "at": "2026-10-23T06:10:15.812Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "refused",
+      "stamp": "보내지 않음",
+      "body": "가스 한도(21,000)가 이 호출의 최소 가스(21,432)보다 작아 노드가 결제 tx를 받지 않았어요. 블록에 들어가지 않아 가스비(fee)는 나가지 않았어요. 가스 한도 칸을 비워 추정값으로 두고 다시 요청해 주세요.",
+      "next": {
+        "action": "retry",
+        "label": "가스 한도를 비우고 다시 요청하기"
+      },
+      "gas": "21000"
+    },
+    {
+      "id": 7,
+      "at": "2026-10-23T06:10:18.198Z",
+      "kind": "pay",
+      "amount": "1",
+      "gas": "60000",
+      "outcome": "failed",
+      "stamp": "실패",
+      "body": "결제가 거절됐어요(사유 execution reverted). 서버 로그의 pnpm explain 명령으로 사유를 확인해 주세요. 블록에서 되돌려져 가스비(fee) 0.535842 OKRW가 나갔어요.",
+      "tx": "0x82c6237c3b8e1be6a03bc3feb9cddad23cbb446969255b18b81a172d042a7637",
+      "receiptMs": 1688
+    },
+    {
+      "id": 8,
+      "at": "2026-10-23T06:11:37.243Z",
+      "kind": "pay",
+      "amount": "1",
+      "gas": "60000",
+      "outcome": "failed",
+      "stamp": "실패",
+      "body": "가스 한도(60,000)가 모자라 결제가 블록에서 실패했어요. 결제 금액은 나가지 않았고 가스비(fee) 0.535842 OKRW는 나갔어요. 가스 한도 칸을 비워 추정값으로 두고 다시 요청해 주세요.",
+      "next": {
+        "action": "retry",
+        "label": "가스 한도를 비우고 다시 요청하기"
+      },
+      "tx": "0x651ba6527c16d6dac478cee03ca056cdccd671a8d266019fbfdae51fabcebabc",
+      "receiptMs": 3270
+    },
+    {
+      "id": 9,
+      "at": "2026-10-23T06:11:44.217Z",
+      "kind": "limit",
+      "amount": "100",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 100 OKRW로 저장했어요(32바이트 정수).",
+      "tx": "0x9df55e10901adf65174cc9b142127b9e5fd809d72d45c99a67d47abc219adfb4"
+    },
+    {
+      "id": 10,
+      "at": "2026-10-23T06:11:44.489Z",
+      "kind": "pay",
+      "amount": "60",
+      "outcome": "blocked",
+      "stamp": "보내지 않음",
+      "body": "에이전트 지갑의 OKRW가 모자라 보내지 않았어요(잔고 50.048397 OKRW, 결제 금액과 가스비 상한의 합 72.3116448 OKRW). 소유자가 에이전트 지갑에 OKRW를 넣은 뒤 다시 요청해 주세요.",
+      "next": {
+        "action": "topup",
+        "label": "소유자 칸에서 에이전트 지갑에 OKRW 넣기"
+      }
+    },
+    {
+      "id": 11,
+      "at": "2026-10-23T06:11:45.569Z",
+      "kind": "limit",
+      "amount": "5",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 5 OKRW로 저장했어요(32바이트 정수).",
+      "tx": "0x2a48b21559b86cdde2e81f8f4ac6431d7e1a9839c6f94ff70b7370c672da936d"
+    },
+    {
+      "id": 12,
+      "at": "2026-10-23T06:12:38.190Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "network",
+      "stamp": "보내지 않음",
+      "body": "Maroo 테스트넷 RPC에 연결하지 못해 결제를 보내지 않았어요. 서버의 네트워크 연결을 확인한 뒤 다시 요청해 주세요.",
+      "next": {
+        "action": "retry",
+        "label": "다시 요청하기"
+      }
+    },
+    {
+      "id": 13,
+      "at": "2026-10-23T06:14:32.804Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 14에 있어요.",
+      "tx": "0xb4f6f7dbd34ac60116111946fdade26db371dc0f1e62db1ec0974d28b2fd2a99"
+    },
+    {
+      "id": 14,
+      "at": "2026-10-23T06:16:00.830Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.36779 OKRW였어요(블록 21426141).",
+      "tx": "0xb4f6f7dbd34ac60116111946fdade26db371dc0f1e62db1ec0974d28b2fd2a99"
+    },
+    {
+      "id": 15,
+      "at": "2026-10-23T06:17:27.563Z",
+      "kind": "pay",
+      "amount": "8",
+      "outcome": "rejected",
+      "stamp": "거절",
+      "body": "한도(5 OKRW)보다 큰 금액(8 OKRW)을 요청해서 PCL이 결제를 거절했어요. 사전 검사에서 막혀 tx를 보내지 않았고 가스비(fee)도 나가지 않았어요. 소유자가 한도를 올리거나, 금액을 한도 안으로 나눠 다시 요청해 주세요.",
+      "next": {
+        "action": "raise-limit",
+        "label": "소유자 칸에서 한도 올리기"
+      }
+    },
+    {
+      "id": 16,
+      "at": "2026-10-23T06:17:28.805Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 17에 있어요.",
+      "tx": "0xe2f1be869c1abc6a9fddd2a22b4914d4b90e962202533fe5312f43d95bdb14b0"
+    },
+    {
+      "id": 17,
+      "at": "2026-10-23T06:17:33.717Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.36779 OKRW였어요(블록 21426312).",
+      "tx": "0xe2f1be869c1abc6a9fddd2a22b4914d4b90e962202533fe5312f43d95bdb14b0"
+    },
+    {
+      "id": 18,
+      "at": "2026-10-23T06:24:23.505Z",
+      "kind": "limit",
+      "amount": "5",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 숫자 문자열로 저장했어요. 2026-09-26 판 문서의 형식이라 다음 결제는 한도 형식 오류로 거절돼요. 확인한 뒤 한도 저장하기를 다시 눌러 주세요.",
+      "tx": "0x911f9351f81db4be8726a702de9fd2475fe2da3abff5c92740e7e7adf935e7e8",
+      "format": "string"
+    },
+    {
+      "id": 19,
+      "at": "2026-10-23T06:24:26.106Z",
+      "kind": "limit",
+      "amount": "5",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 5 OKRW로 저장했어요(32바이트 정수).",
+      "tx": "0x372a0bb2b178624c232358e32f489fb00b3af7a4a84cfc5722bfbea1fcebdf29"
+    },
+    {
+      "id": 20,
+      "at": "2026-10-23T06:24:28.497Z",
+      "kind": "topup",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "에이전트 지갑에 1 OKRW를 넣었어요.",
+      "tx": "0x6dd7a2ce5e09e085be42b06bed8bc3af075240300cefc7f2bfcd4d6bf7ce256f"
+    },
+    {
+      "id": 21,
+      "at": "2026-10-23T06:25:06.478Z",
+      "kind": "limit",
+      "amount": "5",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 숫자 문자열로 저장했어요. 2026-09-26 판 문서의 형식이라 다음 결제는 한도 형식 오류로 거절돼요. 확인한 뒤 한도 저장하기를 다시 눌러 주세요.",
+      "tx": "0x1582594b6b030d23c40618d6b4842ca4a3f809e9486c8a55cc88039aa69309cf",
+      "format": "string"
+    },
+    {
+      "id": 22,
+      "at": "2026-10-23T06:26:06.225Z",
+      "kind": "limit",
+      "amount": "5",
+      "outcome": "success",
+      "stamp": "완료",
+      "body": "한도를 5 OKRW로 저장했어요(32바이트 정수).",
+      "tx": "0x5b3e79d2f8f4887f9850f8981db5bd123daadca92fe50443f93b13bfc0018a89"
+    },
+    {
+      "id": 23,
+      "at": "2026-10-23T07:58:09.382Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "network",
+      "stamp": "보내지 않음",
+      "body": "Maroo 테스트넷 RPC가 사전 검사 요청에 답하지 않아(HTTP 429) 결제를 보내지 않았어요. 잠시 뒤 다시 요청해 주세요.",
+      "next": {
+        "action": "retry",
+        "label": "다시 요청하기"
+      }
+    },
+    {
+      "id": 24,
+      "at": "2026-10-23T07:58:18.027Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 25에 있어요.",
+      "tx": "0x2dcc771f812c7f86f08c8e7615fe2396e1d6ecbdeb66d3c7dc7fc4b41cc8f023"
+    },
+    {
+      "id": 25,
+      "at": "2026-10-23T07:58:26.219Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.368141 OKRW였어요(블록 21432231).",
+      "tx": "0x2dcc771f812c7f86f08c8e7615fe2396e1d6ecbdeb66d3c7dc7fc4b41cc8f023"
+    },
+    {
+      "id": 26,
+      "at": "2026-10-23T07:58:36.932Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과(블록에 들어가지 않음)는 전표 27에 있어요.",
+      "tx": "0xdaae610e4f63a5812dc65ac64dc7b35e6e9c06b8fb9fdc173b2c37f57e64489a"
+    },
+    {
+      "id": 27,
+      "at": "2026-10-23T07:58:41.516Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "dropped",
+      "stamp": "보내지 않음",
+      "body": "확인 중이던 결제는 블록에 들어가지 않았어요. 같은 순번(논스)을 다른 tx가 먼저 써서 이 결제는 더 들어갈 수 없어요. 결제 금액과 가스비(fee)는 나가지 않았어요. 다시 요청해 주세요.",
+      "next": {
+        "action": "retry",
+        "label": "다시 요청하기"
+      },
+      "tx": "0xdaae610e4f63a5812dc65ac64dc7b35e6e9c06b8fb9fdc173b2c37f57e64489a"
+    },
+    {
+      "id": 28,
+      "at": "2026-10-23T07:58:48.645Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 29에 있어요.",
+      "tx": "0x5a38739818ed0c0a0a6385b44366147328fa36736f3a6d81bf3ce221e68d1ebf"
+    },
+    {
+      "id": 29,
+      "at": "2026-10-23T07:58:50.285Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.368141 OKRW였어요(블록 21432259).",
+      "tx": "0x5a38739818ed0c0a0a6385b44366147328fa36736f3a6d81bf3ce221e68d1ebf"
+    },
+    {
+      "id": 30,
+      "at": "2026-10-23T14:06:42.035Z",
+      "kind": "pay",
+      "amount": "13",
+      "outcome": "rejected",
+      "stamp": "거절",
+      "body": "한도(5 OKRW)보다 큰 금액(13 OKRW)을 요청해서 PCL이 결제를 거절했어요. 사전 검사에서 막혀 tx를 보내지 않았고 가스비(fee)도 나가지 않았어요. 소유자가 한도를 올리거나, 금액을 한도 안으로 나눠 다시 요청해 주세요.",
+      "next": {
+        "action": "raise-limit",
+        "label": "소유자 칸에서 한도 올리기"
+      }
+    },
+    {
+      "id": 31,
+      "at": "2026-10-23T14:08:26.383Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 32에 있어요.",
+      "tx": "0x71a923478dca729051ec3535e9dbbc494f609040199079ea83c74686701d0537"
+    },
+    {
+      "id": 32,
+      "at": "2026-10-23T14:08:30.064Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.368141 OKRW였어요(블록 21453949).",
+      "tx": "0x71a923478dca729051ec3535e9dbbc494f609040199079ea83c74686701d0537"
+    },
+    {
+      "id": 33,
+      "at": "2026-10-23T14:10:09.205Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 34에 있어요.",
+      "tx": "0x962b4d1764c6dcf9067109cfba2e4156c80cfd630871b8860b5e576a5e33538a"
+    },
+    {
+      "id": 34,
+      "at": "2026-10-23T14:10:12.874Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.368141 OKRW였어요(블록 21454049).",
+      "tx": "0x962b4d1764c6dcf9067109cfba2e4156c80cfd630871b8860b5e576a5e33538a"
+    },
+    {
+      "id": 35,
+      "at": "2026-10-23T14:11:52.729Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 36에 있어요.",
+      "tx": "0x64c4fdee50f3abdf69af4b5546c641aea3df7fdb4b8d571182c93bbcda364096"
+    },
+    {
+      "id": 36,
+      "at": "2026-10-23T14:11:54.593Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.368141 OKRW였어요(블록 21454148).",
+      "tx": "0x64c4fdee50f3abdf69af4b5546c641aea3df7fdb4b8d571182c93bbcda364096"
+    },
+    {
+      "id": 37,
+      "at": "2026-10-28T13:48:06.366Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 38에 있어요.",
+      "tx": "0x395db14399478a9f6acf31d6454e57d9e3539aeecafea9058922555980702c02"
+    },
+    {
+      "id": 38,
+      "at": "2026-10-28T13:48:10.794Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.367601 OKRW였어요(블록 21874552).",
+      "tx": "0x395db14399478a9f6acf31d6454e57d9e3539aeecafea9058922555980702c02"
+    },
+    {
+      "id": 39,
+      "at": "2026-10-28T13:49:50.026Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 40에 있어요.",
+      "tx": "0x07104c6f8aab64032b4f4f77abbe80ad51fba32470160ae2f10661d464e23345"
+    },
+    {
+      "id": 40,
+      "at": "2026-10-28T13:49:54.385Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.367439 OKRW였어요(블록 21874654).",
+      "tx": "0x07104c6f8aab64032b4f4f77abbe80ad51fba32470160ae2f10661d464e23345"
+    },
+    {
+      "id": 41,
+      "at": "2026-10-28T13:53:17.676Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "unknown",
+      "stamp": "다시 읽음",
+      "body": "보낸 직후에는 블록에 들어갔는지 확인하지 못한 결제예요. 다시 읽어 확인한 결과는 전표 42에 있어요.",
+      "tx": "0xc1549514e3b7c3f2dd6c6f4a7a6107a698f569698fe322c261faf4a525610c32"
+    },
+    {
+      "id": 42,
+      "at": "2026-10-28T13:53:22.155Z",
+      "kind": "pay",
+      "amount": "1",
+      "outcome": "success",
+      "stamp": "승인",
+      "body": "협력사 A 몫으로 금고에 1 OKRW를 넣었어요. 가스비(fee)는 4.367439 OKRW였어요(블록 21874856).",
+      "tx": "0xc1549514e3b7c3f2dd6c6f4a7a6107a698f569698fe322c261faf4a525610c32"
+    }
+  ]
+}

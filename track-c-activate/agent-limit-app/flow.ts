@@ -2,6 +2,7 @@
 //
 // 지키는 것: 확인 중인 결제가 있으면 새 결제를 받지 않는다. 그래서 확인 중 상태는 결과 전표를 쓴 뒤에만 지우고,
 // 결과를 읽다 RPC 가 끊기면 그대로 둔다. 영수증이 없고 같은 논스를 다른 tx 가 썼으면 그 결제는 들어갈 수 없으므로 보내지 않음으로 정리한다.
+// 다만 nonce too low 는 이 결제가 막 들어간 경우에도 나오므로, 정리하기 전에 영수증을 한 번 더 읽는다.
 
 import type { Hex } from "viem";
 import type { Explanation } from "../../shared/lib/explain.ts";
@@ -18,6 +19,7 @@ export type RecheckDeps = {
   resolve: (p: Pending, receipt: ReceiptLike) => Promise<Slip>; // 결과 전표를 쓴다
   dropped: (p: Pending) => Slip; // 보내지 않음 전표를 쓴다
   clearPending: () => void;
+  recheckReceipt?: (tx: Hex) => Promise<ReceiptLike | undefined>; // nonce too low 뒤에 영수증을 다시 읽는 법. 없으면 getReceipt
 };
 
 export async function recheckPending(p: Pending, d: RecheckDeps): Promise<{ message: string; cleared: boolean }> {
@@ -30,6 +32,13 @@ export async function recheckPending(p: Pending, d: RecheckDeps): Promise<{ mess
   if (await d.inMempool(p.tx)) return { message: "노드가 이 결제를 받아 블록에 넣기를 기다리고 있어요. 잠시 뒤 다시 눌러 주세요.", cleared: false };
   const r = p.serialized ? await d.rebroadcast(p.serialized) : "other";
   if (r === "nonce-too-low") {
+    // 영수증을 읽은 뒤 다시 보내기 전에 이 결제가 블록에 들어갔으면 그 영수증으로 결과를 쓴다
+    const late = await (d.recheckReceipt ?? d.getReceipt)(p.tx);
+    if (late) {
+      const slip = await d.resolve(p, late);
+      d.clearPending();
+      return { message: slip.body, cleared: true };
+    }
     const slip = d.dropped(p);
     d.clearPending();
     return { message: slip.body, cleared: true };

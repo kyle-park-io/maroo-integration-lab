@@ -48,6 +48,17 @@ test("영수증이 없고 같은 논스를 다른 tx 가 썼으면 보내지 않
   assert.equal(r.cleared, true);
 });
 
+// 영수증을 읽은 뒤 같은 tx 를 다시 보내기 전에 그 결제가 블록에 들어가면 노드는 nonce too low 로 답한다.
+// 그때 보내지 않음으로 정리하면 돈은 나갔는데 화면은 들어가지 않았다고 쓴다. 영수증을 한 번 더 읽는다.
+test("다시 보낸 답이 nonce too low 면 보내지 않음으로 정리하기 전에 영수증을 한 번 더 읽는다", async () => {
+  const calls: string[] = [];
+  let reads = 0;
+  const r = await recheckPending(p, deps({ getReceipt: async () => (++reads === 1 ? undefined : receipt), rebroadcast: async () => "nonce-too-low" }, calls));
+  assert.deepEqual(calls, ["resolve", "clear"]);
+  assert.equal(r.message, "결과");
+  assert.equal(reads, 2);
+});
+
 test("성공 영수증은 알고 있는 금액으로, 실패 영수증은 사유를 읽지 못해도 실패로 만든다", async () => {
   const ok = await outcomeFromReceipt("0xaa", 5n, receipt, async () => { throw new Error("부르면 안 됨"); });
   assert.deepEqual(ok, { status: "success", tx: "0xaa", value: 5n, fee: 200n, block: 9n });

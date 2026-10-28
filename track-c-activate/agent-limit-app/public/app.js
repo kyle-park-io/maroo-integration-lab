@@ -211,7 +211,16 @@ $("recheck-btn").addEventListener("click", async () => {
   setBusy(btn, true, "다시 읽는 중");
   try {
     const r = await api("/api/recheck", {});
-    say($("recheck-msg"), `${timeText(r.checkedAt ?? new Date().toISOString())}에 다시 확인했어요. ${r.message}`);
+    const text = `${timeText(r.checkedAt ?? new Date().toISOString())}에 다시 확인했어요. ${r.message}`;
+    if (r.cleared) {
+      // 결과가 나왔으면 확인 중 상자를 바로 닫고 결과를 결제 칸에 쓴다. 상태를 다시 읽는 동안 옛 안내가 결과와 함께 보이지 않는다.
+      $("pending").hidden = true;
+      $("pay-form").hidden = false;
+      say($("recheck-msg"), "");
+      say($("pay-msg"), text);
+    } else {
+      say($("recheck-msg"), text);
+    }
   } catch (e) {
     say($("recheck-msg"), e.message, true);
   } finally {
