@@ -1,7 +1,8 @@
 # Maroo testnet Privacy readiness watch (pnpm a:watch-privacy).
 # Runs twice a day, read-only against the testnet (queries and eth_estimateGas, no transactions, no keys).
 # GitHub can delay or drop a scheduled run under load (on 2026-10-24 no scheduled run had started by 11:37 KST,
-# and that day's two scheduled runs started at 13:54 and 17:54 KST), so a second time is set. The record file is named by UTC date: the second run of a day overwrites that day's record and
+# and that day's two scheduled runs started at 13:54 and 17:54 KST), so a second time is set. From 2026-10-25 to
+# 10-28 all 8 scheduled runs ran, starting 4h35m to 6h20m after their cron times. The record file is named by UTC date: the second run of a day overwrites that day's record and
 # still compares with the previous day's record (previousRecordFile in shared/lib/privacy-watch.ts).
 # The record is kept as a workflow artifact and in the job summary; nothing is committed.
 # The record folder is also kept in the Actions cache, so each run compares with the previous day's record
