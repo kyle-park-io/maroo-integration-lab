@@ -85,7 +85,7 @@ export type RecordPlan = { key: string; step: Step; actor: Holder; contentHash: 
 export type RecordState = Record<string, { uid?: Hex; tx: Hex; contentHash?: Hex; sent?: true; serialized?: Hex }>;
 
 // 같은 서명 tx 를 다시 보낸 결과. 오류가 없으면 ok(노드가 받음), already known 이면 대기열에 있음,
-// nonce too low 면 그 논스를 다른 tx 가 써서 이 tx 는 블록에 들어갈 수 없음.
+// nonce too low 면 그 논스를 쓴 tx 가 블록에 들어갔음(이 tx 일 수도 있어 checkResume 이 영수증을 다시 읽는다).
 export type Rebroadcast = "ok" | "known" | "nonce-too-low" | "network" | "other";
 export function rebroadcastOutcome(message: string | undefined): Rebroadcast {
   if (message === undefined) return "ok";
@@ -96,7 +96,7 @@ export function rebroadcastOutcome(message: string | undefined): Rebroadcast {
 }
 
 // 이어 하기에서 기록 하나를 어떻게 할지. 보낸 tx 의 영수증이 있으면 그것을 쓰고(adopt), 없으면 서명해 둔 같은 tx 를
-// 다시 보낸 답(rebroadcast)으로 정한다. 그 tx 가 블록에 들어갈 수 없을 때(nonce too low)만 새로 보내고, 나머지는 기다린다.
+// 다시 보낸 답(rebroadcast)으로 정한다. nonce too low 인데 다시 읽은 영수증도 없을 때만 새로 보내고, 나머지는 기다린다.
 // Maroo 테스트넷은 블록 전 tx 를 pending 논스와 eth_getTransactionByHash 에 보이지 않아(2026-10-23 실측) inMempool 로는
 // 대기열의 tx 를 찾지 못한다. inMempool 은 serialized 가 없는 옛 상태 파일에만 쓴다.
 // 같은 기록을 두 번 남기지 않으려는 순서다.
