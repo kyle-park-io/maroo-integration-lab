@@ -144,3 +144,31 @@ test("같은 tx 를 다시 보낸 오류를 대기열에 있음, 논스 지남, 
   assert.equal(rebroadcastOutcome("HTTP request failed. fetch failed ECONNREFUSED"), "network");
   assert.equal(rebroadcastOutcome("replacement transaction underpriced"), "other");
 });
+
+import { checkResume } from "./audit-access.ts";
+
+// 영수증을 읽은 뒤 같은 tx 를 다시 보내기 전에 그 tx 가 블록에 들어가면 노드는 nonce too low 로 답한다.
+// 그때 새로 보내면 같은 기록이 두 번 남는다. 영수증을 한 번 더 보고 그 tx 를 쓴다.
+test("다시 보낸 답이 nonce too low 면 새로 보내기 전에 영수증을 한 번 더 본다", async () => {
+  const sent = { tx: "0xbb" as const, sent: true as const, contentHash: "0xcc" as const, serialized: "0x02f8" as const };
+  let reads = 0;
+  const landed = await checkResume(sent, {
+    receipt: async () => (++reads === 1 ? undefined : { status: "success" as const }),
+    status: (r) => r.status,
+    rebroadcast: async () => "nonce-too-low",
+    inMempool: async () => false,
+  });
+  assert.equal(landed.action, "adopt");
+  assert.deepEqual(landed.receipt, { status: "success" });
+  assert.equal(reads, 2);
+
+  // 다시 봐도 영수증이 없으면 그 논스를 다른 tx 가 쓴 것이라 새로 보낸다
+  const other = await checkResume(sent, { receipt: async () => undefined, status: () => "success", rebroadcast: async () => "nonce-too-low", inMempool: async () => false });
+  assert.equal(other.action, "send");
+
+  // 대기열에 있으면(already known) 영수증을 다시 보지 않고 기다린다
+  let reads2 = 0;
+  const queued = await checkResume(sent, { receipt: async () => { reads2++; return undefined; }, status: () => "success", rebroadcast: async () => "known", inMempool: async () => false });
+  assert.equal(queued.action, "wait");
+  assert.equal(reads2, 1);
+});

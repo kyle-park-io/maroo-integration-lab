@@ -12,7 +12,7 @@ import {
 import {
   EAS_PARAMS, EXPLORER, addressOf, easAbi, easParamsAbi, publicClient as pub, schemaRegistryAbi, walletFor, type Role,
 } from "./maroo.ts";
-import { HOLDER_LABEL, STEP_CODE, STEP_LABEL, pendingRecords, rebroadcastOutcome, resumeAction, type Holder, type RecordPlan, type RecordState } from "./audit-access.ts";
+import { HOLDER_LABEL, STEP_CODE, STEP_LABEL, checkResume, pendingRecords, rebroadcastOutcome, type Holder, type RecordPlan, type RecordState } from "./audit-access.ts";
 
 export const AUDIT_SCHEMA = "bytes32 caseHash, uint8 step, bytes32 contentHash, bytes32 requestHash";
 export const HOLDER_ROLE: Record<Holder, Role> = { "audit-team": "AUDIT_TEAM", "external-auditor": "EXTERNAL_AUDITOR", regulator: "REGULATOR" };
@@ -103,12 +103,16 @@ export async function recordAll(plan: RecordPlan[], ctx: { schemaUid: Hex; caseI
     // 지난 실행이 보내고 영수증을 확인하지 못한 기록이면 그 tx 부터 본다
     const prev = state[p.key];
     if (prev?.sent) {
-      const receipt = await pub.getTransactionReceipt({ hash: prev.tx }).catch((e) => { if (/NotFound|could not be found/i.test(String((e as Error)?.name) + String((e as Error)?.message))) return undefined; throw e; });
-      // 서명해 둔 tx 가 있으면 같은 tx 를 다시 보내 본다. 대기열에 있으면 already known, 이미 그 논스를 다른 tx 가 썼으면 nonce too low 다.
-      const rebroadcast = receipt || !prev.serialized ? undefined
-        : await pub.sendRawTransaction({ serializedTransaction: prev.serialized }).then(() => rebroadcastOutcome(undefined), (e) => rebroadcastOutcome(`${(e as Error).message} ${(e as { details?: string }).details ?? ""}`));
-      const inMempool = receipt || rebroadcast ? false : await pub.getTransaction({ hash: prev.tx }).then(() => true, () => false);
-      const action = resumeAction(prev, { receipt: receipt ? receipt.status : "none", inMempool, rebroadcast });
+      const serialized = prev.serialized;
+      // 서명해 둔 tx 가 있으면 같은 tx 를 다시 보내 본다. 대기열에 있으면 already known, 그 논스를 쓴 tx 가 블록에 들어갔으면 nonce too low 다.
+      // nonce too low 뒤에는 영수증을 몇 초 기다려 다시 본다(checkResume).
+      const { action, receipt, rebroadcast } = await checkResume(prev, {
+        receipt: () => pub.getTransactionReceipt({ hash: prev.tx }).catch((e) => { if (/NotFound|could not be found/i.test(String((e as Error)?.name) + String((e as Error)?.message))) return undefined; throw e; }),
+        status: (r) => r.status,
+        rebroadcast: serialized && (() => pub.sendRawTransaction({ serializedTransaction: serialized }).then(() => rebroadcastOutcome(undefined), (e) => rebroadcastOutcome(`${(e as Error).message} ${(e as { details?: string }).details ?? ""}`))),
+        inMempool: () => pub.getTransaction({ hash: prev.tx }).then(() => true, () => false),
+        recheck: () => pub.waitForTransactionReceipt({ hash: prev.tx, timeout: 5_000 }).catch(() => undefined),
+      });
       if (action === "wait" && rebroadcast === "network") throw new Error(`테스트넷 RPC 에 연결하지 못해 ${STEP_LABEL[p.step]} 기록 tx 를 확인하지 못했습니다: ${EXPLORER}/tx/${prev.tx}\n네트워크를 확인한 뒤 --resume 으로 다시 실행하십시오. 이어 하기는 이 tx 부터 다시 봅니다.`);
       if (action === "wait") throw new Error(`${STEP_LABEL[p.step]} 기록 tx 가 아직 블록에 들어가지 않았습니다: ${EXPLORER}/tx/${prev.tx}\n잠시 뒤 --resume 으로 다시 실행하십시오. 이어 하기는 같은 tx 를 다시 보낼 뿐 새 기록을 만들지 않습니다.`);
       if (action === "failed") throw new Error(`${STEP_LABEL[p.step]} 기록 tx 가 실패했습니다: ${EXPLORER}/tx/${prev.tx}. pnpm explain ${prev.tx} 로 이유를 확인하십시오.`);

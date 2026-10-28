@@ -109,6 +109,25 @@ export function resumeAction(entry: RecordState[string] | undefined, chain: { re
   return chain.inMempool ? "wait" : "send";
 }
 
+// 이어 하기에서 지난 실행이 보낸 기록 tx 하나를 체인에 물어 할 일을 정한다. 체인 호출은 부른 쪽이 넘긴다.
+export type ResumeIo<R> = {
+  receipt: () => Promise<R | undefined>;
+  status: (r: R) => "success" | "reverted";
+  rebroadcast?: () => Promise<Rebroadcast>;
+  inMempool: () => Promise<boolean>;
+  // nonce too low 뒤에 영수증을 다시 읽는 법. 없으면 receipt 를 한 번 더 부른다.
+  recheck?: () => Promise<R | undefined>;
+};
+export async function checkResume<R>(entry: RecordState[string], io: ResumeIo<R>): Promise<{ action: ReturnType<typeof resumeAction>; receipt?: R; rebroadcast?: Rebroadcast }> {
+  let receipt = await io.receipt();
+  const rebroadcast = receipt || !io.rebroadcast ? undefined : await io.rebroadcast();
+  // nonce too low 는 그 논스를 쓴 tx 가 블록에 들어갔다는 답이다. 영수증을 읽은 뒤 다시 보내기 전에 들어간 것이
+  // 이 tx 일 수 있으니, 새로 보내기 전에 영수증을 한 번 더 본다.
+  if (!receipt && rebroadcast === "nonce-too-low") receipt = await (io.recheck ?? io.receipt)();
+  const inMempool = receipt || rebroadcast ? false : await io.inMempool();
+  return { action: resumeAction(entry, { receipt: receipt ? io.status(receipt) : "none", inMempool, rebroadcast }), receipt, rebroadcast };
+}
+
 // 남기지 않은 기록만 순서대로. 이미 남긴 키의 내용 해시가 계획과 다르면 이어 하지 않는다.
 export function pendingRecords(plan: RecordPlan[], state: RecordState): RecordPlan[] {
   for (const p of plan) {
