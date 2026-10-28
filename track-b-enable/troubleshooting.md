@@ -26,7 +26,7 @@ Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다. Go�
 | 증상 | `pnpm b:prepare`나 3단계의 1번 하위 단계에서 `go: command not found`나 `go.mod requires go >= 1.25` 같은 오류로 멈춥니다 |
 | 원인 | Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다(`vendor/clairveil/go.mod`) |
 | 확인 | `go version` |
-| 해결 | Go 1.25 이상을 설치합니다. 워크샵 현장에서 설치할 시간이 없으면 옆 참가자나 진행자가 만든 `.work/prebuilt/`를 같은 폴더에 복사합니다(운영체제와 CPU가 같아야 합니다). Go 1.27에서는 `sonic/ast only supports (go1.17~1.26 …)` 경고가 반복되지만 빌드와 실행은 끝까지 됩니다 |
+| 해결 | Go 1.25 이상을 설치합니다. 워크샵 현장에서 설치할 시간이 없으면 옆 참가자나 진행자가 만든 `.work/prebuilt/`를 같은 폴더에 복사합니다(운영체제와 CPU가 같아야 합니다). 진행자가 전날 만든 압축이면 레포 폴더에서 `tar xzf <압축 파일>`로 풉니다(진행자 가이드 전날 5번). Go 1.27에서는 `sonic/ast only supports (go1.17~1.26 …)` 경고가 반복되지만 빌드와 실행은 끝까지 됩니다 |
 
 <a id="t3"></a>
 ## T3. vendor/clairveil 이 없거나 고정 커밋과 다름
@@ -83,10 +83,10 @@ Clairveil 바이너리를 빌드하려면 Go 1.25 이상이 필요합니다. Go�
 
 | 항목 | 내용 |
 | --- | --- |
-| 증상 | 1단계의 `✗ 구매 기업 잔액 부족`, 2단계의 `구매 기업 잔액이 부족합니다`, `b:fund`의 `진행자 지갑의 OKRW 가 모자라 … 부터 보내지 못했습니다`, faucet 요청의 `Transaction failed … reverted with the following signature:.` 실패나 `Your balance exceeds the maximum allowed` 거절 |
-| 원인 | 잔액이 1,000 OKRW보다 적습니다. faucet 실패는 faucet 계정이 테스트넷 전역 정책의 24시간 한도(1,000만 OKRW)를 다 쓴 경우가 있었습니다(2026-09-26 확인). faucet은 요청당 5,000 tOKRW를 주고, 잔액이 10,000 이상인 지갑에는 `Your balance exceeds the maximum allowed`로 거절합니다(2026-10-23 실측. faucet 문서 2026-10-23 판의 [빠른 시작](https://docs.maroo.io/guides/quickstart/sending-okrw/)과 같은 한도) |
+| 증상 | 1단계의 `✗ 구매 기업 잔액 부족`, 2단계의 `구매 기업 잔액이 부족합니다`, `b:fund`의 `진행자 지갑의 OKRW 가 모자라 … 부터 보내지 못했습니다`, faucet 요청의 `Transaction failed … reverted with the following signature:.` 실패, `Your balance exceeds the maximum allowed` 거절, `Too many requests. Please try again after 10 minutes` 거절 |
+| 원인 | 잔액이 1,000 OKRW보다 적습니다. faucet 실패는 faucet 계정이 테스트넷 전역 정책의 24시간 한도(1,000만 OKRW)를 다 쓴 경우가 있었습니다(2026-09-26 확인). faucet은 요청당 5,000 tOKRW를 주고, 잔액이 10,000 이상인 지갑에는 `Your balance exceeds the maximum allowed`로 거절합니다(2026-10-23 실측. faucet 문서 2026-10-23 판의 [빠른 시작](https://docs.maroo.io/guides/quickstart/sending-okrw/)과 같은 한도). 10분 안에 다섯 번 넘게 요청하면 주소가 달라도 `Too many requests. Please try again after 10 minutes`로 거절합니다(2026-10-28, 한 머신에서 두 주소로 요청해 실측) |
 | 확인 | `pnpm a:probe-global`이 `ExceededPeriodicVolume(…, resetAt)`을 보여 주면 faucet 한도 문제이고, `resetAt`(UTC 초)에 풀립니다 |
-| 해결 | 참가자는 진행자에게 구매 기업 주소를 보내고 `pnpm b:fund`로 받습니다. 진행자는 `b:fund`가 멈추며 출력한 faucet 명령으로 진행자 지갑에 받은 뒤 같은 명령을 다시 실행합니다. 이미 받은 주소는 건너뜁니다. 진행자 지갑도 KYC 증명이 없으면 24시간 1,000만 OKRW, 건당 200만 OKRW 한도를 받습니다 |
+| 해결 | 참가자는 진행자에게 구매 기업 주소를 보내고 `pnpm b:fund`로 받습니다. 진행자는 `b:fund`가 멈추며 출력한 faucet 명령으로 진행자 지갑에 받은 뒤 같은 명령을 다시 실행합니다. 이미 받은 주소는 건너뜁니다. 진행자 지갑도 KYC 증명이 없으면 24시간 1,000만 OKRW, 건당 200만 OKRW 한도를 받습니다. `Too many requests`면 10분 기다린 뒤 다시 요청합니다 |
 
 <a id="t8"></a>
 ## T8. 증명을 발급했는데 청구가 EasNoAttestationReceived나 EasAttestationRevoked로 거부됨
